@@ -51,7 +51,7 @@ const TRANSLATIONS = {
     back: "Volver", downloadPDF: "Informe PDF", identify: "Identificación", concelho: "Municipio", area: "Área", score: "Puntuación", status: "Estado", recommendation: "Recomendación"
   },
   it: { 
-    loginTitle: "Accedi", emailLabel: "Email", passwordLabel: "Password", forgotPassword: "Password dimenticata?", loginButton: "Entra", tagline: "Analisi di Viabilità Territoriale", forgotMsg: "Contatta il supporto.", loggingIn: "Accesso...", lang: "Italiano", flag: "🇮🇹",
+    loginTitle: "Accedi", emailLabel: "Email", passwordLabel: "Password", forgotPassword: "Password dimenticata?", loginButton: "Entra", tagline: "Analisi di Viabilità Territoriale", forgotMsg: "Contatta il suporte.", loggingIn: "Accesso...", lang: "Italiano", flag: "🇮🇹",
     properties: "Terreni", dashboard: "Dashboard", reports: "Rapporti", sig: "Livelli GIS", newProperty: "Nuovo Terreno", logout: "Esci", search: "Cerca...", stats_total: "Terreni", stats_area: "Superficie", stats_score: "Punteggio",
     back: "Indietro", downloadPDF: "Rapporto PDF", identify: "Identificazione", concelho: "Comune", area: "Superficie", score: "Punteggio", status: "Stato", recommendation: "Raccomandazione"
   },
@@ -89,64 +89,46 @@ const Logo = ({ size = "md", invert = false, langLabel }) => (
   </div>
 );
 
-const LandscapeBackground = () => {
-  return (
-    <div className="absolute inset-0 overflow-hidden bg-[#e9c49a]">
-      <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
-        <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#d8b08c" />
-            <stop offset="100%" stopColor="#f3d1ae" />
-          </linearGradient>
-          <linearGradient id="mountains" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7c8485" />
-            <stop offset="100%" stopColor="#5d6668" />
-          </linearGradient>
-        </defs>
-        
-        {/* Sky */}
-        <rect width="1920" height="1080" fill="url(#sky)" />
-        
-        {/* Sun Glow */}
-        <circle cx="1400" cy="300" r="150" fill="#fdf0d5" opacity="0.3" filter="blur(40px)" />
-        
-        {/* Distant Mountains */}
-        <path d="M0,520 L320,440 L660,480 L900,420 L1320,460 L1920,420 L1920,600 L0,600 Z" fill="url(#mountains)" />
-        
-        {/* Green Hills (Rolling layers) */}
-        <path d="M0,580 Q240,510 480,560 T960,530 T1500,550 T1920,520 L1920,800 L0,800 Z" fill="#9bb47e" />
-        <path d="M0,640 Q400,580 800,650 T1600,620 T1920,640 L1920,900 L0,900 Z" fill="#6c8c5e" />
-        <path d="M0,740 Q500,680 1000,760 T1920,720 L1920,1080 L0,1080 Z" fill="#3a5d34" />
-        
-        {/* Dark Green Foreground Hill */}
-        <path d="M0,840 Q400,800 800,880 T1600,820 T1920,850 L1920,1080 L0,1080 Z" fill="#1b3d1b" />
-        
-        {/* Wheat Field Base */}
-        <path d="M0,940 Q500,920 1000,960 T1920,930 L1920,1080 L0,1080 Z" fill="#c4ae78" />
-        
-        {/* Decorative Trees (Static) */}
-        <g fill="#0f260f" opacity="0.8">
-          <ellipse cx="720" cy="850" rx="10" ry="30" />
-          <ellipse cx="750" cy="860" rx="12" ry="35" />
-          <ellipse cx="790" cy="855" rx="11" ry="32" />
-        </g>
-        
-        {/* Static Birds */}
-        <g stroke="#3a2818" strokeWidth="1.5" fill="none" opacity="0.6">
-          <path d="M480,240 q5,-7 10,0 q5,-7 10,0" />
-          <path d="M520,245 q4,-6 8,0 q4,-6 8,0" />
-          <path d="M450,250 q4,-6 8,0 q4,-6 8,0" />
-        </g>
-        
-        {/* Static Clouds */}
-        <g fill="white" opacity="0.25">
-          <ellipse cx="200" cy="150" rx="60" ry="15" />
-          <ellipse cx="1400" cy="120" rx="80" ry="20" />
-        </g>
-      </svg>
-    </div>
-  );
-};
+const LandscapeBackground = () => (
+  <div className="absolute inset-0 overflow-hidden bg-slate-900">
+    <style>{`
+      @keyframes drift-slow { from { transform: translateX(-15vw); } to { transform: translateX(115vw); } }
+      @keyframes drift-slower { from { transform: translateX(-25vw); } to { transform: translateX(125vw); } }
+      @keyframes drift-fastest { from { transform: translateX(-35vw); } to { transform: translateX(135vw); } }
+      @keyframes fly-path { 0% { transform: translate(-10vw, 0); } 100% { transform: translate(110vw, -5vh); } }
+      .tc-cloud-a { animation: drift-slow 140s linear infinite; }
+      .tc-cloud-b { animation: drift-slower 180s linear infinite; }
+      .tc-cloud-c { animation: drift-fastest 110s linear infinite; }
+      .tc-birds { animation: fly-path 70s linear infinite; }
+    `}</style>
+    <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
+      <defs>
+        <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#fbe7c4" /><stop offset="100%" stopColor="#c9825a" /></linearGradient>
+        <radialGradient id="bg-sun" cx="70%" cy="30%" r="50%"><stop offset="0%" stopColor="#fffaeb" stopOpacity="0.4" /><stop offset="100%" stopColor="#fffaeb" stopOpacity="0" /></radialGradient>
+        <linearGradient id="bg-mountains" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7a8b8e" /><stop offset="100%" stopColor="#5b6e72" /></linearGradient>
+        <linearGradient id="bg-hill-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#9bb47e" /><stop offset="100%" stopColor="#7a9460" /></linearGradient>
+        <linearGradient id="bg-hill-mid" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6c8c5e" /><stop offset="100%" stopColor="#4a6640" /></linearGradient>
+        <linearGradient id="bg-hill-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3a5d34" /><stop offset="100%" stopColor="#243d22" /></linearGradient>
+        <linearGradient id="bg-field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#d4c685" /><stop offset="100%" stopColor="#a89255" /></linearGradient>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#bg-sky)" />
+      <rect width="1920" height="1080" fill="url(#bg-sun)" />
+      <path d="M0,520 L120,470 L210,495 L320,440 L420,475 L540,420 L660,460 L780,430 L900,475 L1040,440 L1180,490 L1320,455 L1480,485 L1620,445 L1780,475 L1920,455 L1920,600 L0,600 Z" fill="url(#bg-mountains)" />
+      <path d="M0,580 Q240,510 480,545 T960,520 T1440,540 T1920,510 L1920,720 L0,720 Z" fill="url(#bg-hill-far)" opacity="0.85" />
+      <path d="M0,660 Q320,580 640,620 T1280,610 T1920,600 L1920,820 L0,820 Z" fill="url(#bg-hill-mid)" />
+      {[670, 690, 710, 730, 750, 770, 790].map((yy, i) => (<path key={`m-${i}`} d={`M0,${yy} Q500,${yy - 6} 1000,${yy + 2} T1920,${yy - 4}`} stroke="#34522e" strokeWidth="1" fill="none" opacity="0.35" />))}
+      <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
+      <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
+      {[890, 920, 950, 980, 1010, 1040].map((yy, i) => (<path key={`f-${i}`} d={`M0,${yy} Q600,${yy - 8} 1200,${yy + 2} T1920,${yy - 6}`} stroke="#7d6b35" strokeWidth="1.2" fill="none" opacity="0.45" />))}
+      {[[180, 770], [210, 778], [1460, 750], [820, 805]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
+      <g transform="translate(1100, 700)" opacity="0.85">
+        <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
+      </g>
+    </svg>
+    <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90 pointer-events-none" viewBox="0 0 200 60"><g fill="white" opacity="0.85"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /><ellipse cx="130" cy="35" rx="38" ry="16" /></g></svg>
+    <svg className="absolute top-[22%] left-0 w-[8vw] max-w-[120px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
+  </div>
+);
 
 // ----------------- PAGES -----------------
 const LoginPage = ({ onLogin, lang, setLang }) => {
@@ -156,24 +138,17 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
   const [submitting, setSubmitting] = useState(false);
   const [showLang, setShowLang] = useState(false);
   const t = TRANSLATIONS[lang];
-
   const handleLogin = (e) => {
     e?.preventDefault?.();
     setError(null);
     const expectedPwd = ALLOWED_USERS[email.toLowerCase().trim()];
-    if (!expectedPwd || expectedPwd !== password) {
-      setError(lang === "pt" ? "Credenciais inválidas." : "Invalid credentials.");
-      return;
-    }
+    if (!expectedPwd || expectedPwd !== password) { setError(lang === "pt" ? "Credenciais inválidas." : "Invalid credentials."); return; }
     setSubmitting(true);
     setTimeout(() => onLogin(email), 300);
   };
-
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center p-4">
       <LandscapeBackground />
-      
-      {/* Header com Logo e Seleção de Língua */}
       <header className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-20">
         <Logo size="lg" invert langLabel={t.tagline} />
         <div className="relative">
@@ -191,66 +166,22 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
           )}
         </div>
       </header>
-
-      {/* Cartão de Login Estilo Imagem 2 */}
       <div className="w-full max-w-[420px] bg-white rounded-xl shadow-2xl p-10 relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <h1 className="text-3xl font-bold text-[#0f172a] mb-10">{t.loginTitle}</h1>
-        
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.emailLabel}</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="email" 
-                required 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition text-slate-600 placeholder:text-slate-300"
-                placeholder="nome@terracerta.pt"
-              />
-            </div>
+            <div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 outline-none transition text-slate-600 placeholder:text-slate-300" placeholder="nome@terracerta.pt" /></div>
           </div>
-
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.passwordLabel}</label>
-              <button type="button" onClick={() => alert(t.forgotMsg)} className="text-[11px] text-emerald-700 font-bold hover:underline">
-                {t.forgotPassword}
-              </button>
+              <button type="button" onClick={() => alert(t.forgotMsg)} className="text-[11px] text-emerald-700 font-bold hover:underline">{t.forgotPassword}</button>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="password" 
-                required 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 outline-none transition text-slate-600"
-                placeholder="••••••••••"
-              />
-            </div>
+            <div className="relative"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 outline-none transition text-slate-600" placeholder="••••••••••" /></div>
           </div>
-
-          {error && (
-            <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg border border-rose-100 flex items-center gap-2">
-              <AlertCircle size={14} /> {error}
-            </div>
-          )}
-
-          <button 
-            type="submit" 
-            disabled={submitting} 
-            className="w-full bg-[#0f172a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition transform active:scale-[0.98] disabled:opacity-50"
-          >
-            {submitting ? (
-              <Loader2 className="animate-spin" size={18} />
-            ) : (
-              <>
-                {t.loginButton} <ArrowRight size={18} />
-              </>
-            )}
-          </button>
+          {error && <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg border border-rose-100 flex items-center gap-2"><AlertCircle size={14} /> {error}</div>}
+          <button type="submit" disabled={submitting} className="w-full bg-[#0f172a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition transform active:scale-[0.98] disabled:opacity-50">{submitting ? <Loader2 className="animate-spin" size={18} /> : <>{t.loginButton} <ArrowRight size={18} /></>}</button>
         </form>
       </div>
     </div>
@@ -304,7 +235,6 @@ const DetailView = ({ property, onBack, lang }) => {
   );
 };
 
-// ----------------- ROOT APP -----------------
 export default function App() {
   const [user, setUser] = useState(null);
   const [lang, setLang] = useState("pt");
@@ -313,18 +243,14 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const t = TRANSLATIONS[lang];
-
   useEffect(() => { if (user) fetchProperties(); }, [user]);
-
   async function fetchProperties() {
     setLoading(true);
     const { data } = await db.from("propriedades").select("*").order("created_at", { ascending: false });
     setProperties((data || []).map(mapRow));
     setLoading(false);
   }
-
   if (!user) return <LoginPage onLogin={setUser} lang={lang} setLang={setLang} />;
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-40">
