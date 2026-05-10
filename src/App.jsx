@@ -637,7 +637,6 @@ const LoginPage = ({ onLogin }) => {
         </div>
       </main>
     </div>
-    </div>
   );
 };
 
