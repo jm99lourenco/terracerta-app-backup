@@ -12,7 +12,7 @@ import {
   Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle
 } from "lucide-react";
 import { MapContainer, TileLayer, Polygon, FeatureGroup } from "react-leaflet";
-import html2canvas from "html2canvas";
+import { toJpeg } from "html-to-image";
 
 // ----------------- CONFIG & DB -----------------
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -277,12 +277,36 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
     } 
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setAnalysing(true);
-    setTimeout(() => {
-      onAnalyseDone({ id: "new-" + Math.random().toString(36).substr(2, 9), designacao: formData.designacao || "Tapada do Mocho", concelho: formData.concelho, freguesia: formData.freguesia, area: parseFloat(formData.area) || 140, score: 88, status: "Analisado" });
-    }, 2000);
+    
+    // Cálculo de Score mais determinístico
+    let valArea = parseFloat(formData.area) || 140;
+    let baseScore = 65;
+    if (valArea < 500) baseScore += 15;
+    else if (valArea > 5000) baseScore -= 10;
+    let finalScore = Math.min(100, Math.max(0, baseScore + (formData.designacao.length % 15)));
+
+    const novoTerreno = {
+      designacao: formData.designacao || "Terreno sem nome",
+      concelho: formData.concelho,
+      freguesia: formData.freguesia,
+      area: valArea,
+      score: finalScore,
+      status: "Analisado"
+    };
+
+    try {
+      const { data, error } = await db.from('propriedades').insert([novoTerreno]).select().single();
+      if (error) throw error;
+      onAnalyseDone(data || novoTerreno);
+    } catch (err) {
+      console.error("Erro ao guardar no Supabase:", err);
+      // Fallback para simulação em caso de erro de DB
+      novoTerreno.id = "new-" + Math.random().toString(36).substr(2, 9);
+      onAnalyseDone(novoTerreno);
+    }
   };
 
   const concelhosNoDistrito = formData.distrito ? PORTUGAL_GEO[formData.distrito] : [];
@@ -352,7 +376,7 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Documentação</h3>
             {[
               { id: "caderneta", label: "Caderneta Predial" },
-              { id: "planta", label: "Planta de Localização" },
+              { id: "planta", label: "Planta de Localização (Opcional)" },
               { id: "certidao", label: "Certidão Permanente" },
             ].map((d) => (
               <div key={d.id} className="p-5 border border-slate-200 rounded-md flex items-center justify-between bg-white hover:border-emerald-200 transition">
@@ -380,14 +404,13 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
     if (!analysisRef.current) return;
     setExporting(true);
     try {
-      const canvas = await html2canvas(analysisRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#f8fafc' // slate-50
+      const dataUrl = await toJpeg(analysisRef.current, {
+        quality: 0.95,
+        backgroundColor: '#f8fafc',
+        fontEmbedCSS: '',
+        style: { transform: 'scale(1)', transformOrigin: 'top left' }
       });
       
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -395,13 +418,14 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
       });
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`TerraCerta_Analise_${property.id || 'terreno'}.pdf`);
     } catch (err) {
       console.error("Erro ao exportar PDF:", err);
-      alert("Não foi possível exportar o PDF neste momento.");
+      alert("Não foi possível exportar o PDF neste momento. Detalhes na consola.");
     } finally {
       setExporting(false);
     }
@@ -466,16 +490,20 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
               <div className="space-y-8">
                 {(page === 1 ? [
                   { label: "Classificação do solo", val: "Urbano", status: "ok", tooltip: "Classificação principal definida na Planta de Ordenamento." },
-                  { label: "Categoria de espaço", val: "Espaço Agrícola de Produção", status: "ok", tooltip: "Subcategoria que define o uso predominante do solo." },
-                  { label: "Índice de utilização (iu)", val: "0,15", status: "warning", tooltip: "Percentagem máxima da parcela que pode ser impermeabilizada/construída." },
-                  { label: "Cércea máxima", val: "6,5 m (2 pisos)", status: "ok", tooltip: "Altura máxima permitida para as fachadas das construções." },
-                  { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido", status: "warning", tooltip: "Áreas sujeitas a proteção ecológica rigorosa." },
-                  { label: "RAN — Reserva Agrícola", val: "Não abrangido", status: "ok", tooltip: "Áreas de proteção para fins estritamente agrícolas." },
+                  { label: "Categoria de espaço", val: "Espaços Residenciais", status: "ok", tooltip: "Subcategoria que define o uso predominante do solo." },
+                  { label: "Índice de edificabilidade máx. (Ie)", val: "0.50", status: "ok", tooltip: "Multiplicador máximo para a área de construção." },
+                  { label: "Índice de impermeabilização (Ii)", val: "0.60", status: "warning", tooltip: "Percentagem máxima da parcela que pode ser impermeabilizada." },
+                  { label: "Densidade populacional", val: "40 hab/ha", status: "ok", tooltip: "Número máximo de habitantes por hectare." },
+                  { label: "Cércea máxima", val: "3 pisos (9m)", status: "ok", tooltip: "Altura máxima permitida para as fachadas das construções." },
+                  { label: "Afastamento ao eixo da via", val: "Mínimo 5m", status: "warning", tooltip: "Distância obrigatória entre a construção e a estrada." },
+                  { label: "Condicionantes", val: "Nenhuma identificada", status: "ok", tooltip: "Restrições como RAN, REN, ZPE, Zonas Inundáveis, etc." },
                 ] : [
-                  { label: "Contiguidade Urbana", val: "280m ao limite", status: "ok", tooltip: "Distância máxima aceite: 500m segundo RJIGT." },
-                  { label: "Infraestruturas", val: "Saneamento a 420m", status: "warning", tooltip: "Terreno deve ser servido pelas redes públicas." },
-                  { label: "Acessibilidade", val: "Estrada Municipal", status: "ok", tooltip: "Acesso por via pública pavimentada." },
-                  { label: "Probabilidade Conversão", val: "66%", status: "ok", tooltip: "Estimativa baseada nos critérios do RJIGT (DL 80/2015)." },
+                  { label: "Contiguidade ao Solo Urbano", val: "Contíguo (0m)", status: "ok", tooltip: "Distância ao limite do solo urbano mais próximo." },
+                  { label: "Acesso Rodoviário Público", val: "Sim (Pavimentado)", status: "ok", tooltip: "Existência de estrada pública em condições de circulação." },
+                  { label: "Infraestruturas Básicas", val: "Redes a menos de 50m", status: "ok", tooltip: "Proximidade a redes de água, saneamento e eletricidade." },
+                  { label: "Compatibilidade de Usos", val: "Habitação (Compatível)", status: "ok", tooltip: "Verificação se o uso pretendido é aceite na envolvente." },
+                  { label: "Risco de Cheias / Incêndio", val: "Risco Baixo", status: "ok", tooltip: "Avaliação de riscos naturais através da cartografia oficial." },
+                  { label: "Parecer Prévio / Restrições", val: "Não aplicável", status: "ok", tooltip: "Necessidade de consultas a entidades externas (APA, CCDR, etc)." },
                 ]).map((r, i) => (
                   <div key={i} className="flex items-center justify-between group">
                     <div className="flex items-center gap-4">
@@ -500,7 +528,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[400px] relative">
               <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
                 <MapContainer center={[38.7071, -9.1355]} zoom={13} zoomControl={false} style={{ width: '100%', height: '100%' }}>
-                  <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap &copy; CARTO" />
+                  <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" attribution="&copy; OpenStreetMap &copy; CARTO" />
                   <Polygon positions={[[38.705, -9.135], [38.708, -9.130], [38.709, -9.138]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.4, weight: 2 }} />
                 </MapContainer>
                 <div className="absolute inset-0 bg-slate-900/5 pointer-events-none z-[400]" data-html2canvas-ignore></div>
@@ -551,7 +579,12 @@ export default function App() {
   }
   if (!user) return <LoginPage onLogin={setUser} />;
   if (view === "dashboard") return <Dashboard properties={properties} loading={loading} onRefresh={fetchProperties} onNew={() => setView("upload")} onSelect={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
-  if (view === "upload") return <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  if (view === "upload") return <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
+    setSelected(p); 
+    setView("analysis"); 
+    setAnalysisPage(1); 
+    fetchProperties(); // Refresh the list so it appears in Dashboard
+  }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   if (view === "analysis" && selected) return <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   return null;
 }
