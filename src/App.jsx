@@ -75,16 +75,15 @@ const scoreColor = (s) => {
 };
 
 // ----------------- COMPONENTS -----------------
-const Logo = ({ size = "md", invert = false, langLabel }) => (
-  <div className="flex items-center gap-2">
-    <div className={`${size === "lg" ? "h-9" : "h-7"} aspect-square rounded-md bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center shadow-sm`}>
-      <Mountain className="text-white" size={size === "lg" ? 20 : 16} strokeWidth={2.5} />
+const Logo = ({ size = "md", invert = false }) => (
+  <div className="flex items-center gap-3">
+    <div className={`${size === "lg" ? "h-10" : "h-7"} aspect-square rounded-md bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center shadow-sm`}>
+      <Mountain className="text-white" size={size === "lg" ? 22 : 16} strokeWidth={2.5} />
     </div>
     <div className="flex flex-col leading-none text-left">
-      <span className={`font-semibold tracking-tight ${invert ? "text-white" : "text-slate-900"} ${size === "lg" ? "text-xl" : "text-base"}`}>
+      <span className={`font-bold tracking-tight ${invert ? "text-white" : "text-slate-900"} ${size === "lg" ? "text-2xl" : "text-base"}`}>
         Terra<span className="text-emerald-700">Certa</span>
       </span>
-      {size === "lg" && <span className={`text-[10px] uppercase tracking-[0.2em] ${invert ? "text-white/60" : "text-slate-500"} mt-1`}>{langLabel}</span>}
     </div>
   </div>
 );
@@ -104,7 +103,7 @@ const LandscapeBackground = () => (
     <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
         <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff7ed" />
+          <stop offset="0%" stopColor="#e2b894" />
           <stop offset="100%" stopColor="#c9825a" />
         </linearGradient>
         <radialGradient id="bg-sun" cx="50%" cy="50%" r="50%">
@@ -154,7 +153,7 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
     <div className="min-h-screen w-full relative flex items-center justify-center p-4">
       <LandscapeBackground />
       <header className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-20">
-        <Logo size="lg" invert langLabel={t.tagline} />
+        <Logo size="lg" invert />
         <div className="relative">
           <button onClick={() => setShowLang(!showLang)} className="flex items-center gap-2 px-3 py-2 bg-black/20 backdrop-blur-md rounded-md border border-white/10 text-white hover:bg-black/30 transition">
             <span className="text-lg">{t.flag}</span> <span className="text-xs font-bold uppercase">{lang}</span>
@@ -259,7 +258,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-8">
-          <Logo langLabel={t.tagline} />
+          <Logo />
           <nav className="flex items-center gap-1">
             {[["properties", "dashboard"], ["sig", "sig"]].map(([key, target]) => (
               <button key={key} onClick={() => { setView(target); setSelected(null); }} className={`px-4 py-2 rounded-md text-sm font-medium ${view === target ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:bg-slate-50"}`}>
