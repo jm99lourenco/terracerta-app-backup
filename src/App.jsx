@@ -11,6 +11,8 @@ import {
   CheckCircle, Info, ExternalLink, Bell, Loader2, RefreshCw,
   Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle
 } from "lucide-react";
+import { MapContainer, TileLayer, Polygon, FeatureGroup } from "react-leaflet";
+import html2canvas from "html2canvas";
 
 // ----------------- CONFIG & DB -----------------
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -54,6 +56,29 @@ const formatArea = (m2) => {
   return `${formatNumber(m2)} m²`;
 };
 
+const TRANSLATIONS = {
+  pt: { loginTitle: "Iniciar sessão", emailLabel: "Email profissional", passwordLabel: "Palavra-passe", forgotPassword: "Esqueci-me da Password", loginButton: "Entrar na plataforma", tagline: "Análise de Viabilidade Territorial", forgotMsg: "Para recuperar a sua palavra-passe, contacte o suporte técnico.", loggingIn: "A entrar...", lang: "Português", flag: "🇵🇹" },
+  en: { loginTitle: "Sign In", emailLabel: "Professional Email", passwordLabel: "Password", forgotPassword: "Forgot password?", loginButton: "Enter Platform", tagline: "Territorial Viability Analysis", forgotMsg: "To recover your password, contact support.", loggingIn: "Signing in...", lang: "English", flag: "🇺🇸" },
+  fr: { loginTitle: "Se connecter", emailLabel: "Email professionnel", passwordLabel: "Mot de passe", forgotPassword: "Mot de passe oublié ?", loginButton: "Entrer", tagline: "Analyse de viabilité territoriale", forgotMsg: "Pour récupérer votre mot de passe, contactez le support.", loggingIn: "Connexion...", lang: "Français", flag: "🇫🇷" },
+};
+
+const Logo = ({ size = "md", invert = false, langLabel }) => {
+  const dims = size === "lg" ? "h-9" : size === "sm" ? "h-6" : "h-7";
+  const textColor = invert ? "text-white" : "text-slate-900";
+  const subColor = invert ? "text-white/60" : "text-slate-500";
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`${dims} aspect-square rounded-md bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center shadow-sm`}>
+        <Mountain className="text-white" size={size === "lg" ? 20 : size === "sm" ? 14 : 16} strokeWidth={2.5} />
+      </div>
+      <div className="flex flex-col leading-none">
+        <span className={`font-bold tracking-tight ${textColor} ${size === "lg" ? "text-2xl" : size === "sm" ? "text-base" : "text-lg"}`}>Terra<span className="text-emerald-400">Certa</span></span>
+        {langLabel && <span className={`text-[9px] font-semibold uppercase tracking-widest mt-0.5 ${subColor}`}>{langLabel}</span>}
+      </div>
+    </div>
+  );
+};
+
 const scoreColor = (s) => {
   if (s >= 80) return { text: "text-emerald-600", bg: "bg-emerald-50", fill: "bg-emerald-500", border: "border-emerald-100", label: "Viabilidade elevada" };
   if (s >= 60) return { text: "text-lime-600", bg: "bg-lime-50", fill: "bg-lime-500", border: "border-lime-100", label: "Viabilidade média" };
@@ -89,6 +114,9 @@ const LandscapeBackground = () => (
       <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
       <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
       {[[1120, 770], [1150, 775], [1190, 765]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
+      <g transform="translate(1550, 700)" opacity="0.85">
+        <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
+      </g>
     </svg>
     <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90 pointer-events-none" viewBox="0 0 200 60"><g fill="white" opacity="0.85"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /><ellipse cx="130" cy="35" rx="38" ry="16" /></g></svg>
     <svg className="absolute top-[22%] left-0 w-[12vw] max-w-[180px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
@@ -124,6 +152,11 @@ const LoginPage = ({ onLogin }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [lang, setLang] = useState("pt");
+  const [showLang, setShowLang] = useState(false);
+
+  const t = TRANSLATIONS[lang];
+
   const handleLogin = (e) => {
     e?.preventDefault?.();
     setError(null);
@@ -136,27 +169,41 @@ const LoginPage = ({ onLogin }) => {
     <div className="min-h-screen w-full relative flex items-center justify-center p-4">
       <LandscapeBackground />
       <header className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-20">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-emerald-600 rounded flex items-center justify-center text-white shadow-sm"><Mountain size={22} strokeWidth={2.5} /></div>
-          <span className="text-2xl font-bold text-white tracking-tight">TerraCerta</span>
+        <Logo size="lg" invert langLabel={t.tagline} />
+        
+        {/* Language Selector */}
+        <div className="relative">
+          <button onClick={() => setShowLang(!showLang)} className="flex items-center gap-2 px-3 py-2 bg-black/20 hover:bg-black/30 backdrop-blur-md rounded-md border border-white/10 text-white transition">
+            <span className="text-lg">{t.flag}</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">{lang}</span>
+          </button>
+          {showLang && (
+            <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-30">
+              {Object.entries(TRANSLATIONS).map(([key, value]) => (
+                <button key={key} onClick={() => { setLang(key); setShowLang(false); }} className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition ${lang === key ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-600'}`}>
+                  <span>{value.flag}</span> {value.lang}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </header>
       <div className="w-full max-w-[420px] bg-white rounded-xl shadow-2xl p-10 relative z-10 animate-in fade-in zoom-in-95 duration-500">
-        <h1 className="text-3xl font-bold text-[#0f172a] mb-10">Iniciar sessão</h1>
+        <h1 className="text-3xl font-bold text-[#0f172a] mb-10">{t.loginTitle}</h1>
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Email profissional</label>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.emailLabel}</label>
             <div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 outline-none transition text-slate-600 placeholder:text-slate-300" placeholder="nome@terracerta.pt" /></div>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Palavra-passe</label>
-              <button type="button" onClick={() => alert("Contacte o suporte técnico.")} className="text-[11px] text-emerald-700 font-bold hover:underline">Esqueci-me da Password</button>
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.passwordLabel}</label>
+              <button type="button" onClick={() => alert(t.forgotMsg)} className="text-[11px] text-emerald-700 font-bold hover:underline">{t.forgotPassword}</button>
             </div>
             <div className="relative"><Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 outline-none transition text-slate-600" placeholder="••••••••••" /></div>
           </div>
           {error && <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg border border-rose-100 flex items-center gap-2"><AlertCircle size={14} /> {error}</div>}
-          <button type="submit" disabled={submitting} className="w-full bg-[#0f172a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition transform active:scale-[0.98] disabled:opacity-50">{submitting ? <Loader2 className="animate-spin" size={18} /> : <>Entrar na plataforma <ArrowRight size={18} /></>}</button>
+          <button type="submit" disabled={submitting} className="w-full bg-[#0f172a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition transform active:scale-[0.98] disabled:opacity-50">{submitting ? <Loader2 className="animate-spin" size={18} /> : <>{t.loginButton} <ArrowRight size={18} /></>}</button>
         </form>
       </div>
     </div>
@@ -326,6 +373,40 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
 
 const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavigate }) => {
   const c = scoreColor(property.score);
+  const analysisRef = useRef(null);
+  const [exporting, setExporting] = useState(false);
+
+  const exportPDF = async () => {
+    if (!analysisRef.current) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(analysisRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#f8fafc' // slate-50
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`TerraCerta_Analise_${property.id || 'terreno'}.pdf`);
+    } catch (err) {
+      console.error("Erro ao exportar PDF:", err);
+      alert("Não foi possível exportar o PDF neste momento.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Nav page="analysis" onNavigate={onNavigate} user={user} onLogout={onLogout} />
@@ -350,32 +431,65 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
               <button onClick={() => setPage(1)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 1 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>1 · PDM</button>
               <button onClick={() => setPage(2)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 2 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>2 · Conversão</button>
             </div>
-            <button className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition"><Download size={14} /> Exportar PDF</button>
+            <button onClick={exportPDF} disabled={exporting} className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition">
+              {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+              Exportar PDF com Logótipo
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
+        {/* CÓPIA DO CABEÇALHO PARA O PDF (Invisível no ecrã) */}
+        <div className="hidden pdf-header mb-8 bg-slate-900 text-white p-6 rounded-lg">
+           <div className="flex justify-between items-start">
+              <div>
+                 <Logo invert={true} />
+                 <h1 className="text-2xl font-bold mt-4">{property.designacao}</h1>
+                 <p className="text-sm text-slate-300 mt-1">{property.freguesia}, {property.concelho} · Artigo: {property.matricial || '—'}</p>
+              </div>
+              <div className="text-right">
+                 <p className="text-xs text-slate-400">ID do Relatório</p>
+                 <p className="font-mono text-sm">{property.id}</p>
+                 <p className="text-xs text-slate-400 mt-2">Data de Emissão</p>
+                 <p className="text-sm">2026-05-09</p>
+              </div>
+           </div>
+        </div>
+        <style dangerouslySetInnerHTML={{__html: `
+          @media print { .pdf-header { display: block !important; } }
+          [data-html2canvas-ignore] { display: none !important; }
+        `}} />
+
+        <div className="grid grid-cols-12 gap-6" ref={analysisRef}>
           <div className="col-span-12 lg:col-span-8 space-y-6">
             <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
               <h3 className="text-lg font-bold text-slate-900 mb-8">{page === 1 ? "Análise do Plano Diretor Municipal (PDM)" : "Simulação de Conversão Urbana"}</h3>
               <div className="space-y-8">
                 {(page === 1 ? [
-                  { label: "Classificação do solo", val: "Urbano", status: "ok" },
-                  { label: "Categoria de espaço", val: "Espaço Agrícola de Produção", status: "ok" },
-                  { label: "Índice de utilização (iu)", val: "0,15", status: "warning" },
-                  { label: "Cércea máxima", val: "6,5 m (2 pisos)", status: "ok" },
-                  { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido", status: "warning" },
-                  { label: "RAN — Reserva Agrícola", val: "Não abrangido", status: "ok" },
+                  { label: "Classificação do solo", val: "Urbano", status: "ok", tooltip: "Classificação principal definida na Planta de Ordenamento." },
+                  { label: "Categoria de espaço", val: "Espaço Agrícola de Produção", status: "ok", tooltip: "Subcategoria que define o uso predominante do solo." },
+                  { label: "Índice de utilização (iu)", val: "0,15", status: "warning", tooltip: "Percentagem máxima da parcela que pode ser impermeabilizada/construída." },
+                  { label: "Cércea máxima", val: "6,5 m (2 pisos)", status: "ok", tooltip: "Altura máxima permitida para as fachadas das construções." },
+                  { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido", status: "warning", tooltip: "Áreas sujeitas a proteção ecológica rigorosa." },
+                  { label: "RAN — Reserva Agrícola", val: "Não abrangido", status: "ok", tooltip: "Áreas de proteção para fins estritamente agrícolas." },
                 ] : [
-                  { label: "Contiguidade Urbana", val: "280m ao limite", status: "ok" },
-                  { label: "Infraestruturas", val: "Saneamento a 420m", status: "warning" },
-                  { label: "Acessibilidade", val: "Estrada Municipal", status: "ok" },
-                  { label: "Probabilidade Conversão", val: "66%", status: "ok" },
+                  { label: "Contiguidade Urbana", val: "280m ao limite", status: "ok", tooltip: "Distância máxima aceite: 500m segundo RJIGT." },
+                  { label: "Infraestruturas", val: "Saneamento a 420m", status: "warning", tooltip: "Terreno deve ser servido pelas redes públicas." },
+                  { label: "Acessibilidade", val: "Estrada Municipal", status: "ok", tooltip: "Acesso por via pública pavimentada." },
+                  { label: "Probabilidade Conversão", val: "66%", status: "ok", tooltip: "Estimativa baseada nos critérios do RJIGT (DL 80/2015)." },
                 ]).map((r, i) => (
                   <div key={i} className="flex items-center justify-between group">
                     <div className="flex items-center gap-4">
                       <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={20} strokeWidth={3} /> : <AlertTriangle size={20} strokeWidth={3} />}</div>
-                      <span className="text-sm font-bold text-slate-700">{r.label}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-bold text-slate-700">{r.label}</span>
+                        <div className="relative inline-flex items-center group/tooltip" data-html2canvas-ignore>
+                            <HelpCircle size={12} className="text-slate-300 cursor-help hover:text-slate-500" />
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all pointer-events-none z-50 text-center shadow-lg">
+                                {r.tooltip}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                            </div>
+                        </div>
+                      </div>
                     </div>
                     <span className="text-sm font-black text-slate-900">{r.val}</span>
                   </div>
@@ -385,9 +499,12 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
             
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[400px] relative">
               <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                <iframe width="100%" height="100%" border="0" src={`https://www.google.com/maps/embed/v1/search?key=YOUR_API_KEY_HERE&q=${encodeURIComponent(property.concelho + ", Portugal")}&zoom=14`}></iframe>
-                <div className="absolute inset-0 bg-slate-900/5 pointer-events-none"></div>
-                <div className="absolute top-4 right-4 bg-white p-2 rounded-md shadow-md text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 border border-slate-100"><MapPin size={12} className="text-emerald-600" /> Vista SIG Integrada</div>
+                <MapContainer center={[38.7071, -9.1355]} zoom={13} zoomControl={false} style={{ width: '100%', height: '100%' }}>
+                  <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap &copy; CARTO" />
+                  <Polygon positions={[[38.705, -9.135], [38.708, -9.130], [38.709, -9.138]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.4, weight: 2 }} />
+                </MapContainer>
+                <div className="absolute inset-0 bg-slate-900/5 pointer-events-none z-[400]" data-html2canvas-ignore></div>
+                <div className="absolute top-4 right-4 bg-white p-2 rounded-md shadow-md text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 border border-slate-100 z-[400]"><MapPin size={12} className="text-emerald-600" /> Vista SIG Integrada</div>
               </div>
             </div>
           </div>
