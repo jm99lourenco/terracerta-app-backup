@@ -363,14 +363,14 @@ function exportPropertyPDF(property) {
 }
 
 // ----------------- LOGO -----------------
-const Logo = ({ size = "md", invert = false }) => {
+const Logo = ({ size = "md", invert = false, langLabel }) => {
   const dims = size === "lg" ? "h-9" : size === "sm" ? "h-6" : "h-7";
   const textColor = invert ? "text-white" : "text-slate-900";
-  const accentColor = invert ? "text-emerald-300" : "text-emerald-700";
+  const accentColor = "text-emerald-700"; // Sincronizado com o ícone
   const subColor = invert ? "text-white/60" : "text-slate-500";
   return (
     <div className="flex items-center gap-2">
-      <div className={`${dims} aspect-square rounded-md bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center shadow-sm`}>
+      <div className={`${dims} aspect-square rounded-md bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center shadow-sm`}>
         <Mountain className="text-white" size={size === "lg" ? 20 : size === "sm" ? 14 : 16} strokeWidth={2.5} />
       </div>
       <div className="flex flex-col leading-none">
@@ -379,7 +379,7 @@ const Logo = ({ size = "md", invert = false }) => {
         </span>
         {size === "lg" && (
           <span className={`text-[10px] uppercase tracking-[0.2em] ${subColor} mt-1`}>
-            Análise de Viabilidade Territorial
+            {langLabel || "Análise de Viabilidade Territorial"}
           </span>
         )}
       </div>
@@ -387,146 +387,100 @@ const Logo = ({ size = "md", invert = false }) => {
   );
 };
 
+// ----------------- TRANSLATIONS -----------------
+const TRANSLATIONS = {
+  pt: { loginTitle: "Iniciar sessão", emailLabel: "Email profissional", passwordLabel: "Palavra-passe", forgotPassword: "Esqueci-me", loginButton: "Entrar na plataforma", tagline: "Análise de Viabilidade Territorial", forgotMsg: "Para recuperar a sua palavra-passe, por favor contacte o administrador da sua agência ou o suporte técnico da TerraCerta.", loggingIn: "A entrar...", lang: "Português", flag: "🇵🇹" },
+  en: { loginTitle: "Sign In", emailLabel: "Professional Email", passwordLabel: "Password", forgotPassword: "Forgot password?", loginButton: "Enter Platform", tagline: "Territorial Viability Analysis", forgotMsg: "To recover your password, please contact your agency administrator or TerraCerta technical support.", loggingIn: "Signing in...", lang: "English", flag: "🇺🇸" },
+  fr: { loginTitle: "Se connecter", emailLabel: "Email professionnel", passwordLabel: "Mot de passe", forgotPassword: "Oublié ?", loginButton: "Entrer na plataforma", tagline: "Analyse de viabilité territoriale", forgotMsg: "Pour récupérer votre mot de passe, contactez l'administrateur.", loggingIn: "Connexion...", lang: "Français", flag: "🇫🇷" },
+  de: { loginTitle: "Anmelden", emailLabel: "Beruflich E-Mail", passwordLabel: "Passwort", forgotPassword: "Vergessen?", loginButton: "Plattform betreten", tagline: "Territoriale Machbarkeitsanalyse", forgotMsg: "Wenden Sie sich an Ihren Administrator.", loggingIn: "Anmelden...", lang: "Deutsch", flag: "🇩🇪" },
+  es: { loginTitle: "Iniciar sesión", emailLabel: "Email profesional", passwordLabel: "Contraseña", forgotPassword: "¿Olvidaste?", loginButton: "Entrar en la plataforma", tagline: "Análisis de Viabilidad Territorial", forgotMsg: "Contacte con su administrador.", loggingIn: "Entrando...", lang: "Español", flag: "🇪🇸" },
+  it: { loginTitle: "Accedi", emailLabel: "Email professionale", passwordLabel: "Password", forgotPassword: "Dimenticata?", loginButton: "Entra na plataforma", tagline: "Analisi di Viabilità Territoriale", forgotMsg: "Contatta il tuo amministratore.", loggingIn: "Accesso...", lang: "Italiano", flag: "🇮🇹" },
+};
+
 // ----------------- IMMERSIVE LANDSCAPE BACKGROUND -----------------
-const LandscapeBackground = () => (
-  <div className="absolute inset-0 overflow-hidden">
-    <style>{`
-      @keyframes drift-slow {
-        from { transform: translateX(-15vw); }
-        to   { transform: translateX(115vw); }
-      }
-      @keyframes drift-slower {
-        from { transform: translateX(-25vw); }
-        to   { transform: translateX(125vw); }
-      }
-      @keyframes fly-loop {
-        0%   { transform: translate(-10vw, 0) scale(1); }
-        45%  { transform: translate(50vw, -3vh) scale(0.9); }
-        100% { transform: translate(115vw, 2vh) scale(0.85); }
-      }
-      .tc-cloud-a { animation: drift-slow 110s linear infinite; }
-      .tc-cloud-b { animation: drift-slower 160s linear infinite -40s; }
-      .tc-cloud-c { animation: drift-slow 140s linear infinite -90s; }
-      .tc-birds   { animation: fly-loop 60s linear infinite; }
-    `}</style>
+const LandscapeBackground = () => {
+  const [trees, setTrees] = useState([]);
+  const [rain, setRain] = useState(false);
+  const [birdRoute, setBirdRoute] = useState(0);
 
-    {/* Base landscape */}
-    <svg
-      viewBox="0 0 1920 1080"
-      preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 w-full h-full"
-    >
-      <defs>
-        <linearGradient id="bg-sky" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%"   stopColor="#fbe7c4" />
-          <stop offset="35%"  stopColor="#f4cfa0" />
-          <stop offset="70%"  stopColor="#e8a978" />
-          <stop offset="100%" stopColor="#c9825a" />
-        </linearGradient>
-        <radialGradient id="bg-sun" cx="0.72" cy="0.32" r="0.18">
-          <stop offset="0%"   stopColor="#fff5dc" stopOpacity="1" />
-          <stop offset="60%"  stopColor="#ffe4b8" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#ffe4b8" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="bg-mountains" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%"   stopColor="#7a8b8e" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#5b6e72" stopOpacity="0.85" />
-        </linearGradient>
-        <linearGradient id="bg-hill-far" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#9bb47e" />
-          <stop offset="100%" stopColor="#7a9460" />
-        </linearGradient>
-        <linearGradient id="bg-hill-mid" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#5e8650" />
-          <stop offset="100%" stopColor="#456838" />
-        </linearGradient>
-        <linearGradient id="bg-hill-near" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#3a5d34" />
-          <stop offset="100%" stopColor="#243d22" />
-        </linearGradient>
-        <linearGradient id="bg-field" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#d4c685" />
-          <stop offset="100%" stopColor="#a89255" />
-        </linearGradient>
-      </defs>
+  const plantTree = (e) => {
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+    
+    // Only plant in the lower half (ground)
+    if (cursor.y > 700) {
+      setTrees([...trees, { x: cursor.x, y: cursor.y, id: Date.now() }]);
+    }
+  };
 
-      <rect width="1920" height="1080" fill="url(#bg-sky)" />
-      <rect width="1920" height="1080" fill="url(#bg-sun)" />
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <style>{`
+        @keyframes drift-slow { from { transform: translateX(-15vw); } to { transform: translateX(115vw); } }
+        @keyframes fly-loop {
+          0%   { transform: translate(-10vw, 0) scale(1); }
+          45%  { transform: translate(50vw, ${-3 + birdRoute}vh) scale(0.9); }
+          100% { transform: translate(115vw, ${2 + birdRoute}vh) scale(0.85); }
+        }
+        @keyframes rainfall { from { transform: translateY(-20px); } to { transform: translateY(1080px); } }
+        .tc-cloud-a { animation: drift-slow 110s linear infinite; cursor: pointer; }
+        .tc-birds { animation: fly-loop 60s linear infinite; cursor: pointer; }
+        .tc-rain { animation: rainfall 1s linear infinite; }
+      `}</style>
 
-      {/* Mountain range */}
-      <path d="M0,520 L120,470 L210,495 L320,440 L420,475 L540,420 L660,460 L780,430 L900,475 L1040,440 L1180,490 L1320,455 L1480,485 L1620,445 L1780,475 L1920,455 L1920,600 L0,600 Z" fill="url(#bg-mountains)" />
-      {/* Far hills */}
-      <path d="M0,580 Q240,510 480,545 T960,520 T1440,540 T1920,510 L1920,720 L0,720 Z" fill="url(#bg-hill-far)" opacity="0.85" />
-      {/* Mid hills with vineyard rows */}
-      <path d="M0,660 Q320,580 640,620 T1280,610 T1920,600 L1920,820 L0,820 Z" fill="url(#bg-hill-mid)" />
-      {[670, 690, 710, 730, 750, 770, 790].map((yy, i) => (
-        <path key={`m-${i}`} d={`M0,${yy} Q500,${yy - 6} 1000,${yy + 2} T1920,${yy - 4}`} stroke="#34522e" strokeWidth="1" fill="none" opacity="0.35" />
-      ))}
-      {/* Foreground hill */}
-      <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
-      {/* Wheat field */}
-      <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
-      {[890, 920, 950, 980, 1010, 1040].map((yy, i) => (
-        <path key={`f-${i}`} d={`M0,${yy} Q600,${yy - 8} 1200,${yy + 2} T1920,${yy - 6}`} stroke="#7d6b35" strokeWidth="1.2" fill="none" opacity="0.45" />
-      ))}
-      {/* Cypress trees */}
-      {[
-        [180, 770], [210, 778], [235, 772],
-        [1460, 750], [1490, 758], [1520, 752], [1550, 760],
-        [820, 805], [850, 812],
-      ].map(([cx, cy], i) => (
-        <ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11 + (i % 3) * 2} ry={36 + (i % 4) * 4} fill="#1c3a1a" opacity="0.95" />
-      ))}
-      {/* Quinta */}
-      <g transform="translate(1100, 700)" opacity="0.85">
-        <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" />
-        <polygon points="-4,20 24,4 52,20" fill="#8b4f3a" />
-        <rect x="20" y="32" width="8" height="16" fill="#3a2818" />
-        <rect x="6" y="28" width="6" height="6" fill="#3a2818" />
-        <rect x="34" y="28" width="6" height="6" fill="#3a2818" />
-        <rect x="22" y="-2" width="3" height="8" fill="#5a4030" />
-      </g>
-      {/* Stone wall */}
-      <path d="M0,855 Q500,840 1000,852 T1920,845" stroke="#5a4d33" strokeWidth="2.5" fill="none" opacity="0.4" />
-    </svg>
+      <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full" onClick={plantTree}>
+        <defs>
+          <linearGradient id="bg-sky" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#fbe7c4" /><stop offset="35%" stopColor="#f4cfa0" /><stop offset="70%" stopColor="#e8a978" /><stop offset="100%" stopColor="#c9825a" />
+          </linearGradient>
+          <radialGradient id="bg-sun" cx="0.72" cy="0.32" r="0.18">
+            <stop offset="0%" stopColor="#fff5dc" stopOpacity="1" /><stop offset="60%" stopColor="#ffe4b8" stopOpacity="0.4" /><stop offset="100%" stopColor="#ffe4b8" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="bg-mountains" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#7a8b8e" stopOpacity="0.6" /><stop offset="100%" stopColor="#5b6e72" stopOpacity="0.85" />
+          </linearGradient>
+          <linearGradient id="bg-hill-near" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#3a5d34" /><stop offset="100%" stopColor="#243d22" />
+          </linearGradient>
+          <linearGradient id="bg-field" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#d4c685" /><stop offset="100%" stopColor="#a89255" />
+          </linearGradient>
+        </defs>
 
-    {/* Animated clouds */}
-    <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90 pointer-events-none" viewBox="0 0 200 60">
-      <g fill="white" opacity="0.85">
-        <ellipse cx="50" cy="35" rx="40" ry="18" />
-        <ellipse cx="90" cy="28" rx="32" ry="20" />
-        <ellipse cx="130" cy="35" rx="38" ry="16" />
-        <ellipse cx="160" cy="38" rx="22" ry="12" />
-      </g>
-    </svg>
-    <svg className="absolute top-[18%] left-0 w-[14vw] max-w-[180px] tc-cloud-b opacity-80 pointer-events-none" viewBox="0 0 200 60">
-      <g fill="white" opacity="0.75">
-        <ellipse cx="50" cy="35" rx="35" ry="14" />
-        <ellipse cx="85" cy="28" rx="28" ry="18" />
-        <ellipse cx="120" cy="35" rx="30" ry="13" />
-      </g>
-    </svg>
-    <svg className="absolute top-[5%] left-0 w-[12vw] max-w-[160px] tc-cloud-c opacity-70 pointer-events-none" viewBox="0 0 200 60">
-      <g fill="white" opacity="0.7">
-        <ellipse cx="60" cy="32" rx="32" ry="13" />
-        <ellipse cx="100" cy="28" rx="26" ry="16" />
-        <ellipse cx="135" cy="34" rx="22" ry="11" />
-      </g>
-    </svg>
+        <rect width="1920" height="1080" fill="url(#bg-sky)" />
+        <rect width="1920" height="1080" fill="url(#bg-sun)" />
+        <path d="M0,520 L120,470 L210,495 L320,440 L420,475 L540,420 L660,460 L780,430 L900,475 L1040,440 L1180,490 L1320,455 L1480,485 L1620,445 L1780,475 L1920,455 L1920,600 L0,600 Z" fill="url(#bg-mountains)" />
+        <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
+        <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
 
-    {/* Animated birds */}
-    <svg className="absolute top-[22%] left-0 w-[8vw] max-w-[120px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6">
-      <path d="M5,20 q5,-7 10,0 q5,-7 10,0" />
-      <path d="M30,28 q4,-6 8,0 q4,-6 8,0" />
-      <path d="M55,18 q5,-7 10,0 q5,-7 10,0" />
-      <path d="M80,26 q4,-6 8,0 q4,-6 8,0" />
-    </svg>
+        {/* Planted trees */}
+        {trees.map(t => (
+          <g key={t.id} transform={`translate(${t.x}, ${t.y})`}>
+            <ellipse cx="0" cy="0" rx="8" ry="24" fill="#1c3a1a" />
+          </g>
+        ))}
 
-    {/* Vignette */}
-    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/30 pointer-events-none" />
-    <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-transparent pointer-events-none" />
-  </div>
-);
+        {/* Rain layer */}
+        {rain && Array.from({ length: 100 }).map((_, i) => (
+          <line key={i} x1={Math.random() * 1920} y1="-20" x2={Math.random() * 1920} y2="0" stroke="white" opacity="0.3" strokeWidth="1" className="tc-rain" style={{ animationDelay: `${Math.random()}s` }} />
+        ))}
+      </svg>
+
+      <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90" viewBox="0 0 200 60" onClick={(e) => { e.stopPropagation(); setRain(!rain); }}>
+        <ellipse cx="50" cy="35" rx="40" ry="18" fill="white" />
+        <ellipse cx="90" cy="28" rx="32" ry="20" fill="white" />
+        <ellipse cx="130" cy="35" rx="38" ry="16" fill="white" />
+      </svg>
+
+      <svg className="absolute top-[22%] left-0 w-[8vw] max-w-[120px] tc-birds opacity-70" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6" onClick={(e) => { e.stopPropagation(); setBirdRoute(r => r + 5); }}>
+        <path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" />
+      </svg>
+    </div>
+  );
+};
 
 // ----------------- LOGIN PAGE -----------------
 const LoginPage = ({ onLogin }) => {
@@ -534,6 +488,10 @@ const LoginPage = ({ onLogin }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [lang, setLang] = useState("pt");
+  const [showLang, setShowLang] = useState(false);
+
+  const t = TRANSLATIONS[lang];
 
   const handleLogin = (e) => {
     e?.preventDefault?.();
@@ -541,11 +499,11 @@ const LoginPage = ({ onLogin }) => {
     const normalisedEmail = email.toLowerCase().trim();
     const expectedPwd = ALLOWED_USERS[normalisedEmail];
     if (!expectedPwd) {
-      setError("Conta não autorizada. Para obter acesso à plataforma TerraCerta, por favor contacte o administrador.");
+      setError(lang === "pt" ? "Conta não autorizada." : "Unauthorized account.");
       return;
     }
     if (expectedPwd !== password) {
-      setError("Palavra-passe incorreta. Verifique e tente novamente.");
+      setError(lang === "pt" ? "Palavra-passe incorreta." : "Incorrect password.");
       return;
     }
     setSubmitting(true);
@@ -557,62 +515,52 @@ const LoginPage = ({ onLogin }) => {
       <LandscapeBackground />
 
       <header className="absolute top-0 left-0 right-0 z-20 px-8 py-6 flex items-center justify-between">
-        <Logo size="lg" invert />
+        <Logo size="lg" invert langLabel={t.tagline} />
+        
+        {/* Language Selector */}
+        <div className="relative">
+          <button onClick={() => setShowLang(!showLang)} className="flex items-center gap-2 px-3 py-2 bg-black/20 hover:bg-black/30 backdrop-blur-md rounded-md border border-white/10 text-white transition">
+            <span className="text-lg">{t.flag}</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">{lang}</span>
+          </button>
+          {showLang && (
+            <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-30">
+              {Object.entries(TRANSLATIONS).map(([key, value]) => (
+                <button key={key} onClick={() => { setLang(key); setShowLang(false); }} className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition ${lang === key ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-600'}`}>
+                  <span>{value.flag}</span> {value.lang}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </header>
 
       <main className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-[420px] bg-white rounded-lg shadow-2xl border border-white/40 overflow-hidden">
           <div className="p-8">
             <div className="mb-6">
-              <h1 className="text-[22px] font-semibold text-slate-900 tracking-tight">Iniciar sessão</h1>
+              <h1 className="text-[22px] font-semibold text-slate-900 tracking-tight">{t.loginTitle}</h1>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="text-[11px] font-medium text-slate-700 uppercase tracking-wider">Email profissional</label>
+                <label className="text-[11px] font-medium text-slate-700 uppercase tracking-wider">{t.emailLabel}</label>
                 <div className="mt-1.5 relative">
                   <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    autoComplete="username"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(null); }}
-                    placeholder="nome@terracerta.pt"
-                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-                  />
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@terracerta.pt" className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition" />
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-medium text-slate-700 uppercase tracking-wider">Palavra-passe</label>
-                  <button 
-                    type="button" 
-                    onClick={() => alert("Para recuperar a sua palavra-passe, por favor contacte o administrador da sua agência ou o suporte técnico da TerraCerta.")}
-                    className="text-xs text-emerald-700 hover:text-emerald-800 font-medium"
-                  >
-                    Esqueci-me
-                  </button>
+                  <label className="text-[11px] font-medium text-slate-700 uppercase tracking-wider">{t.passwordLabel}</label>
+                  <button type="button" onClick={() => alert(t.forgotMsg)} className="text-xs text-emerald-700 hover:text-emerald-800 font-medium">{t.forgotPassword}</button>
                 </div>
                 <div className="mt-1.5 relative">
                   <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(null); }}
-                    placeholder="••••••••••"
-                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-                  />
+                  <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••••" className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition" />
                 </div>
               </div>
-
-              <label className="flex items-center gap-2 text-xs text-slate-600 select-none cursor-pointer">
-                <input type="checkbox" defaultChecked className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                Manter sessão iniciada neste dispositivo
-              </label>
 
               {error && (
                 <div className="flex items-start gap-2 p-3 bg-rose-50 border border-rose-200 rounded-md text-xs text-rose-700 leading-relaxed">
@@ -621,16 +569,8 @@ const LoginPage = ({ onLogin }) => {
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full mt-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white text-sm font-medium py-2.5 rounded-md transition-all flex items-center justify-center gap-2 group"
-              >
-                {submitting ? (
-                  <><Loader2 size={15} className="animate-spin" /> A entrar…</>
-                ) : (
-                  <>Entrar na plataforma <ArrowRight size={15} className="group-hover:translate-x-0.5 transition" /></>
-                )}
+              <button type="submit" disabled={submitting} className="w-full mt-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white text-sm font-medium py-2.5 rounded-md transition-all flex items-center justify-center gap-2 group">
+                {submitting ? <><Loader2 size={15} className="animate-spin" /> {t.loggingIn}</> : <>{t.loginButton} <ArrowRight size={15} className="group-hover:translate-x-0.5 transition" /></>}
               </button>
             </form>
           </div>
