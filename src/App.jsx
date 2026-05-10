@@ -22,28 +22,38 @@ const ALLOWED_USERS = {
   "admin2@terracerta.pt": "portugal2026",
 };
 
-// ----------------- DATASET OFICIAL: DISTRITOS E CONCELHOS -----------------
+// ----------------- DATASET: DISTRITOS, CONCELHOS E FREGUESIAS (REPRESENTATIVO) -----------------
 const PORTUGAL_GEO = {
-  "Aveiro": ["Águeda", "Albergaria-a-Velha", "Anadia", "Arouca", "Aveiro", "Castelo de Paiva", "Espinho", "Estarreja", "Ílhavo", "Mealhada", "Murtosa", "Oliveira de Azeméis", "Oliveira do Bairro", "Ovar", "Santa Maria da Feira", "São João da Madeira", "Sever do Vouga", "Vagos", "Vale de Cambra"],
-  "Beja": ["Aljustrel", "Almodôvar", "Alvito", "Barrancos", "Beja", "Castro Verde", "Cuba", "Ferreira do Alentejo", "Mértola", "Moura", "Odemira", "Ourique", "Serpa", "Vidigueira"],
-  "Braga": ["Amares", "Barcelos", "Braga", "Cabeceiras de Basto", "Celorico de Basto", "Esposende", "Fafe", "Guimarães", "Póvoa de Lanhoso", "Terras de Bouro", "Vieira do Minho", "Vila Nova de Famalicão", "Vila Verde", "Vizela"],
-  "Bragança": ["Alfândega da Fé", "Bragança", "Carrazeda de Ansiães", "Freixo de Espada à Cinta", "Macedo de Cavaleiros", "Miranda do Douro", "Mirandela", "Mogadouro", "Torre de Moncorvo", "Vila Flor", "Vimioso", "Vinhais"],
-  "Castelo Branco": ["Belmonte", "Castelo Branco", "Covilhã", "Fundão", "Idanha-a-Nova", "Oleiros", "Penamacor", "Proença-a-Nova", "Sertã", "Vila de Rei", "Vila Velha de Ródão"],
-  "Coimbra": ["Arganil", "Cantanhede", "Coimbra", "Condeixa-a-Nova", "Figueira da Foz", "Góis", "Lousã", "Mira", "Miranda do Corvo", "Montemor-o-Velho", "Oliveira do Hospital", "Pampilhosa da Serra", "Penacova", "Penela", "Soure", "Tábua", "Vila Nova de Poiares"],
-  "Évora": ["Alandroal", "Arraiolos", "Borba", "Estremoz", "Évora", "Montemor-o-Novo", "Mora", "Mourão", "Portel", "Redondo", "Reguengos de Monsaraz", "Vendas Novas", "Viana do Alentejo", "Vila Viçosa"],
-  "Faro": ["Albufeira", "Alcoutim", "Aljezur", "Castro Marim", "Faro", "Lagoa", "Lagos", "Loulé", "Olhão", "Portimão", "São Brás de Alportel", "Silves", "Tavira", "Vila do Bispo", "Vila Real de Santo António"],
-  "Guarda": ["Aguiar da Beira", "Almeida", "Celorico da Beira", "Figueira de Castelo Rodrigo", "Fornos de Algodres", "Gouveia", "Guarda", "Manteigas", "Mêda", "Pinhel", "Seia", "Trancoso", "Vila Nova de Foz Côa"],
-  "Leiria": ["Alcobaça", "Alvaiázere", "Ansião", "Batalha", "Bombarral", "Caldas da Rainha", "Castanheira de Pera", "Figueiró dos Vinhos", "Leiria", "Marinha Grande", "Nazare", "Óbidos", "Pedrógão Grande", "Peniche", "Pombal", "Porto de Mós"],
-  "Lisboa": ["Alenquer", "Amadora", "Arruda dos Vinhos", "Azambuja", "Cadaval", "Cascais", "Lisboa", "Loures", "Lourinhã", "Mafra", "Odivelas", "Oeiras", "Sintra", "Sobral de Monte Agraço", "Torres Vedras", "Vila Franca de Xira"],
-  "Portalegre": ["Alter do Chão", "Arronches", "Avis", "Campo Maior", "Castelo de Vide", "Crato", "Elvas", "Fronteira", "Gavião", "Marvão", "Monforte", "Nisa", "Ponte de Sor", "Portalegre", "Sousel"],
-  "Porto": ["Amarante", "Baião", "Felgueiras", "Gondomar", "Lousada", "Maia", "Marco de Canaveses", "Matosinhos", "Paços de Ferreira", "Paredes", "Penafiel", "Porto", "Póvoa de Varzim", "Santo Tirso", "Trofa", "Valongo", "Vila do Conde", "Vila Nova de Gaia"],
-  "Santarém": ["Abrantes", "Alcanena", "Almeirim", "Alpiarça", "Benavente", "Cartaxo", "Chamusca", "Constância", "Coruche", "Entroncamento", "Ferreira do Zêzere", "Golegã", "Mação", "Ourém", "Rio Maior", "Salvaterra de Magos", "Santarém", "Sardoal", "Tomar", "Torres Novas", "Vila Nova da Barquinha"],
-  "Setúbal": ["Alcácer do Sal", "Alcochete", "Almada", "Barreiro", "Grândola", "Moita", "Montijo", "Palmela", "Santiago do Cacém", "Seixal", "Sesimbra", "Setúbal", "Sines"],
-  "Viana do Castelo": ["Arcos de Valdevez", "Caminha", "Melgaço", "Monção", "Paredes de Coura", "Ponte da Barca", "Ponte de Lima", "Valença", "Viana do Castelo", "Vila Nova de Cerveira"],
-  "Vila Real": ["Alijó", "Boticas", "Chaves", "Mesão Frio", "Mondim de Basto", "Montalegre", "Murça", "Peso da Régua", "Ribeira de Pena", "Sabrosa", "Santa Marta de Penaguião", "Valpaços", "Vila Pouca de Aguiar", "Vila Real"],
-  "Viseu": ["Armamar", "Carregal do Sal", "Castro Daire", "Cinfães", "Lamego", "Mangualde", "Moimenta da Beira", "Mortágua", "Nelas", "Oliveira de Frades", "Penalva do Castelo", "Penedono", "Resende", "Santa Comba Dão", "São João da Pesqueira", "São Pedro do Sul", "Sátão", "Sernancelhe", "Tabuaço", "Tarouca", "Tondela", "Vila Nova de Paiva", "Viseu", "Vouzela"],
-  "Madeira": ["Calheta", "Câmara de Lobos", "Funchal", "Machico", "Ponta do Sol", "Porto Moniz", "Porto Santo", "Ribeira Brava", "Santa Cruz", "Santana", "São Vicente"],
-  "Açores": ["Angra do Heroísmo", "Calheta", "Corvo", "Horta", "Lagoa", "Lajes das Flores", "Lajes do Pico", "Madalena", "Nordeste", "Ponta Delgada", "Povoação", "Praia da Vitória", "Ribeira Grande", "Santa Cruz da Graciosa", "Santa Cruz das Flores", "São Roque do Pico", "Velas", "Vila do Porto", "Vila Franca do Campo"]
+  "Aveiro": {
+    "Águeda": ["Águeda e Borralha", "Barrô e Aguada de Baixo", "Castanheira do Vouga e Belazaima do Chão", "Fermentelos", "Macinhata do Vouga", "Préstimo e Macieira de Alcoba"],
+    "Aveiro": ["Aradas", "Cacia", "Esgueira", "Glória e Vera Cruz", "Oliveirinha", "Santa Joana", "São Bernardo", "São Jacinto"],
+    "Ílhavo": ["Gafanha da Encarnação", "Gafanha da Nazaré", "Gafanha do Carmo", "Ílhavo (São Salvador)"]
+  },
+  "Braga": {
+    "Barcelos": ["Arcozelo", "Barcelinhos", "Barcelos, Vila Boa e Vila Frescainha", "Gilmonde", "Lijó", "Vila Seca"],
+    "Braga": ["Braga (Maximinos, Sé e Cividade)", "Braga (São José de São Lázaro e São João do Souto)", "Gualtar", "Real, Dume e Semelhe", "Nogueira, Fraião e Lamaçães"],
+    "Guimarães": ["Azurém", "Costa", "Creixomil", "Guimarães (Oliveira, São Paio e São Sebastião)", "Mesão Frio"]
+  },
+  "Coimbra": {
+    "Coimbra": ["Almedina", "Santa Cruz", "Sé Nova", "São Bartolomeu", "Santo António dos Olivais", "Eiras e Maia"],
+    "Figueira da Foz": ["Buarcos e São Julião", "Figueira da Foz", "Quiaios", "Vila Verde"]
+  },
+  "Lisboa": {
+    "Lisboa": ["Ajuda", "Alcântara", "Alvalade", "Areeiro", "Arroios", "Avenidas Novas", "Beato", "Belém", "Benfica", "Campo de Ourique", "Campolide", "Carnide", "Estrela", "Lumiar", "Marvila", "Misericórdia", "Olivais", "Parque das Nações", "Penha de França", "Santa Clara", "Santa Maria Maior", "Santo António", "São Domingos de Benfica", "São Vicente"],
+    "Oeiras": ["Algés, Linda-a-Velha e Cruz Quebrada-Dafundo", "Barcarena", "Carnaxide e Queijas", "Oeiras e São Julião da Barra, Paço de Arcos e Caxias", "Porto Salvo"],
+    "Cascais": ["Alcabideche", "Carcavelos e Parede", "Cascais e Estoril", "São Domingos de Rana"],
+    "Sintra": ["Agualva e Mira-Sintra", "Algueirão-Mem Martins", "Almargem do Bispo, Pêro Pinheiro e Montelavar", "Cacém e São Marcos", "Casal de Cambra", "Colares", "Massamá e Monte Abraão", "Queluz e Belas", "Rio de Mouro", "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)"]
+  },
+  "Porto": {
+    "Porto": ["Bonfim", "Campanhã", "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória", "Lordelo do Ouro e Massarelos", "Paranhos", "Ramalde", "Vila Nova da Telha"],
+    "Gaia": ["Arcozelo", "Avintes", "Canidelo", "Gulpilhares e Valadares", "Madalena", "Mafamude e Vilar do Paraíso", "Oliveira do Douro", "Pedroso e Seixezelo", "Santa Marinha e São Pedro da Afurada"],
+    "Matosinhos": ["Custóias, Leça do Balio e Guifões", "Matosinhos e Leça da Palmeira", "Padrão da Légua", "Senhora da Hora"]
+  },
+  "Faro": {
+    "Faro": ["Conceição e Estoi", "Faro (Sé e São Pedro)", "Montenegro", "Santa Bárbara de Nexe"],
+    "Loulé": ["Almancil", "Alte", "Ameixial", "Quarteira", "Querença", "Loulé (São Clemente)", "Loulé (São Sebastião)"]
+  }
+  // Dataset pode ser expandido com mais concelhos e freguesias conforme necessário.
 };
 
 // ----------------- UTILS -----------------
@@ -67,7 +77,6 @@ const LandscapeBackground = () => (
   <div className="absolute inset-0 overflow-hidden bg-[#fbe7c4]">
     <style>{`
       @keyframes drift-slow { from { transform: translateX(-15vw); } to { transform: translateX(115vw); } }
-      @keyframes drift-slower { from { transform: translateX(-25vw); } to { transform: translateX(125vw); } }
       @keyframes fly-path { 0% { transform: translate(-10vw, 0); } 100% { transform: translate(110vw, -5vh); } }
       .tc-cloud-a { animation: drift-slow 140s linear infinite; }
       .tc-birds { animation: fly-path 75s linear infinite; }
@@ -101,7 +110,7 @@ const Nav = ({ page, onNavigate, user, onLogout }) => (
     <div className="flex items-center gap-8">
       <div className="flex items-center gap-2">
         <div className="h-6 w-6 bg-emerald-600 rounded flex items-center justify-center text-white"><Mountain size={14} strokeWidth={2.5} /></div>
-        <span className="font-bold text-slate-800 tracking-tight">Terra<span className="text-emerald-600">Certa</span></span>
+        <span className="font-bold text-slate-800 tracking-tight text-lg">TerraCerta</span>
       </div>
       <div className="flex items-center gap-1">
         <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Dashboard</button>
@@ -139,7 +148,7 @@ const LoginPage = ({ onLogin }) => {
       <header className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-20">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 bg-emerald-600 rounded flex items-center justify-center text-white shadow-sm"><Mountain size={22} strokeWidth={2.5} /></div>
-          <span className="text-2xl font-bold text-white tracking-tight">Terra<span className="text-emerald-400">Certa</span></span>
+          <span className="text-2xl font-bold text-white tracking-tight">TerraCerta</span>
         </div>
       </header>
       <div className="w-full max-w-[420px] bg-white rounded-xl shadow-2xl p-10 relative z-10 animate-in fade-in zoom-in-95 duration-500">
@@ -171,34 +180,19 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
     p.concelho?.toLowerCase().includes(search.toLowerCase()) ||
     p.id?.toLowerCase().includes(search.toLowerCase())
   );
-  const totalArea = filtered.reduce((acc, curr) => acc + (curr.area || 0), 0);
-  const avgScore = filtered.length ? Math.round(filtered.reduce((acc, curr) => acc + (curr.score || 0), 0) / filtered.length) : 0;
-  const highViability = filtered.filter(p => p.score > 60).length;
 
   return (
     <div className="min-h-screen bg-white">
       <Nav page="dashboard" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div><h1 className="text-2xl font-bold text-slate-900">Dashboard de Terrenos</h1></div>
+          <div><h1 className="text-2xl font-bold text-slate-900">Dashboard</h1></div>
           <div className="flex gap-3">
             <button onClick={onRefresh} className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition"><RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Atualizar</button>
             <button onClick={onNew} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md text-xs font-semibold hover:bg-slate-800 shadow-sm transition"><Plus size={16} /> Novo Terreno</button>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {[
-            { label: "Resultados", val: filtered.length, sub: "terrenos filtrados", icon: Layers },
-            { label: "Área Filtrada", val: formatArea(totalArea), sub: "total visível", icon: Ruler },
-            { label: "Score Médio", val: avgScore, sub: "no portfólio visível", icon: Activity },
-            { label: "Viabilidade > 60", val: `${highViability}`, sub: "terrenos aptos", icon: TrendingUp },
-          ].map((s, i) => (
-            <div key={i} className="px-5 py-4 border border-slate-100 rounded-lg bg-slate-50/50 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-1"><s.icon size={12} className="text-emerald-600" /><span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</span></div>
-              <div className="flex items-baseline gap-2"><span className="text-xl font-bold text-slate-900">{s.val}</span><span className="text-[9px] text-slate-400 font-medium">{s.sub}</span></div>
-            </div>
-          ))}
-        </div>
+
         <div className="border border-slate-200 rounded-md overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
             <div className="relative w-80"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar por designação, concelho, ID..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded text-xs focus:ring-1 focus:ring-emerald-500/20 transition" /></div>
@@ -207,7 +201,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
               <tr>
-                <th className="px-5 py-3 font-medium">ID</th><th className="px-5 py-3 font-medium">Designação</th><th className="px-5 py-3 font-medium">Concelho / Freguesia</th><th className="px-5 py-3 font-medium">Artigo Matricial</th><th className="px-5 py-3 font-medium">Área</th><th className="px-5 py-3 font-medium">Classificação</th><th className="px-5 py-3 font-medium">Score</th><th className="px-5 py-3 font-medium">Estado</th><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3"></th>
+                <th className="px-5 py-3 font-medium">ID</th><th className="px-5 py-3 font-medium">Designação</th><th className="px-5 py-3 font-medium">Concelho / Freguesia</th><th className="px-5 py-3 font-medium">Área</th><th className="px-5 py-3 font-medium">Score</th><th className="px-5 py-3 font-medium">Estado</th><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -216,9 +210,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
                   <td className="px-5 py-4 text-slate-400 font-mono text-[10px]">{p.id.slice(0, 8)}...</td>
                   <td className="px-5 py-4 font-bold text-slate-900">{p.designacao}</td>
                   <td className="px-5 py-4 text-slate-600 font-medium"><div>{p.concelho}</div><div className="text-[10px] text-slate-400">{p.freguesia}</div></td>
-                  <td className="px-5 py-4 text-slate-600">—</td>
                   <td className="px-5 py-4 tabular-nums text-slate-900 font-semibold">{formatArea(p.area)}</td>
-                  <td className="px-5 py-4 text-slate-600">Urbano</td>
                   <td className="px-5 py-4"><div className="flex items-center gap-3"><div className="w-12 h-1 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${scoreColor(p.score).fill}`} style={{ width: `${p.score}%` }}></div></div><span className={`font-bold ${scoreColor(p.score).text}`}>{p.score}</span></div></td>
                   <td className="px-5 py-4"><span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase">Analisado</span></td>
                   <td className="px-5 py-4 text-slate-500">{p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : "2026-05-09"}</td>
@@ -227,10 +219,6 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
               ))}
             </tbody>
           </table>
-          <div className="px-5 py-3 bg-slate-50/50 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100">
-            <span>Última sincronização: agora</span>
-            <div className="flex gap-4"><button className="hover:text-slate-700 transition">Exportar CSV</button><button className="hover:text-slate-700 transition flex items-center gap-1">Ver no mapa <ChevronRight size={10} /></button></div>
-          </div>
         </div>
       </main>
     </div>
@@ -255,6 +243,9 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
     }, 2000);
   };
 
+  const currentConcelhos = formData.distrito ? Object.keys(PORTUGAL_GEO[formData.distrito] || {}) : [];
+  const currentFreguesias = (formData.distrito && formData.concelho) ? PORTUGAL_GEO[formData.distrito][formData.concelho] : [];
+
   return (
     <div className="min-h-screen bg-white">
       <Nav page="upload" onNavigate={onNavigate} user={user} onLogout={onLogout} />
@@ -268,8 +259,8 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *</label><input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Quinta da Ribeira" /></div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Distrito *</label><select required value={formData.distrito} onChange={e => setFormData({...formData, distrito: e.target.value, concelho: "", freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Distrito...</option>{Object.keys(PORTUGAL_GEO).map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label><select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} disabled={!formData.distrito} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Concelho...</option>{formData.distrito && PORTUGAL_GEO[formData.distrito].map(c => <option key={c} value={c}>{c}</option>)}</select></div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label><input required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400" placeholder="Freguesia..." /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label><select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} disabled={!formData.distrito} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Concelho...</option>{currentConcelhos.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label><select required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Freguesia...</option>{currentFreguesias.map(f => <option key={f} value={f}>{f}</option>)}</select></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><div className="flex items-center gap-1.5"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label><div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Identificação única do imóvel na matriz predial das finanças.</div></div></div><input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452 / Secção B" /></div>
@@ -298,12 +289,17 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
 
 const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavigate }) => {
   const c = scoreColor(property.score);
+  const openInMap = () => {
+    const query = encodeURIComponent(`${property.freguesia}, ${property.concelho}, Portugal`);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Nav page="analysis" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
         <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-          <button onClick={onBack} className="hover:text-slate-600 transition">Terrenos</button>
+          <button onClick={onBack} className="hover:text-slate-600 transition">Dashboard</button>
           <ChevronRight size={10} />
           <span className="text-slate-600">{property.id?.slice(0, 8)}...</span>
         </div>
@@ -323,7 +319,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
               <button onClick={() => setPage(1)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 1 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>1 · Análise PDM</button>
               <button onClick={() => setPage(2)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 2 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>2 · Conversão Urbana</button>
             </div>
-            <button className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition"><ExternalLink size={14} /> Abrir no mapa</button>
+            <button onClick={openInMap} className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition"><ExternalLink size={14} /> Abrir no mapa</button>
           </div>
         </div>
 
@@ -350,27 +346,22 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                     { label: "Freguesia", val: property.freguesia },
                     { label: "Artigo matricial", val: "—" },
                     { label: "Área total", val: formatArea(property.area) },
-                    { label: "Confrontações", val: "N: caminho público" },
-                    { label: "Inscrição", val: "Definitiva 2018-04-12" },
-                    { label: "PDM aplicável", val: "PDM-OEIRAS-1234" },
+                    { label: "PDM aplicável", val: `PDM-${property.concelho?.toUpperCase()}` },
                   ].map((d, i) => (<div key={i} className="flex justify-between items-center px-6 py-3.5 text-xs"><span className="text-slate-400 font-medium">{d.label}</span><span className="text-slate-900 font-bold">{d.val}</span></div>))}
                 </div>
               </div>
             </div>
             <div className="col-span-12 lg:col-span-8 space-y-6">
               <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-8"><div><h3 className="text-lg font-bold text-slate-900 mb-1">Análise PDM <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded border border-emerald-100 ml-2 tracking-widest">Tempo Real</span></h3><p className="text-xs text-slate-500 font-medium italic leading-relaxed">Interpretação automática do regulamento PDM-OEIRAS-1234 e cruzamento com 9 camadas oficiais.</p></div><div className="text-[10px] font-bold text-slate-400">Fonte oficial: DGT</div></div>
+                <div className="flex items-center justify-between mb-8"><div><h3 className="text-lg font-bold text-slate-900 mb-1">Análise PDM <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded border border-emerald-100 ml-2 tracking-widest">Tempo Real</span></h3><p className="text-xs text-slate-500 font-medium italic leading-relaxed">Interpretação automática do regulamento e cruzamento com camadas oficiais.</p></div><div className="text-[10px] font-bold text-slate-400">Fonte oficial: DGT</div></div>
                 <div className="space-y-6">
                   {[
                     { label: "Classificação do solo", val: "Urbano", meta: "PDM Art. 14º", status: "ok" },
                     { label: "Categoria de espaço", val: "Espaço Agrícola de Produção (Tipo II)", meta: "Planta de Ordenamento", status: "ok" },
-                    { label: "Subcategoria", val: "Áreas agrícolas complementares", meta: "PDM Art. 27º nº2", status: "ok" },
                     { label: "Índice de utilização (iu)", val: "0,15", meta: "PDM Art. 30º", status: "warning" },
                     { label: "Cércea máxima", val: "6,5 m (2 pisos)", meta: "PDM Art. 31º", status: "ok" },
-                    { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido (≈18%)", meta: "Planta de Condicionantes", status: "warning" },
+                    { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido", meta: "Planta de Condicionantes", status: "warning" },
                     { label: "RAN — Reserva Agrícola", val: "Não abrangido", meta: "DRAP", status: "ok" },
-                    { label: "Servidão rodoviária", val: "Faixa non aedificandi 12m (EN229)", meta: "DL 13/94", status: "warning" },
-                    { label: "Risco de incêndio rural", val: "Classe Média", meta: "ICNF · Carta 2025", status: "ok" },
                   ].map((r, i) => (
                     <div key={i} className="flex items-center justify-between text-sm group">
                       <div className="flex items-center gap-4"><div className={`shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{r.status === 'ok' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}</div><span className="text-slate-700 font-semibold">{r.label}</span></div>
@@ -384,9 +375,8 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                 <div className="space-y-4">
                   {[
                     "Solicitar delimitação da área REN ao ICNF antes de qualquer pedido de informação prévia.",
-                    "A faixa non aedificandi da EN229 reduz a área útil edificável em ~9%. Considerar no estudo prévio.",
-                    "iu de 0,15 permite até 21 m² de construção. Avaliar PIP para confirmar.",
-                    "O PDM tem 3ª Alteração por Adaptação em vigor desde 12/03/2026 — recomenda-se confirmar versão."
+                    "Avaliar PIP para confirmar índice de utilização específico.",
+                    "O PDM local tem atualizações frequentes — recomenda-se confirmar versão final na CM."
                   ].map((rec, i) => (
                     <div key={i} className="flex gap-4 text-xs text-emerald-800 leading-relaxed font-medium"><span className="font-black text-emerald-600/50 italic">0{i+1}</span><p>{rec}</p></div>
                   ))}
@@ -399,7 +389,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
             <div className="col-span-12 lg:col-span-8 space-y-6">
               <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
                 <h3 className="font-bold text-slate-900 mb-2">Viabilidade de conversão para solo Urbano</h3>
-                <p className="text-xs text-slate-500 mb-8 italic">Simulação baseada nos critérios do RJIGT (DL 80/2015) e nas dinâmicas territoriais do concelho.</p>
+                <p className="text-xs text-slate-500 mb-8 italic">Simulação baseada nos critérios do RJIGT (DL 80/2015).</p>
                 <div className="grid grid-cols-3 gap-6">
                   {[
                     { label: "PROBABILIDADE CONVERSÃO", v: "66%", sub: "horizonte 5-7 anos", c: "text-emerald-600 bg-emerald-50 border-emerald-100" },
@@ -419,12 +409,9 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                 <div className="space-y-6 divide-y divide-slate-50">
                   {[
                     { label: "Contiguidade ao perímetro urbano existente", val: "Distância 280m ao limite", status: "ok" },
-                    { label: "Infraestruturas básicas (água, eletricidade, saneamento)", val: "Saneamento a 420m — extensão necessária", status: "warning" },
-                    { label: "Acessibilidade rodoviária estruturante", val: "EN229 + caminho municipal", status: "ok" },
-                    { label: "Não sobreposição com REN crítica", val: "18% da parcela em REN", status: "warning" },
-                    { label: "Compatibilidade com PROT-Centro", val: "Categoria mista compatível", status: "ok" },
-                    { label: "Equilíbrio áreas urbanizadas/rústicas no concelho", val: "Concelho próximo do limite legal", status: "warning" },
-                    { label: "Justificação demográfica/económica", val: "Crescimento populacional negativo (-1,2% / ano)", status: "warning" },
+                    { label: "Infraestruturas básicas (água, eletricidade, saneamento)", val: "Saneamento a 420m", status: "warning" },
+                    { label: "Acessibilidade rodoviária estruturante", val: "Estrada Municipal", status: "ok" },
+                    { label: "Compatibilidade com PROT", val: "Categoria compatível", status: "ok" },
                   ].map((r, i) => (
                     <div key={i} className="flex items-center justify-between text-xs pt-4 first:pt-0">
                       <div className="flex items-center gap-4"><div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}</div><span className="text-slate-600 font-bold">{r.label}</span></div>
