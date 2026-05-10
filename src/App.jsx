@@ -26,34 +26,37 @@ const ALLOWED_USERS = {
 // ----------------- TRANSLATIONS -----------------
 const TRANSLATIONS = {
   pt: { 
-    loginTitle: "Iniciar sessão", emailLabel: "Email profissional", passwordLabel: "Palavra-passe", forgotPassword: "Esqueci-me", loginButton: "Entrar na plataforma", tagline: "Análise de Viabilidade Territorial", forgotMsg: "Contacte o suporte técnico.", loggingIn: "A entrar...", lang: "Português", flag: "🇵🇹",
+    loginTitle: "Iniciar sessão", emailLabel: "Email profissional", passwordLabel: "Palavra-passe", forgotPassword: "Esqueci-me da Password", loginButton: "Entrar na plataforma", tagline: "Análise de Viabilidade Territorial", forgotMsg: "Contacte o suporte técnico.", loggingIn: "A entrar...", lang: "Português", flag: "🇵🇹",
     properties: "Terrenos", dashboard: "Dashboard", reports: "Relatórios", sig: "Camadas SIG", newProperty: "Novo Terreno", logout: "Sair", search: "Pesquisar...", stats_total: "Terrenos em carteira", stats_area: "Área total agregada", stats_score: "Health Score médio",
     back: "Voltar", downloadPDF: "Relatório PDF", identify: "Identificação", concelho: "Concelho", area: "Área", score: "Score", status: "Estado", recommendation: "Recomendação"
   },
   en: { 
-    loginTitle: "Sign In", emailLabel: "Email", passwordLabel: "Password", forgotPassword: "Forgot?", loginButton: "Enter Platform", tagline: "Territorial Viability Analysis", forgotMsg: "Contact technical support.", loggingIn: "Signing in...", lang: "English", flag: "🇬🇧",
+    loginTitle: "Sign In", emailLabel: "Email", passwordLabel: "Password", forgotPassword: "Forgot Password?", loginButton: "Enter Platform", tagline: "Territorial Viability Analysis", forgotMsg: "Contact technical support.", loggingIn: "Signing in...", lang: "English", flag: "🇬🇧",
     properties: "Properties", dashboard: "Dashboard", reports: "Reports", sig: "GIS Layers", newProperty: "New Property", logout: "Logout", search: "Search...", stats_total: "Properties", stats_area: "Total Area", stats_score: "Avg Score",
     back: "Back", downloadPDF: "PDF Report", identify: "Identification", concelho: "County", area: "Area", score: "Score", status: "Status", recommendation: "Recommendation"
   },
   fr: { 
-    loginTitle: "Se connecter", emailLabel: "Email", passwordLabel: "Mot de passe", forgotPassword: "Oublié ?", loginButton: "Entrer", tagline: "Analyse de viabilité territoriale", forgotMsg: "Contactez le support.", loggingIn: "Connexion...", lang: "Français", flag: "🇫🇷",
+    loginTitle: "Se connecter", emailLabel: "Email", passwordLabel: "Mot de passe", forgotPassword: "Mot de passe oublié ?", loginButton: "Entrer", tagline: "Analyse de viabilidade territoriale", forgotMsg: "Contactez le support.", loggingIn: "Connexion...", lang: "Français", flag: "🇫🇷",
     properties: "Terrains", dashboard: "Tableau de bord", reports: "Rapports", sig: "Couches SIG", newProperty: "Nouveau Terrain", logout: "Déconnexion", search: "Rechercher...", stats_total: "Terrains", stats_area: "Surface totale", stats_score: "Score moyen",
     back: "Retour", downloadPDF: "Rapport PDF", identify: "Identification", concelho: "Commune", area: "Surface", score: "Score", status: "État", recommendation: "Recommandation"
   },
   de: { 
-    loginTitle: "Anmelden", emailLabel: "E-Mail", passwordLabel: "Passwort", forgotPassword: "Vergessen?", loginButton: "Plattform betreten", tagline: "Territoriale Machbarkeitsanalyse", forgotMsg: "Support kontaktieren.", loggingIn: "Anmelden...", lang: "Deutsch", flag: "🇩🇪",
+    loginTitle: "Anmelden", emailLabel: "E-Mail", passwordLabel: "Passwort", forgotPassword: "Passwort vergessen?", loginButton: "Plattform betreten", tagline: "Territoriale Machbarkeitsanalyse", forgotMsg: "Support kontaktieren.", loggingIn: "Anmelden...", lang: "Deutsch", flag: "🇩🇪",
     properties: "Grundstücke", dashboard: "Dashboard", reports: "Berichte", sig: "GIS-Ebenen", newProperty: "Neues Grundstück", logout: "Abmelden", search: "Suche...", stats_total: "Grundstücke", stats_area: "Gesamtfläche", stats_score: "Durchschnitt",
     back: "Zurück", downloadPDF: "PDF-Bericht", identify: "Identifizierung", concelho: "Gemeinde", area: "Fläche", score: "Score", status: "Status", recommendation: "Empfehlung"
   },
   es: { 
-    loginTitle: "Iniciar sesión", emailLabel: "Email", passwordLabel: "Contraseña", forgotPassword: "¿Olvidaste?", loginButton: "Entrar", tagline: "Análisis de Viabilidad Territorial", forgotMsg: "Contacte con soporte.", loggingIn: "Entrando...", lang: "Español", flag: "🇪🇸",
+    loginTitle: "Iniciar sesión", emailLabel: "Email", passwordLabel: "Contraseña", forgotPassword: "¿Olvidaste la contraseña?", loginButton: "Entrar", tagline: "Análisis de Viabilidade Territorial", forgotMsg: "Contacte con suporte.", loggingIn: "Entrando...", lang: "Español", flag: "🇪🇸",
     properties: "Terrenos", dashboard: "Dashboard", reports: "Informes", sig: "Capas SIG", newProperty: "Nuevo Terreno", logout: "Salir", search: "Buscar...", stats_total: "Terrenos", stats_area: "Área total", stats_score: "Puntuación media",
     back: "Volver", downloadPDF: "Informe PDF", identify: "Identificación", concelho: "Municipio", area: "Área", score: "Puntuación", status: "Estado", recommendation: "Recomendación"
   },
   it: { 
-    loginTitle: "Accedi", emailLabel: "Email", passwordLabel: "Password", forgotPassword: "Dimenticata?", loginButton: "Entra", tagline: "Analisi di Viabilità Territoriale", forgotMsg: "Contatta il supporto.", loggingIn: "Accesso...", lang: "Italiano", flag: "🇮🇹",
+    loginTitle: "Accedi", emailLabel: "Email", passwordLabel: "Password", forgotPassword: "Password dimenticata?", loginButton: "Entra", tagline: "Analisi di Viabilità Territoriale", forgotMsg: "Contatta il supporto.", loggingIn: "Accesso...", lang: "Italiano", flag: "🇮🇹",
     properties: "Terreni", dashboard: "Dashboard", reports: "Rapporti", sig: "Livelli GIS", newProperty: "Nuovo Terreno", logout: "Esci", search: "Cerca...", stats_total: "Terreni", stats_area: "Superficie", stats_score: "Punteggio",
     back: "Indietro", downloadPDF: "Rapporto PDF", identify: "Identificazione", concelho: "Comune", area: "Superficie", score: "Punteggio", status: "Stato", recommendation: "Raccomandazione"
+  },
+};
+"Punteggio", status: "Stato", recommendation: "Raccomandazione"
   },
 };
 
@@ -145,17 +148,24 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
   const [submitting, setSubmitting] = useState(false);
   const [showLang, setShowLang] = useState(false);
   const t = TRANSLATIONS[lang];
+
   const handleLogin = (e) => {
     e?.preventDefault?.();
     setError(null);
     const expectedPwd = ALLOWED_USERS[email.toLowerCase().trim()];
-    if (!expectedPwd || expectedPwd !== password) { setError(lang === "pt" ? "Credenciais inválidas." : "Invalid credentials."); return; }
+    if (!expectedPwd || expectedPwd !== password) {
+      setError(lang === "pt" ? "Credenciais inválidas." : "Invalid credentials.");
+      return;
+    }
     setSubmitting(true);
     setTimeout(() => onLogin(email), 300);
   };
+
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center p-4">
       <LandscapeBackground />
+      
+      {/* Header com Logo e Seleção de Língua */}
       <header className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-20">
         <Logo size="lg" invert langLabel={t.tagline} />
         <div className="relative">
@@ -165,7 +175,7 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
           {showLang && (
             <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden z-30">
               {Object.entries(TRANSLATIONS).map(([key, value]) => (
-                <button key={key} onClick={() => { setLang(key); setShowLang(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition">
+                <button key={key} onClick={() => { setLang(key); setShowLang(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition text-left">
                   <span>{value.flag}</span> {value.lang}
                 </button>
               ))}
@@ -173,20 +183,65 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
           )}
         </div>
       </header>
-      <div className="w-full max-w-[400px] bg-white rounded-xl shadow-2xl p-8 relative z-10 animate-in fade-in zoom-in-95 duration-500">
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">{t.loginTitle}</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-slate-500 uppercase">{t.emailLabel}</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mt-1 px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500/20" />
+
+      {/* Cartão de Login Estilo Imagem 2 */}
+      <div className="w-full max-w-[420px] bg-white rounded-xl shadow-2xl p-10 relative z-10 animate-in fade-in zoom-in-95 duration-500">
+        <h1 className="text-3xl font-bold text-[#0f172a] mb-10">{t.loginTitle}</h1>
+        
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.emailLabel}</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="email" 
+                required 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition text-slate-600 placeholder:text-slate-300"
+                placeholder="nome@terracerta.pt"
+              />
+            </div>
           </div>
-          <div>
-            <div className="flex justify-between"><label className="text-xs font-bold text-slate-500 uppercase">{t.passwordLabel}</label><button type="button" onClick={() => alert(t.forgotMsg)} className="text-xs text-emerald-700 font-bold">{t.forgotPassword}</button></div>
-            <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="w-full mt-1 px-4 py-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500/20" />
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.passwordLabel}</label>
+              <button type="button" onClick={() => alert(t.forgotMsg)} className="text-[11px] text-[#10b981] font-bold hover:underline">
+                {t.forgotPassword}
+              </button>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="password" 
+                required 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition text-slate-600"
+                placeholder="••••••••••"
+              />
+            </div>
           </div>
-          {error && <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-md border border-rose-100">{error}</div>}
-          <button type="submit" disabled={submitting} className="w-full bg-slate-900 text-white py-3 rounded-md font-bold hover:bg-slate-800 transition disabled:opacity-50">
-            {submitting ? t.loggingIn : t.loginButton}
+
+          {error && (
+            <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg border border-rose-100 flex items-center gap-2">
+              <AlertCircle size={14} /> {error}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            disabled={submitting} 
+            className="w-full bg-[#0f172a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition transform active:scale-[0.98] disabled:opacity-50"
+          >
+            {submitting ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <>
+                {t.loginButton} <ArrowRight size={18} />
+              </>
+            )}
           </button>
         </form>
       </div>
