@@ -90,48 +90,59 @@ const Logo = ({ size = "md", invert = false, langLabel }) => (
 );
 
 const LandscapeBackground = () => {
-  const [trees, setTrees] = useState([]);
-  const [rain, setRain] = useState(false);
-  const [birdRoute, setBirdRoute] = useState(0);
-  const plantTree = (e) => {
-    const svg = e.currentTarget;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX; pt.y = e.clientY;
-    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
-    if (cursor.y > 700) setTrees([...trees, { x: cursor.x, y: cursor.y, id: Date.now() }]);
-  };
   return (
-    <div className="absolute inset-0 overflow-hidden bg-slate-900">
-      <style>{`
-        @keyframes drift { from { transform: translateX(-20vw); } to { transform: translateX(120vw); } }
-        @keyframes fly { 0% { transform: translate(-10vw, 0); } 100% { transform: translate(110vw, ${birdRoute}vh); } }
-        @keyframes rainfall { from { transform: translateY(-20px); } to { transform: translateY(1080px); } }
-        .tc-cloud { animation: drift 120s linear infinite; cursor: pointer; }
-        .tc-birds { animation: fly 60s linear infinite; cursor: pointer; }
-        .tc-rain { animation: rainfall 0.7s linear infinite; }
-      `}</style>
-      <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full" onClick={plantTree}>
+    <div className="absolute inset-0 overflow-hidden bg-[#e9c49a]">
+      <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
         <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#fbe7c4" /><stop offset="100%" stopColor="#c9825a" /></linearGradient>
-          <linearGradient id="mountains" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7a8b8e" /><stop offset="100%" stopColor="#5b6e72" /></linearGradient>
-          <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#9bb47e" /><stop offset="100%" stopColor="#7a9460" /></linearGradient>
-          <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3a5d34" /><stop offset="100%" stopColor="#243d22" /></linearGradient>
-          <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#d4c685" /><stop offset="100%" stopColor="#a89255" /></linearGradient>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#d8b08c" />
+            <stop offset="100%" stopColor="#f3d1ae" />
+          </linearGradient>
+          <linearGradient id="mountains" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#7c8485" />
+            <stop offset="100%" stopColor="#5d6668" />
+          </linearGradient>
         </defs>
+        
+        {/* Sky */}
         <rect width="1920" height="1080" fill="url(#sky)" />
-        <path d="M0,520 L120,470 L320,440 L660,460 L1320,455 L1920,455 L1920,600 L0,600 Z" fill="url(#mountains)" />
-        <path d="M0,580 Q240,510 480,545 T1920,510 L1920,720 L0,720 Z" fill="url(#hill1)" opacity="0.85" />
-        <path d="M0,780 Q400,700 800,740 T1920,740 L1920,1080 L0,1080 Z" fill="url(#hill2)" />
-        <path d="M0,860 Q1000,840 1920,830 L1920,1080 L0,1080 Z" fill="url(#field)" opacity="0.9" />
-        {[[180, 770], [1460, 750], [820, 805]].map(([cx, cy], i) => (<ellipse key={i} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.9" />))}
-        {trees.map(t => (<g key={t.id} transform={`translate(${t.x}, ${t.y})`}><ellipse cx="0" cy="-20" rx="6" ry="22" fill="#1c3a1a" /></g>))}
-        {rain && Array.from({ length: 60 }).map((_, i) => (<line key={i} x1={Math.random() * 1920} y1="-20" x2={Math.random() * 1920} y2="0" stroke="white" opacity="0.4" className="tc-rain" style={{ animationDelay: `${Math.random()}s` }} />))}
-      </svg>
-      <svg className="absolute top-[10%] left-0 w-[20vw] tc-cloud" viewBox="0 0 200 60" onClick={(e) => { e.stopPropagation(); setRain(!rain); }}>
-        <g fill="white" opacity="0.9"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /><ellipse cx="130" cy="35" rx="38" ry="16" /></g>
-      </svg>
-      <svg className="absolute top-[25%] left-0 w-[10vw] tc-birds" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="2" onClick={(e) => { e.stopPropagation(); setBirdRoute(r => r + 5); }}>
-        <path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M40,28 q4,-6 8,0 q4,-6 8,0" />
+        
+        {/* Sun Glow */}
+        <circle cx="1400" cy="300" r="150" fill="#fdf0d5" opacity="0.3" filter="blur(40px)" />
+        
+        {/* Distant Mountains */}
+        <path d="M0,520 L320,440 L660,480 L900,420 L1320,460 L1920,420 L1920,600 L0,600 Z" fill="url(#mountains)" />
+        
+        {/* Green Hills (Rolling layers) */}
+        <path d="M0,580 Q240,510 480,560 T960,530 T1500,550 T1920,520 L1920,800 L0,800 Z" fill="#9bb47e" />
+        <path d="M0,640 Q400,580 800,650 T1600,620 T1920,640 L1920,900 L0,900 Z" fill="#6c8c5e" />
+        <path d="M0,740 Q500,680 1000,760 T1920,720 L1920,1080 L0,1080 Z" fill="#3a5d34" />
+        
+        {/* Dark Green Foreground Hill */}
+        <path d="M0,840 Q400,800 800,880 T1600,820 T1920,850 L1920,1080 L0,1080 Z" fill="#1b3d1b" />
+        
+        {/* Wheat Field Base */}
+        <path d="M0,940 Q500,920 1000,960 T1920,930 L1920,1080 L0,1080 Z" fill="#c4ae78" />
+        
+        {/* Decorative Trees (Static) */}
+        <g fill="#0f260f" opacity="0.8">
+          <ellipse cx="720" cy="850" rx="10" ry="30" />
+          <ellipse cx="750" cy="860" rx="12" ry="35" />
+          <ellipse cx="790" cy="855" rx="11" ry="32" />
+        </g>
+        
+        {/* Static Birds */}
+        <g stroke="#3a2818" strokeWidth="1.5" fill="none" opacity="0.6">
+          <path d="M480,240 q5,-7 10,0 q5,-7 10,0" />
+          <path d="M520,245 q4,-6 8,0 q4,-6 8,0" />
+          <path d="M450,250 q4,-6 8,0 q4,-6 8,0" />
+        </g>
+        
+        {/* Static Clouds */}
+        <g fill="white" opacity="0.25">
+          <ellipse cx="200" cy="150" rx="60" ry="15" />
+          <ellipse cx="1400" cy="120" rx="80" ry="20" />
+        </g>
       </svg>
     </div>
   );
@@ -204,7 +215,7 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t.passwordLabel}</label>
-              <button type="button" onClick={() => alert(t.forgotMsg)} className="text-[11px] text-[#10b981] font-bold hover:underline">
+              <button type="button" onClick={() => alert(t.forgotMsg)} className="text-[11px] text-emerald-700 font-bold hover:underline">
                 {t.forgotPassword}
               </button>
             </div>
@@ -215,7 +226,7 @@ const LoginPage = ({ onLogin, lang, setLang }) => {
                 required 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
-                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition text-slate-600"
+                className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 outline-none transition text-slate-600"
                 placeholder="••••••••••"
               />
             </div>
