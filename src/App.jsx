@@ -98,12 +98,12 @@ const LandscapeBackground = () => (
       .tc-cloud-a { animation: drift-slow 140s linear infinite; }
       .tc-cloud-b { animation: drift-slower 180s linear infinite; }
       .tc-cloud-c { animation: drift-fastest 110s linear infinite; }
-      .tc-birds { animation: fly-path 70s linear infinite; }
+      .tc-birds { animation: fly-path 75s linear infinite; }
     `}</style>
     <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
         <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e2b894" />
+          <stop offset="0%" stopColor="#fbe7c4" />
           <stop offset="100%" stopColor="#c9825a" />
         </linearGradient>
         <radialGradient id="bg-sun" cx="50%" cy="50%" r="50%">
@@ -123,13 +123,20 @@ const LandscapeBackground = () => (
       <path d="M0,660 Q320,580 640,620 T1280,610 T1920,600 L1920,820 L0,820 Z" fill="url(#bg-hill-mid)" />
       <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
       <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
-      {[[180, 770], [210, 778], [1460, 750], [820, 805]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
+      {[[720, 825], [750, 835], [790, 830]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
       <g transform="translate(1550, 700)" opacity="0.85">
         <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
       </g>
     </svg>
     <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90 pointer-events-none" viewBox="0 0 200 60"><g fill="white" opacity="0.85"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /><ellipse cx="130" cy="35" rx="38" ry="16" /></g></svg>
-    <svg className="absolute top-[22%] left-0 w-[8vw] max-w-[120px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
+    <svg className="absolute top-[22%] left-0 w-[12vw] max-w-[180px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6">
+      <path d="M5,20 q5,-7 10,0 q5,-7 10,0" />
+      <path d="M30,28 q4,-6 8,0 q4,-6 8,0" />
+      <path d="M55,18 q5,-7 10,0 q5,-7 10,0" />
+      <path d="M80,26 q4,-6 8,0 q4,-6 8,0" />
+      <path d="M10,32 q4,-6 8,0 q4,-6 8,0" />
+      <path d="M90,12 q5,-7 10,0 q5,-7 10,0" />
+    </svg>
   </div>
 );
 
