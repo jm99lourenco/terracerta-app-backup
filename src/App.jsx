@@ -22,39 +22,38 @@ const ALLOWED_USERS = {
   "admin2@terracerta.pt": "portugal2026",
 };
 
-// ----------------- DATASET: DISTRITOS, CONCELHOS E FREGUESIAS (REPRESENTATIVO) -----------------
+// ----------------- DATASET: DISTRITOS, CONCELHOS E FREGUESIAS -----------------
 const PORTUGAL_GEO = {
   "Aveiro": {
-    "Águeda": ["Águeda e Borralha", "Barrô e Aguada de Baixo", "Castanheira do Vouga e Belazaima do Chão", "Fermentelos", "Macinhata do Vouga", "Préstimo e Macieira de Alcoba"],
+    "Águeda": ["Águeda e Borralha", "Barrô e Aguada de Baixo", "Fermentelos", "Macinhata do Vouga", "Recardães e Espinhel"],
     "Aveiro": ["Aradas", "Cacia", "Esgueira", "Glória e Vera Cruz", "Oliveirinha", "Santa Joana", "São Bernardo", "São Jacinto"],
     "Ílhavo": ["Gafanha da Encarnação", "Gafanha da Nazaré", "Gafanha do Carmo", "Ílhavo (São Salvador)"]
   },
   "Braga": {
-    "Barcelos": ["Arcozelo", "Barcelinhos", "Barcelos, Vila Boa e Vila Frescainha", "Gilmonde", "Lijó", "Vila Seca"],
-    "Braga": ["Braga (Maximinos, Sé e Cividade)", "Braga (São José de São Lázaro e São João do Souto)", "Gualtar", "Real, Dume e Semelhe", "Nogueira, Fraião e Lamaçães"],
-    "Guimarães": ["Azurém", "Costa", "Creixomil", "Guimarães (Oliveira, São Paio e São Sebastião)", "Mesão Frio"]
+    "Braga": ["Braga (Maximinos, Sé e Cividade)", "Braga (São José de São Lázaro e São João do Souto)", "Gualtar", "Real, Dume e Semelhe", "Nogueira, Fraião e Lamaçães"]
   },
-  "Coimbra": {
-    "Coimbra": ["Almedina", "Santa Cruz", "Sé Nova", "São Bartolomeu", "Santo António dos Olivais", "Eiras e Maia"],
-    "Figueira da Foz": ["Buarcos e São Julião", "Figueira da Foz", "Quiaios", "Vila Verde"]
+  "Faro": {
+    "Faro": ["Conceição e Estoi", "Faro (Sé e São Pedro)", "Montenegro", "Santa Bárbara de Nexe"],
+    "Loulé": ["Almancil", "Alte", "Ameixial", "Quarteira", "Loulé (São Clemente)", "Loulé (São Sebastião)"]
   },
   "Lisboa": {
     "Lisboa": ["Ajuda", "Alcântara", "Alvalade", "Areeiro", "Arroios", "Avenidas Novas", "Beato", "Belém", "Benfica", "Campo de Ourique", "Campolide", "Carnide", "Estrela", "Lumiar", "Marvila", "Misericórdia", "Olivais", "Parque das Nações", "Penha de França", "Santa Clara", "Santa Maria Maior", "Santo António", "São Domingos de Benfica", "São Vicente"],
     "Oeiras": ["Algés, Linda-a-Velha e Cruz Quebrada-Dafundo", "Barcarena", "Carnaxide e Queijas", "Oeiras e São Julião da Barra, Paço de Arcos e Caxias", "Porto Salvo"],
-    "Cascais": ["Alcabideche", "Carcavelos e Parede", "Cascais e Estoril", "São Domingos de Rana"],
-    "Sintra": ["Agualva e Mira-Sintra", "Algueirão-Mem Martins", "Almargem do Bispo, Pêro Pinheiro e Montelavar", "Cacém e São Marcos", "Casal de Cambra", "Colares", "Massamá e Monte Abraão", "Queluz e Belas", "Rio de Mouro", "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)"]
+    "Cascais": ["Alcabideche", "Carcavelos e Parede", "Cascais e Estoril", "São Domingos de Rana"]
   },
   "Porto": {
-    "Porto": ["Bonfim", "Campanhã", "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória", "Lordelo do Ouro e Massarelos", "Paranhos", "Ramalde", "Vila Nova da Telha"],
-    "Gaia": ["Arcozelo", "Avintes", "Canidelo", "Gulpilhares e Valadares", "Madalena", "Mafamude e Vilar do Paraíso", "Oliveira do Douro", "Pedroso e Seixezelo", "Santa Marinha e São Pedro da Afurada"],
-    "Matosinhos": ["Custóias, Leça do Balio e Guifões", "Matosinhos e Leça da Palmeira", "Padrão da Légua", "Senhora da Hora"]
+    "Porto": ["Bonfim", "Campanhã", "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória", "Lordelo do Ouro e Massarelos", "Paranhos", "Ramalde"],
+    "Gaia": ["Arcozelo", "Avintes", "Canidelo", "Gulpilhares e Valadares", "Madalena", "Mafamude e Vilar do Paraíso"]
   },
-  "Faro": {
-    "Faro": ["Conceição e Estoi", "Faro (Sé e São Pedro)", "Montenegro", "Santa Bárbara de Nexe"],
-    "Loulé": ["Almancil", "Alte", "Ameixial", "Quarteira", "Querença", "Loulé (São Clemente)", "Loulé (São Sebastião)"]
+  "Santarém": {
+    "Santarém": ["Abitureiras", "Abrã", "Alcanede", "Alcanhões", "Almoster", "Amiais de Baixo", "Arrouquelas", "Gançaria", "Santarém (Marvila), Santa Iria da Ribeira de Santarém, São Salvador e São Nicolau"]
+  },
+  "Setúbal": {
+    "Setúbal": ["Azeitão (São Lourenço e São Simão)", "Gâmbia-Pontes-Alto da Guerra", "Sado", "Setúbal (São Julião, Nossa Senhora da Anunciada e Santa Maria da Graça)", "Setúbal (São Sebastião)"]
   }
-  // Dataset pode ser expandido com mais concelhos e freguesias conforme necessário.
 };
+
+const ALL_DISTRICTS = ["Aveiro", "Beja", "Braga", "Bragança", "Castelo Branco", "Coimbra", "Évora", "Faro", "Guarda", "Leiria", "Lisboa", "Portalegre", "Porto", "Santarém", "Setúbal", "Viana do Castelo", "Vila Real", "Viseu", "Madeira", "Açores"];
 
 // ----------------- UTILS -----------------
 const formatNumber = (n) => n == null ? "—" : new Intl.NumberFormat("pt-PT").format(n);
@@ -180,6 +179,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
     p.concelho?.toLowerCase().includes(search.toLowerCase()) ||
     p.id?.toLowerCase().includes(search.toLowerCase())
   );
+  const avgScore = filtered.length ? Math.round(filtered.reduce((acc, curr) => acc + (curr.score || 0), 0) / filtered.length) : 0;
 
   return (
     <div className="min-h-screen bg-white">
@@ -188,33 +188,43 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
         <div className="flex items-center justify-between mb-8">
           <div><h1 className="text-2xl font-bold text-slate-900">Dashboard</h1></div>
           <div className="flex gap-3">
-            <button onClick={onRefresh} className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition"><RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Atualizar</button>
-            <button onClick={onNew} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md text-xs font-semibold hover:bg-slate-800 shadow-sm transition"><Plus size={16} /> Novo Terreno</button>
+            <button onClick={onRefresh} className="flex items-center gap-2 px-4 py-2 border-2 border-slate-900 text-slate-900 rounded-md text-xs font-bold hover:bg-slate-50 transition"><RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Atualizar</button>
+            <button onClick={onNew} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md text-xs font-bold hover:bg-emerald-700 shadow-md transition transform active:scale-95"><Plus size={16} /> Novo Terreno</button>
           </div>
         </div>
 
-        <div className="border border-slate-200 rounded-md overflow-hidden">
+        <div className="flex gap-4 mb-8">
+          <div className="flex-1 max-w-[200px] p-4 bg-slate-50 border border-slate-100 rounded-lg">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Análises Efetuadas</div>
+            <div className="text-2xl font-black text-slate-900 tabular-nums">{filtered.length}</div>
+          </div>
+          <div className="flex-1 max-w-[200px] p-4 bg-slate-50 border border-slate-100 rounded-lg">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Viabilidade Média</div>
+            <div className="text-2xl font-black text-emerald-600 tabular-nums">{avgScore}%</div>
+          </div>
+        </div>
+
+        <div className="border border-slate-200 rounded-md overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
-            <div className="relative w-80"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar por designação, concelho, ID..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded text-xs focus:ring-1 focus:ring-emerald-500/20 transition" /></div>
-            <div className="flex items-center gap-4"><button className="flex items-center gap-2 text-slate-500 font-semibold text-xs border border-slate-200 px-3 py-2 rounded hover:bg-slate-50"><Filter size={14} /> Filtros</button></div>
+            <div className="relative w-80"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded text-xs focus:ring-1 focus:ring-emerald-500/20 transition outline-none" /></div>
+            <button className="flex items-center gap-2 text-slate-500 font-semibold text-xs border border-slate-200 px-3 py-2 rounded hover:bg-slate-50"><Filter size={14} /> Filtros</button>
           </div>
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
               <tr>
-                <th className="px-5 py-3 font-medium">ID</th><th className="px-5 py-3 font-medium">Designação</th><th className="px-5 py-3 font-medium">Concelho / Freguesia</th><th className="px-5 py-3 font-medium">Área</th><th className="px-5 py-3 font-medium">Score</th><th className="px-5 py-3 font-medium">Estado</th><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3"></th>
+                <th className="px-5 py-4">ID</th><th className="px-5 py-4">Designação</th><th className="px-5 py-4">Localização</th><th className="px-5 py-4">Área</th><th className="px-5 py-4">Score</th><th className="px-5 py-4">Estado</th><th className="px-5 py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map(p => (
                 <tr key={p.id} onClick={() => onSelect(p)} className="hover:bg-slate-50/80 transition cursor-pointer group">
-                  <td className="px-5 py-4 text-slate-400 font-mono text-[10px]">{p.id.slice(0, 8)}...</td>
-                  <td className="px-5 py-4 font-bold text-slate-900">{p.designacao}</td>
-                  <td className="px-5 py-4 text-slate-600 font-medium"><div>{p.concelho}</div><div className="text-[10px] text-slate-400">{p.freguesia}</div></td>
-                  <td className="px-5 py-4 tabular-nums text-slate-900 font-semibold">{formatArea(p.area)}</td>
-                  <td className="px-5 py-4"><div className="flex items-center gap-3"><div className="w-12 h-1 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${scoreColor(p.score).fill}`} style={{ width: `${p.score}%` }}></div></div><span className={`font-bold ${scoreColor(p.score).text}`}>{p.score}</span></div></td>
-                  <td className="px-5 py-4"><span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase">Analisado</span></td>
-                  <td className="px-5 py-4 text-slate-500">{p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : "2026-05-09"}</td>
-                  <td className="px-5 py-4 text-slate-300 group-hover:text-slate-600 transition-colors text-right"><ChevronRight size={14} /></td>
+                  <td className="px-5 py-5 text-slate-400 font-mono text-[10px]">{p.id.slice(0, 8)}</td>
+                  <td className="px-5 py-5 font-bold text-slate-900">{p.designacao}</td>
+                  <td className="px-5 py-5 text-slate-600 font-medium"><div>{p.concelho}</div><div className="text-[10px] text-slate-400">{p.freguesia}</div></td>
+                  <td className="px-5 py-5 tabular-nums text-slate-900 font-semibold">{formatArea(p.area)}</td>
+                  <td className="px-5 py-5"><div className="flex items-center gap-3"><div className="w-12 h-1 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${scoreColor(p.score).fill}`} style={{ width: `${p.score}%` }}></div></div><span className={`font-bold ${scoreColor(p.score).text}`}>{p.score}</span></div></td>
+                  <td className="px-5 py-5"><span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase">Analisado</span></td>
+                  <td className="px-5 py-5 text-slate-300 group-hover:text-slate-600 transition-colors text-right px-8"><ChevronRight size={16} /></td>
                 </tr>
               ))}
             </tbody>
@@ -233,54 +243,70 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
   const [activeFileKey, setActiveFileKey] = useState(null);
 
   const handleFileClick = (key) => { setActiveFileKey(key); fileInputRef.current?.click(); };
-  const handleFileChange = (e) => { if (e.target.files?.length && activeFileKey) { setFiles(prev => ({ ...prev, [activeFileKey]: e.target.files[0].name })); setActiveFileKey(null); } };
+  const handleFileChange = (e) => { 
+    if (e.target.files?.length && activeFileKey) { 
+      setFiles(prev => ({ ...prev, [activeFileKey]: e.target.files[0].name })); 
+      setActiveFileKey(null); 
+    } 
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setAnalysing(true);
     setTimeout(() => {
-      onAnalyseDone({ id: "new-" + Math.random().toString(36).substr(2, 9), designacao: formData.designacao || "Tapada do Mocho", concelho: formData.concelho, freguesia: formData.freguesia, area: parseFloat(formData.area) || 140, score: 88, status: "Analisado" });
+      onAnalyseDone({ id: "new-" + Math.random().toString(36).substr(2, 9), designacao: formData.designacao || "Nova Propriedade", concelho: formData.concelho, freguesia: formData.freguesia, area: parseFloat(formData.area) || 0, score: 85, status: "Analisado" });
     }, 2000);
   };
 
-  const currentConcelhos = formData.distrito ? Object.keys(PORTUGAL_GEO[formData.distrito] || {}) : [];
-  const currentFreguesias = (formData.distrito && formData.concelho) ? PORTUGAL_GEO[formData.distrito][formData.concelho] : [];
+  const concelhosNoDistrito = formData.distrito ? (Object.keys(PORTUGAL_GEO[formData.distrito] || {})) : [];
+  const freguesiasNoConcelho = (formData.distrito && formData.concelho) ? PORTUGAL_GEO[formData.distrito][formData.concelho] : [];
+  const hasPredefinedFreguesias = freguesiasNoConcelho && freguesiasNoConcelho.length > 0;
 
   return (
     <div className="min-h-screen bg-white">
       <Nav page="upload" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[800px] mx-auto">
-        <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 text-xs font-semibold transition"><ChevronLeft size={16} /> Voltar ao dashboard</button>
-        <div className="mb-8"><h1 className="text-2xl font-bold text-slate-900 mb-2">Submissão de terreno</h1></div>
+        <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 text-xs font-bold transition"><ChevronLeft size={16} /> Voltar ao dashboard</button>
+        <div className="mb-8"><h1 className="text-2xl font-bold text-slate-900 mb-2">Novo Terreno</h1></div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
           <div className="p-8 border border-slate-200 rounded-md space-y-6">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Dados do terreno</h3>
-            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *</label><input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Quinta da Ribeira" /></div>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Informação Básica</h3>
+            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *</label><input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-3 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Terreno Vale do Sol" /></div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Distrito *</label><select required value={formData.distrito} onChange={e => setFormData({...formData, distrito: e.target.value, concelho: "", freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Distrito...</option>{Object.keys(PORTUGAL_GEO).map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label><select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} disabled={!formData.distrito} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Concelho...</option>{currentConcelhos.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label><select required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Freguesia...</option>{currentFreguesias.map(f => <option key={f} value={f}>{f}</option>)}</select></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Distrito *</label><select required value={formData.distrito} onChange={e => setFormData({...formData, distrito: e.target.value, concelho: "", freguesia: ""})} className="w-full px-4 py-3 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Selecionar...</option>{ALL_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label><select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} disabled={!formData.distrito} className="w-full px-4 py-3 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Selecionar...</option>{concelhosNoDistrito.length > 0 ? concelhosNoDistrito.map(c => <option key={c} value={c}>{c}</option>) : (formData.distrito && <option value="Outro">Outro...</option>)}</select></div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label>
+                {hasPredefinedFreguesias ? (
+                  <select required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} className="w-full px-4 py-3 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Selecionar...</option>{freguesiasNoConcelho.map(f => <option key={f} value={f}>{f}</option>)}</select>
+                ) : (
+                  <input required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-3 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400" placeholder="Nome da freguesia..." />
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><div className="flex items-center gap-1.5"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label><div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Identificação única do imóvel na matriz predial das finanças.</div></div></div><input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452 / Secção B" /></div>
-              <div className="space-y-2"><div className="flex items-center gap-1.5"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *</label><div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Área total da parcela em metros quadrados, conforme caderneta predial.</div></div></div><input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 12450" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial</label><input value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-3 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 502" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área Total (m²) *</label><input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-3 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 5000" /></div>
             </div>
           </div>
           <div className="space-y-3">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Documentação de suporte</h3>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Upload de Documentos</h3>
             {[
-              { id: "caderneta", label: "Caderneta Predial", sub: "Documento das Finanças (Modelo 1)", formats: "PDF · ATÉ 10MB" },
-              { id: "planta", label: "Planta de Localização", sub: "Câmara Municipal · escala 1:2000 ou superior", formats: "PDF / DWG / DXF" },
-              { id: "certidao", label: "Certidão Permanente", sub: "Conservatória do Registo Predial", formats: "PDF · CÓDIGO DE ACESSO ACEITE" },
+              { id: "caderneta", label: "Caderneta Predial" },
+              { id: "planta", label: "Planta de Localização" },
+              { id: "certidao", label: "Certidão Permanente" },
             ].map((d) => (
-              <div key={d.id} className="p-5 border border-slate-200 rounded-md flex items-center justify-between bg-white hover:border-emerald-200 transition">
-                <div className="flex gap-4 items-center"><div className={`h-10 w-10 rounded flex items-center justify-center ${files[d.id] ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>{files[d.id] ? <CheckCircle size={20} /> : <FileText size={18} />}</div><div><div className="flex items-center gap-2"><span className="text-sm font-semibold text-slate-900">{d.label}</span><span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded tracking-tighter">{d.formats}</span></div><p className="text-[11px] text-slate-500">{files[d.id] ? `Selecionado: ${files[d.id]}` : d.sub}</p></div></div>
-                <button type="button" onClick={() => handleFileClick(d.id)} className={`flex items-center gap-2 px-3 py-1.5 border rounded text-[10px] font-bold transition ${files[d.id] ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}><Upload size={12} /> {files[d.id] ? "Alterar" : "Carregar"}</button>
+              <div key={d.id} onClick={() => handleFileClick(d.id)} className={`p-4 border-2 border-dashed rounded-lg flex items-center justify-between cursor-pointer transition ${files[d.id] ? 'bg-emerald-50 border-emerald-500' : 'bg-white border-slate-200 hover:border-emerald-300'}`}>
+                <div className="flex items-center gap-4">
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${files[d.id] ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>{files[d.id] ? <CheckCircle size={22} strokeWidth={3} /> : <Upload size={20} />}</div>
+                  <div><div className="text-sm font-bold text-slate-900">{d.label}</div><p className="text-[11px] text-slate-500">{files[d.id] ? `Ficheiro: ${files[d.id]}` : "Clique para selecionar o PDF"}</p></div>
+                </div>
+                {!files[d.id] && <Plus size={16} className="text-slate-300" />}
               </div>
             ))}
           </div>
-          <button type="submit" disabled={analysing} className="w-full bg-emerald-600 text-white py-4 rounded-md font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-md transition disabled:opacity-50">{analysing ? <Loader2 className="animate-spin" size={20} /> : "Iniciar Análise de Viabilidade"}</button>
+          <button type="submit" disabled={analysing} className="w-full bg-emerald-600 text-white py-4 rounded-lg font-black uppercase tracking-wider flex items-center justify-center gap-3 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition disabled:opacity-50 active:scale-[0.98]">{analysing ? <Loader2 className="animate-spin" size={24} /> : <>Submeter e Analisar <ArrowRight size={20} /></>}</button>
         </form>
       </main>
     </div>
@@ -290,148 +316,81 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
 const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavigate }) => {
   const c = scoreColor(property.score);
   const openInMap = () => {
-    const query = encodeURIComponent(`${property.freguesia}, ${property.concelho}, Portugal`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+    const loc = property.distrito ? `${property.concelho}, ${property.distrito}` : property.concelho;
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc + ", Portugal")}`, "_blank");
   };
 
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Nav page="analysis" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-          <button onClick={onBack} className="hover:text-slate-600 transition">Dashboard</button>
-          <ChevronRight size={10} />
-          <span className="text-slate-600">{property.id?.slice(0, 8)}...</span>
-        </div>
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 text-xs font-bold transition"><ChevronLeft size={16} /> Voltar ao Dashboard</button>
         
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Análise de Viabilidade</h2>
-            <h1 className="text-3xl font-bold text-slate-900">{property.designacao}</h1>
-            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 font-medium">
-              <div className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-300" /> {property.concelho}, {property.freguesia}</div>
-              <div className="flex items-center gap-1.5"><Hash size={14} className="text-slate-300" /> —</div>
-              <div className="flex items-center gap-1.5"><Calendar size={14} className="text-slate-300" /> Emitido 2026-05-09</div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">{property.designacao}</h1>
+            <div className="flex items-center gap-4 mt-2 text-sm text-slate-500 font-bold">
+              <div className="flex items-center gap-1.5"><MapPin size={16} className="text-emerald-500" /> {property.concelho}, {property.freguesia}</div>
+              <div className="flex items-center gap-1.5"><Calendar size={16} className="text-slate-300" /> Emitido 2026-05-10</div>
             </div>
           </div>
           <div className="flex gap-2">
             <div className="flex bg-slate-200/50 p-1 rounded-lg border border-slate-200">
-              <button onClick={() => setPage(1)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 1 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>1 · Análise PDM</button>
-              <button onClick={() => setPage(2)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 2 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>2 · Conversão Urbana</button>
+              <button onClick={() => setPage(1)} className={`px-4 py-2 rounded-md text-xs font-black transition ${page === 1 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>1 · PDM</button>
+              <button onClick={() => setPage(2)} className={`px-4 py-2 rounded-md text-xs font-black transition ${page === 2 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>2 · CONVERSÃO</button>
             </div>
-            <button onClick={openInMap} className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition"><ExternalLink size={14} /> Abrir no mapa</button>
+            <button onClick={openInMap} className="flex items-center gap-2 px-5 py-2 border-2 border-slate-900 text-slate-900 rounded-lg text-xs font-black hover:bg-white transition"><ExternalLink size={16} /> Ver no Mapa</button>
           </div>
         </div>
 
-        {page === 1 ? (
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-4 space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-10 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
-                <div className={`absolute top-0 left-0 w-full h-1 ${c.fill}`}></div>
-                <div className="relative mb-6">
-                  <svg className="w-48 h-48 transform -rotate-90"><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" /><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={552.9} strokeDashoffset={552.9 * (1 - property.score / 100)} className={`${c.text} transition-all duration-1000 ease-out`} strokeLinecap="round" /></svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className={`text-6xl font-black ${c.text} tracking-tighter`}>{property.score}</span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Health Score / 100</span>
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-12 lg:col-span-4 space-y-8">
+            <div className="bg-white border border-slate-200 rounded-2xl p-10 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
+              <div className={`absolute top-0 left-0 w-full h-1.5 ${c.fill}`}></div>
+              <div className="relative mb-6">
+                <svg className="w-48 h-48 transform -rotate-90"><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" /><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={552.9} strokeDashoffset={552.9 * (1 - property.score / 100)} className={`${c.text} transition-all duration-1000 ease-out`} strokeLinecap="round" /></svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className={`text-6xl font-black ${c.text} tracking-tighter`}>{property.score}</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Health Score</span>
+                </div>
+              </div>
+              <div className={`px-6 py-2 rounded-full text-[11px] font-black uppercase tracking-widest mb-6 ${c.bg} ${c.text} border-2 ${c.border}`}>{c.label}</div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50"><h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Informação do OCR</h3></div>
+              <div className="divide-y divide-slate-100">
+                {[{ label: "Área total", val: formatArea(property.area) }, { label: "Artigo", val: "—" }, { label: "Concelho", val: property.concelho }, { label: "Freguesia", val: property.freguesia }].map((d, i) => (<div key={i} className="flex justify-between items-center px-6 py-4 text-xs"><span className="text-slate-400 font-bold uppercase">{d.label}</span><span className="text-slate-900 font-black">{d.val}</span></div>))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="col-span-12 lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-10 shadow-sm">
+            <h3 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-3">{page === 1 ? <>Análise do PDM Regional <Layers size={20} className="text-emerald-500" /></> : <>Simulação de Conversão Urbana <Activity size={20} className="text-emerald-500" /></>}</h3>
+            <div className="space-y-8">
+              {(page === 1 ? [
+                { label: "Classificação do Solo", val: "Urbano", status: "ok" },
+                { label: "Categoria de Espaço", val: "Agrícola de Produção", status: "ok" },
+                { label: "Índice de Utilização (iu)", val: "0,15", status: "warning" },
+                { label: "Cércea Máxima", val: "6,5 m (2 pisos)", status: "ok" },
+                { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido", status: "warning" },
+                { label: "RAN — Reserva Agrícola", val: "Não abrangido", status: "ok" },
+              ] : [
+                { label: "Contiguidade Urbana", val: "280m ao limite", status: "ok" },
+                { label: "Infraestruturas", val: "Saneamento a 420m", status: "warning" },
+                { label: "Acessibilidade", val: "Estrada Municipal", status: "ok" },
+                { label: "Score de Probabilidade", val: "66%", status: "ok" },
+              ]).map((r, i) => (
+                <div key={i} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-6">
+                    <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={26} strokeWidth={3} /> : <AlertTriangle size={26} strokeWidth={3} />}</div>
+                    <span className="text-base font-bold text-slate-700">{r.label}</span>
                   </div>
+                  <span className={`text-base font-black ${r.status === 'ok' ? 'text-slate-900' : 'text-amber-600'}`}>{r.val}</span>
                 </div>
-                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${c.bg} ${c.text} border ${c.border}`}>{c.label}</div>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">Score calculado com base em 14 indicadores do PDM, condicionantes legais e camadas oficiais do território.</p>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dados extraídos</h3><div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black tracking-tighter border border-emerald-100 uppercase">OCR <CheckCircle size={10} /></div></div>
-                <div className="p-0 divide-y divide-slate-100">
-                  {[
-                    { label: "Concelho", val: property.concelho },
-                    { label: "Freguesia", val: property.freguesia },
-                    { label: "Artigo matricial", val: "—" },
-                    { label: "Área total", val: formatArea(property.area) },
-                    { label: "PDM aplicável", val: `PDM-${property.concelho?.toUpperCase()}` },
-                  ].map((d, i) => (<div key={i} className="flex justify-between items-center px-6 py-3.5 text-xs"><span className="text-slate-400 font-medium">{d.label}</span><span className="text-slate-900 font-bold">{d.val}</span></div>))}
-                </div>
-              </div>
-            </div>
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-8"><div><h3 className="text-lg font-bold text-slate-900 mb-1">Análise PDM <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded border border-emerald-100 ml-2 tracking-widest">Tempo Real</span></h3><p className="text-xs text-slate-500 font-medium italic leading-relaxed">Interpretação automática do regulamento e cruzamento com camadas oficiais.</p></div><div className="text-[10px] font-bold text-slate-400">Fonte oficial: DGT</div></div>
-                <div className="space-y-6">
-                  {[
-                    { label: "Classificação do solo", val: "Urbano", meta: "PDM Art. 14º", status: "ok" },
-                    { label: "Categoria de espaço", val: "Espaço Agrícola de Produção (Tipo II)", meta: "Planta de Ordenamento", status: "ok" },
-                    { label: "Índice de utilização (iu)", val: "0,15", meta: "PDM Art. 30º", status: "warning" },
-                    { label: "Cércea máxima", val: "6,5 m (2 pisos)", meta: "PDM Art. 31º", status: "ok" },
-                    { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido", meta: "Planta de Condicionantes", status: "warning" },
-                    { label: "RAN — Reserva Agrícola", val: "Não abrangido", meta: "DRAP", status: "ok" },
-                  ].map((r, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm group">
-                      <div className="flex items-center gap-4"><div className={`shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{r.status === 'ok' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}</div><span className="text-slate-700 font-semibold">{r.label}</span></div>
-                      <div className="flex items-center gap-6"><span className="text-slate-900 font-bold text-right">{r.val}</span><span className="text-[10px] text-slate-400 font-bold uppercase w-32 text-right">{r.meta}</span></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-8 shadow-sm">
-                <h3 className="text-emerald-900 font-black text-[11px] uppercase tracking-widest mb-6 flex items-center gap-2"><Sparkles size={16} /> Recomendações do TerraCerta</h3>
-                <div className="space-y-4">
-                  {[
-                    "Solicitar delimitação da área REN ao ICNF antes de qualquer pedido de informação prévia.",
-                    "Avaliar PIP para confirmar índice de utilização específico.",
-                    "O PDM local tem atualizações frequentes — recomenda-se confirmar versão final na CM."
-                  ].map((rec, i) => (
-                    <div key={i} className="flex gap-4 text-xs text-emerald-800 leading-relaxed font-medium"><span className="font-black text-emerald-600/50 italic">0{i+1}</span><p>{rec}</p></div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <h3 className="font-bold text-slate-900 mb-2">Viabilidade de conversão para solo Urbano</h3>
-                <p className="text-xs text-slate-500 mb-8 italic">Simulação baseada nos critérios do RJIGT (DL 80/2015).</p>
-                <div className="grid grid-cols-3 gap-6">
-                  {[
-                    { label: "PROBABILIDADE CONVERSÃO", v: "66%", sub: "horizonte 5-7 anos", c: "text-emerald-600 bg-emerald-50 border-emerald-100" },
-                    { label: "CUSTO ESTIMADO PROCESSO", v: "€ 8.400", sub: "taxas + assessoria", c: "bg-slate-50 border-slate-100" },
-                    { label: "PRAZO MÉDIO CM", v: "14-22 meses", sub: "incl. discussão pública", c: "bg-slate-50 border-slate-100" },
-                  ].map((k, i) => (
-                    <div key={i} className={`p-5 rounded-xl border ${k.c}`}>
-                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">{k.label}</div>
-                      <div className="text-2xl font-black text-slate-900 mb-1">{k.v}</div>
-                      <div className="text-[10px] text-slate-500 font-bold">{k.sub}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Análise dos requisitos legais (RJIGT)</h3>
-                <div className="space-y-6 divide-y divide-slate-50">
-                  {[
-                    { label: "Contiguidade ao perímetro urbano existente", val: "Distância 280m ao limite", status: "ok" },
-                    { label: "Infraestruturas básicas (água, eletricidade, saneamento)", val: "Saneamento a 420m", status: "warning" },
-                    { label: "Acessibilidade rodoviária estruturante", val: "Estrada Municipal", status: "ok" },
-                    { label: "Compatibilidade com PROT", val: "Categoria compatível", status: "ok" },
-                  ].map((r, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs pt-4 first:pt-0">
-                      <div className="flex items-center gap-4"><div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}</div><span className="text-slate-600 font-bold">{r.label}</span></div>
-                      <span className="text-slate-400 font-medium text-right">{r.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="col-span-12 lg:col-span-4 space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-6"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Score de conversão</h3><Activity size={14} className="text-slate-300" /></div>
-                <div className="text-6xl font-black text-lime-600 tracking-tighter mb-1">66</div>
-                <p className="text-[10px] font-bold text-slate-400 mb-8">Probabilidade ponderada</p>
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-2"><div className="h-full bg-lime-500" style={{ width: '66%' }}></div></div>
-              </div>
-              <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition"><Download size={20} /> Exportar PDF</button>
-            </div>
-          </div>
-        )}
+        </div>
       </main>
     </div>
   );
