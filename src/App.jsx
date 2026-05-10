@@ -90,7 +90,7 @@ const Logo = ({ size = "md", invert = false, langLabel }) => (
 );
 
 const LandscapeBackground = () => (
-  <div className="absolute inset-0 overflow-hidden bg-slate-900">
+  <div className="absolute inset-0 overflow-hidden bg-[#fbe7c4]">
     <style>{`
       @keyframes drift-slow { from { transform: translateX(-15vw); } to { transform: translateX(115vw); } }
       @keyframes drift-slower { from { transform: translateX(-25vw); } to { transform: translateX(125vw); } }
@@ -103,8 +103,14 @@ const LandscapeBackground = () => (
     `}</style>
     <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
-        <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#fbe7c4" /><stop offset="100%" stopColor="#c9825a" /></linearGradient>
-        <radialGradient id="bg-sun" cx="70%" cy="30%" r="50%"><stop offset="0%" stopColor="#fffaeb" stopOpacity="0.4" /><stop offset="100%" stopColor="#fffaeb" stopOpacity="0" /></radialGradient>
+        <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fff7ed" />
+          <stop offset="100%" stopColor="#c9825a" />
+        </linearGradient>
+        <radialGradient id="bg-sun" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fffaeb" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#fffaeb" stopOpacity="0" />
+        </radialGradient>
         <linearGradient id="bg-mountains" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7a8b8e" /><stop offset="100%" stopColor="#5b6e72" /></linearGradient>
         <linearGradient id="bg-hill-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#9bb47e" /><stop offset="100%" stopColor="#7a9460" /></linearGradient>
         <linearGradient id="bg-hill-mid" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6c8c5e" /><stop offset="100%" stopColor="#4a6640" /></linearGradient>
@@ -112,16 +118,14 @@ const LandscapeBackground = () => (
         <linearGradient id="bg-field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#d4c685" /><stop offset="100%" stopColor="#a89255" /></linearGradient>
       </defs>
       <rect width="1920" height="1080" fill="url(#bg-sky)" />
-      <rect width="1920" height="1080" fill="url(#bg-sun)" />
+      <circle cx="1650" cy="220" r="150" fill="url(#bg-sun)" />
       <path d="M0,520 L120,470 L210,495 L320,440 L420,475 L540,420 L660,460 L780,430 L900,475 L1040,440 L1180,490 L1320,455 L1480,485 L1620,445 L1780,475 L1920,455 L1920,600 L0,600 Z" fill="url(#bg-mountains)" />
       <path d="M0,580 Q240,510 480,545 T960,520 T1440,540 T1920,510 L1920,720 L0,720 Z" fill="url(#bg-hill-far)" opacity="0.85" />
       <path d="M0,660 Q320,580 640,620 T1280,610 T1920,600 L1920,820 L0,820 Z" fill="url(#bg-hill-mid)" />
-      {[670, 690, 710, 730, 750, 770, 790].map((yy, i) => (<path key={`m-${i}`} d={`M0,${yy} Q500,${yy - 6} 1000,${yy + 2} T1920,${yy - 4}`} stroke="#34522e" strokeWidth="1" fill="none" opacity="0.35" />))}
       <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
       <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
-      {[890, 920, 950, 980, 1010, 1040].map((yy, i) => (<path key={`f-${i}`} d={`M0,${yy} Q600,${yy - 8} 1200,${yy + 2} T1920,${yy - 6}`} stroke="#7d6b35" strokeWidth="1.2" fill="none" opacity="0.45" />))}
       {[[180, 770], [210, 778], [1460, 750], [820, 805]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
-      <g transform="translate(1100, 700)" opacity="0.85">
+      <g transform="translate(1550, 700)" opacity="0.85">
         <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
       </g>
     </svg>
