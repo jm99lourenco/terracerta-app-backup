@@ -56,9 +56,6 @@ const TRANSLATIONS = {
     back: "Indietro", downloadPDF: "Rapporto PDF", identify: "Identificazione", concelho: "Comune", area: "Superficie", score: "Punteggio", status: "Stato", recommendation: "Raccomandazione"
   },
 };
-"Punteggio", status: "Stato", recommendation: "Raccomandazione"
-  },
-};
 
 // ----------------- UTILS -----------------
 const formatNumber = (n) => n == null ? "—" : new Intl.NumberFormat("pt-PT").format(n);
