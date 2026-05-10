@@ -91,14 +91,10 @@ const Logo = ({ size = "md", invert = false }) => (
 const LandscapeBackground = () => (
   <div className="absolute inset-0 overflow-hidden bg-[#fbe7c4]">
     <style>{`
-      @keyframes drift-slow { from { transform: translateX(-15vw); } to { transform: translateX(115vw); } }
-      @keyframes drift-slower { from { transform: translateX(-25vw); } to { transform: translateX(125vw); } }
-      @keyframes drift-fastest { from { transform: translateX(-35vw); } to { transform: translateX(135vw); } }
-      @keyframes fly-path { 0% { transform: translate(-10vw, 0); } 100% { transform: translate(110vw, -5vh); } }
-      .tc-cloud-a { animation: drift-slow 140s linear infinite; }
-      .tc-cloud-b { animation: drift-slower 180s linear infinite; }
-      .tc-cloud-c { animation: drift-fastest 110s linear infinite; }
-      .tc-birds { animation: fly-path 75s linear infinite; }
+      @keyframes drift { from { transform: translateX(-20vw); } to { transform: translateX(120vw); } }
+      @keyframes fly { from { transform: translate(-10vw, 0); } to { transform: translate(110vw, -10vh); } }
+      .tc-cloud { animation: drift var(--d, 120s) linear infinite; animation-delay: var(--del, 0s); }
+      .tc-bird { animation: fly var(--d, 60s) linear infinite; animation-delay: var(--del, 0s); }
     `}</style>
     <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
@@ -117,26 +113,26 @@ const LandscapeBackground = () => (
         <linearGradient id="bg-field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#d4c685" /><stop offset="100%" stopColor="#a89255" /></linearGradient>
       </defs>
       <rect width="1920" height="1080" fill="url(#bg-sky)" />
-      <circle cx="1650" cy="220" r="150" fill="url(#bg-sun)" />
+      <circle cx="1400" cy="220" r="150" fill="url(#bg-sun)" />
       <path d="M0,520 L120,470 L210,495 L320,440 L420,475 L540,420 L660,460 L780,430 L900,475 L1040,440 L1180,490 L1320,455 L1480,485 L1620,445 L1780,475 L1920,455 L1920,600 L0,600 Z" fill="url(#bg-mountains)" />
       <path d="M0,580 Q240,510 480,545 T960,520 T1440,540 T1920,510 L1920,720 L0,720 Z" fill="url(#bg-hill-far)" opacity="0.85" />
       <path d="M0,660 Q320,580 640,620 T1280,610 T1920,600 L1920,820 L0,820 Z" fill="url(#bg-hill-mid)" />
       <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
       <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
-      {[[720, 825], [750, 835], [790, 830]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
+      {[[720, 770], [750, 775], [790, 765]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
       <g transform="translate(1550, 700)" opacity="0.85">
         <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
       </g>
     </svg>
-    <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90 pointer-events-none" viewBox="0 0 200 60"><g fill="white" opacity="0.85"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /><ellipse cx="130" cy="35" rx="38" ry="16" /></g></svg>
-    <svg className="absolute top-[22%] left-0 w-[12vw] max-w-[180px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6">
-      <path d="M5,20 q5,-7 10,0 q5,-7 10,0" />
-      <path d="M30,28 q4,-6 8,0 q4,-6 8,0" />
-      <path d="M55,18 q5,-7 10,0 q5,-7 10,0" />
-      <path d="M80,26 q4,-6 8,0 q4,-6 8,0" />
-      <path d="M10,32 q4,-6 8,0 q4,-6 8,0" />
-      <path d="M90,12 q5,-7 10,0 q5,-7 10,0" />
-    </svg>
+    {/* Sporadic Clouds */}
+    <svg className="absolute top-[5%] left-0 w-[15vw] tc-cloud opacity-60" style={{ '--d': '150s', '--del': '0s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.8"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /></g></svg>
+    <svg className="absolute top-[12%] left-0 w-[12vw] tc-cloud opacity-40" style={{ '--d': '200s', '--del': '40s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.7"><ellipse cx="60" cy="30" rx="35" ry="15" /><ellipse cx="100" cy="25" rx="30" ry="18" /></g></svg>
+    <svg className="absolute top-[8%] left-0 w-[18vw] tc-cloud opacity-50" style={{ '--d': '180s', '--del': '90s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.75"><ellipse cx="50" cy="35" rx="45" ry="16" /><ellipse cx="110" cy="30" rx="38" ry="20" /></g></svg>
+
+    {/* Sporadic Birds */}
+    <svg className="absolute top-[15%] left-0 w-[6vw] tc-bird opacity-70" style={{ '--d': '80s', '--del': '0s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
+    <svg className="absolute top-[25%] left-0 w-[4vw] tc-bird opacity-50 scale-75" style={{ '--d': '110s', '--del': '15s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M10,20 q5,-7 10,0 q5,-7 10,0" /></svg>
+    <svg className="absolute top-[10%] left-0 w-[8vw] tc-bird opacity-60 scale-90" style={{ '--d': '95s', '--del': '35s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,15 q5,-7 10,0 q5,-7 10,0" /><path d="M35,22 q4,-6 8,0 q4,-6 8,0" /><path d="M65,18 q5,-7 10,0 q5,-7 10,0" /></svg>
   </div>
 );
 
