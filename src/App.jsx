@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { jsPDF } from "jspdf";
 import {
-  Upload, FileText, MapPin, Ruler,
-  Calendar, Hash, Search, Plus, ChevronRight, ChevronLeft,
+  Upload, FileText, MapPin, Ruler, Trash2, MessageCircle, Send, BookOpen,
+  Calendar, Hash, Search, Plus, ChevronRight, ChevronLeft, X,
   Download, CheckCircle2, AlertCircle, XCircle, TrendingUp,
   LogOut, Settings, Filter, ArrowUpDown, FileCheck,
   Building2, Mountain, Lock, Mail, Layers,
@@ -11,8 +11,44 @@ import {
   CheckCircle, Info, ExternalLink, Bell, Loader2, RefreshCw,
   Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle
 } from "lucide-react";
-import { MapContainer, TileLayer, Polygon, FeatureGroup } from "react-leaflet";
+import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC } from "react-leaflet";
 import { toJpeg } from "html-to-image";
+
+const Tooltip = ({ text }) => (
+  <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
+    <HelpCircle size={12} className="text-slate-300 hover:text-slate-500 transition" />
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-50 text-center shadow-lg font-normal">
+        {text}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+    </div>
+  </div>
+);
+
+const RadarChart = ({ score }) => {
+  const size = 120;
+  const center = size / 2;
+  const radius = 45;
+  const axes = [score + 5, score - 10, score + 15, score].map(v => Math.min(100, Math.max(0, v)));
+  const getPoints = (arr) => arr.map((s, i) => {
+    const angle = (Math.PI * 2 * i) / 4 - Math.PI / 2;
+    const r = (s / 100) * radius;
+    return `${center + Math.cos(angle) * r},${center + Math.sin(angle) * r}`;
+  }).join(' ');
+
+  return (
+    <svg width={size} height={size} className="mx-auto overflow-visible">
+       <polygon points={getPoints([100,100,100,100])} fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1"/>
+       <line x1={center} y1={center-radius} x2={center} y2={center+radius} stroke="#e2e8f0" strokeWidth="1" />
+       <line x1={center-radius} y1={center} x2={center+radius} y2={center} stroke="#e2e8f0" strokeWidth="1" />
+       <polygon points={getPoints(axes)} fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2"/>
+       <text x={center} y={center-radius-5} fontSize="6" textAnchor="middle" fill="#64748b" fontWeight="bold">Edificabilidade</text>
+       <text x={center+radius+5} y={center+2} fontSize="6" textAnchor="start" fill="#64748b" fontWeight="bold">Infraest</text>
+       <text x={center} y={center+radius+10} fontSize="6" textAnchor="middle" fill="#64748b" fontWeight="bold">Ambiental</text>
+       <text x={center-radius-5} y={center+2} fontSize="6" textAnchor="end" fill="#64748b" fontWeight="bold">Localização</text>
+    </svg>
+  );
+};
+
 
 // ----------------- CONFIG & DB -----------------
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -126,12 +162,14 @@ const LandscapeBackground = () => (
 const Nav = ({ page, onNavigate, user, onLogout }) => (
   <nav className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-50">
     <div className="flex items-center gap-8">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate("dashboard")}>
         <div className="h-6 w-6 bg-emerald-600 rounded flex items-center justify-center text-white"><Mountain size={14} strokeWidth={2.5} /></div>
         <span className="font-bold text-slate-800 tracking-tight text-lg">TerraCerta</span>
       </div>
       <div className="flex items-center gap-1">
         <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Dashboard</button>
+        <button onClick={() => onNavigate("explore")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'explore' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><Globe2 size={14}/> Explorador SIG</button>
+        <button onClick={() => onNavigate("pdm")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'pdm' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><BookOpen size={14}/> Monitor PDM</button>
       </div>
     </div>
     <div className="flex items-center gap-5">
@@ -210,7 +248,7 @@ const LoginPage = ({ onLogin }) => {
   );
 };
 
-const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLogout, onNavigate }) => {
+const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, onDelete, user, onLogout, onNavigate }) => {
   const [search, setSearch] = useState("");
   const filtered = properties.filter(p => 
     p.designacao?.toLowerCase().includes(search.toLowerCase()) || 
@@ -251,7 +289,12 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
                   <td className="px-5 py-4"><div className="flex items-center gap-3"><div className="w-12 h-1 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${scoreColor(p.score).fill}`} style={{ width: `${p.score}%` }}></div></div><span className={`font-bold ${scoreColor(p.score).text}`}>{p.score}</span></div></td>
                   <td className="px-5 py-4"><span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase">Analisado</span></td>
                   <td className="px-5 py-4 text-slate-500">{p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : "2026-05-09"}</td>
-                  <td className="px-5 py-4 text-slate-300 group-hover:text-slate-600 transition-colors text-right"><ChevronRight size={14} /></td>
+                  <td className="px-5 py-4 text-slate-300 transition-colors text-right">
+                    <div className="flex items-center justify-end gap-3">
+                      <button onClick={(e) => { e.stopPropagation(); if(confirm("Apagar registo?")) onDelete(p.id); }} className="hover:text-rose-500 p-1.5 rounded hover:bg-rose-50 transition"><Trash2 size={14} /></button>
+                      <ChevronRight size={14} className="group-hover:text-slate-600" />
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -265,14 +308,35 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
 const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => {
   const [formData, setFormData] = useState({ designacao: "", distrito: "", concelho: "", freguesia: "", area: "", matricial: "" });
   const [analysing, setAnalysing] = useState(false);
+  const [simulatingOcr, setSimulatingOcr] = useState(false);
   const [files, setFiles] = useState({});
   const fileInputRef = useRef(null);
   const [activeFileKey, setActiveFileKey] = useState(null);
 
   const handleFileClick = (key) => { setActiveFileKey(key); fileInputRef.current?.click(); };
+  const handleRemoveFile = (key, e) => {
+    e.stopPropagation();
+    setFiles(prev => { const n = {...prev}; delete n[key]; return n; });
+  };
+
   const handleFileChange = (e) => { 
     if (e.target.files?.length && activeFileKey) { 
       setFiles(prev => ({ ...prev, [activeFileKey]: e.target.files[0].name })); 
+      if (activeFileKey === "caderneta") {
+        setSimulatingOcr(true);
+        setTimeout(() => {
+            setFormData(prev => ({
+                ...prev,
+                designacao: "Terreno Extraído",
+                distrito: "Lisboa",
+                concelho: "Lisboa",
+                freguesia: "Belém",
+                area: "1250",
+                matricial: "9876"
+            }));
+            setSimulatingOcr(false);
+        }, 1500);
+      }
       setActiveFileKey(null); 
     } 
   };
@@ -280,8 +344,6 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAnalysing(true);
-    
-    // Cálculo de Score mais determinístico
     let valArea = parseFloat(formData.area) || 140;
     let baseScore = 65;
     if (valArea < 500) baseScore += 15;
@@ -303,7 +365,6 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
       onAnalyseDone(data || novoTerreno);
     } catch (err) {
       console.error("Erro ao guardar no Supabase:", err);
-      // Fallback para simulação em caso de erro de DB
       novoTerreno.id = "new-" + Math.random().toString(36).substr(2, 9);
       onAnalyseDone(novoTerreno);
     }
@@ -319,61 +380,15 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
         <div className="mb-8"><h1 className="text-2xl font-bold text-slate-900 mb-2">Novo Terreno</h1></div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-          <div className="p-8 border border-slate-200 rounded-md space-y-6">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Dados do terreno</h3>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *</label>
-                <div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Nome descritivo para identificar a propriedade.</div></div>
+          
+          <div className="space-y-3 relative">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">1. Documentação Base</h3>
+            {simulatingOcr && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl border border-emerald-200">
+                <Loader2 className="animate-spin text-emerald-600 mb-2" size={24} />
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-widest">A extrair dados via OCR...</span>
               </div>
-              <input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Quinta da Ribeira" />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Distrito *</label>
-                  <div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Distrito administrativo onde se localiza o terreno.</div></div>
-                </div>
-                <select required value={formData.distrito} onChange={e => setFormData({...formData, distrito: e.target.value, concelho: "", freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Distrito...</option>{Object.keys(PORTUGAL_GEO).map(d => <option key={d} value={d}>{d}</option>)}</select>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label>
-                  <div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Município correspondente ao distrito selecionado.</div></div>
-                </div>
-                <select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} disabled={!formData.distrito} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Concelho...</option>{concelhosNoDistrito.map(c => <option key={c} value={c}>{c}</option>)}</select>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label>
-                  <div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Freguesia específica da localização do imóvel.</div></div>
-                </div>
-                <input required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400" placeholder="Freguesia..." />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label>
-                  <div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Referência da Caderneta Predial (Finanças).</div></div>
-                </div>
-                <input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *</label>
-                  <div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Área total do terreno em metros quadrados.</div></div>
-                </div>
-                <input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 12450" />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Documentação</h3>
+            )}
             {[
               { id: "caderneta", label: "Caderneta Predial" },
               { id: "planta", label: "Planta de Localização (Opcional)" },
@@ -384,11 +399,52 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
                   <div className={`h-10 w-10 rounded flex items-center justify-center ${files[d.id] ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>{files[d.id] ? <CheckCircle size={20} /> : <FileText size={18} />}</div>
                   <div><span className="text-sm font-semibold text-slate-900">{d.label}</span><p className="text-[11px] text-slate-500">{files[d.id] ? `Selecionado: ${files[d.id]}` : "Ficheiro PDF"}</p></div>
                 </div>
-                <button type="button" onClick={() => handleFileClick(d.id)} className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition"><Upload size={12} /> Carregar</button>
+                <div className="flex items-center gap-2">
+                  {files[d.id] ? (
+                    <button type="button" onClick={(e) => handleRemoveFile(d.id, e)} className="flex items-center gap-2 px-3 py-1.5 rounded text-[10px] font-bold text-rose-500 hover:bg-rose-50 transition"><X size={14} /> Remover</button>
+                  ) : (
+                    <button type="button" onClick={() => handleFileClick(d.id)} className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition"><Upload size={12} /> Carregar</button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
-          <button type="submit" disabled={analysing} className="w-full bg-emerald-600 text-white py-4 rounded-md font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-md transition disabled:opacity-50">{analysing ? <Loader2 className="animate-spin" size={20} /> : "Iniciar Análise de Viabilidade"}</button>
+
+          <div className="p-8 border border-slate-200 rounded-md space-y-6">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">2. Dados do Terreno</h3>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *<Tooltip text="Nome descritivo para identificar a propriedade."/></label>
+              <input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: Quinta da Ribeira" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Distrito *<Tooltip text="Distrito administrativo onde se localiza o terreno."/></label>
+                <select required value={formData.distrito} onChange={e => setFormData({...formData, distrito: e.target.value, concelho: "", freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Distrito...</option>{Object.keys(PORTUGAL_GEO).map(d => <option key={d} value={d}>{d}</option>)}</select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *<Tooltip text="Município correspondente ao distrito selecionado."/></label>
+                <select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} disabled={!formData.distrito} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">Concelho...</option>{concelhosNoDistrito.map(c => <option key={c} value={c}>{c}</option>)}</select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *<Tooltip text="Freguesia específica da localização do imóvel."/></label>
+                <input required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400" placeholder="Freguesia..." />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *<Tooltip text="Referência da Caderneta Predial (Finanças)."/></label>
+                <input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *<Tooltip text="Área total do terreno em metros quadrados."/></label>
+                <input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 12450" />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" disabled={analysing || simulatingOcr} className="w-full bg-emerald-600 text-white py-4 rounded-md font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-md transition disabled:opacity-50">{analysing ? <Loader2 className="animate-spin" size={20} /> : "Iniciar Análise de Viabilidade"}</button>
         </form>
       </main>
     </div>
@@ -406,26 +462,21 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
     try {
       const dataUrl = await toJpeg(analysisRef.current, {
         quality: 0.95,
-        backgroundColor: '#f8fafc',
+        backgroundColor: '#ffffff',
         fontEmbedCSS: '',
         style: { transform: 'scale(1)', transformOrigin: 'top left' }
       });
       
-      const pdf = new jsPDF({
-        orientation: 'p',
-        unit: 'mm',
-        format: 'a4'
-      });
-
+      const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
       pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`TerraCerta_Analise_${property.id || 'terreno'}.pdf`);
+      pdf.save(`Viabilidade_${property.id || 'terreno'}.pdf`);
     } catch (err) {
       console.error("Erro ao exportar PDF:", err);
-      alert("Não foi possível exportar o PDF neste momento. Detalhes na consola.");
+      alert("Não foi possível exportar o PDF neste momento.");
     } finally {
       setExporting(false);
     }
@@ -435,13 +486,24 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
     <div className="min-h-screen bg-slate-50/50">
       <Nav page="analysis" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-          <button onClick={onBack} className="hover:text-slate-600 transition">Dashboard</button>
-          <ChevronRight size={10} />
-          <span className="text-slate-600">{property.id?.slice(0, 8)}...</span>
+        
+        {/* Stepper */}
+        <div className="mb-6 flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm" data-html2canvas-ignore>
+           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
+             <button onClick={onBack} className="text-slate-400 hover:text-slate-600 transition">Dashboard</button>
+             <ChevronRight size={10} className="text-slate-300" />
+             <span className="text-emerald-600">{property.id?.slice(0, 8)}...</span>
+           </div>
+           <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-2 text-slate-400"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">1</div>Submetido</div>
+              <div className="w-8 h-px bg-slate-200"></div>
+              <div className="flex items-center gap-2 text-slate-400"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">2</div>A Aguardar PDM</div>
+              <div className="w-8 h-px bg-slate-200"></div>
+              <div className="flex items-center gap-2 text-emerald-600"><div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">3</div>Análise Concluída</div>
+           </div>
         </div>
         
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8" data-html2canvas-ignore>
           <div>
             <h2 className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Análise de Viabilidade</h2>
             <h1 className="text-3xl font-bold text-slate-900">{property.designacao}</h1>
@@ -457,108 +519,239 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
             </div>
             <button onClick={exportPDF} disabled={exporting} className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition">
               {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-              Exportar PDF com Logótipo
+              Exportar PDF (White-label)
             </button>
           </div>
         </div>
 
         {/* CÓPIA DO CABEÇALHO PARA O PDF (Invisível no ecrã) */}
-        <div className="hidden pdf-header mb-8 bg-slate-900 text-white p-6 rounded-lg">
-           <div className="flex justify-between items-start">
-              <div>
-                 <Logo invert={true} />
-                 <h1 className="text-2xl font-bold mt-4">{property.designacao}</h1>
-                 <p className="text-sm text-slate-300 mt-1">{property.freguesia}, {property.concelho} · Artigo: {property.matricial || '—'}</p>
-              </div>
-              <div className="text-right">
-                 <p className="text-xs text-slate-400">ID do Relatório</p>
-                 <p className="font-mono text-sm">{property.id}</p>
-                 <p className="text-xs text-slate-400 mt-2">Data de Emissão</p>
-                 <p className="text-sm">2026-05-09</p>
-              </div>
-           </div>
-        </div>
-        <style dangerouslySetInnerHTML={{__html: `
-          @media print { .pdf-header { display: block !important; } }
-          [data-html2canvas-ignore] { display: none !important; }
-        `}} />
+        <div ref={analysisRef} className="bg-white rounded-xl">
+          <div className="hidden pdf-header bg-slate-900 p-8 rounded-t-xl text-white">
+             <div className="flex justify-between items-start">
+                <div className="flex-1">
+                   <Logo invert={true} />
+                   <div className="mt-8">
+                     <h2 className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1">Certificado de Viabilidade</h2>
+                     <h1 className="text-3xl font-bold">{property.designacao}</h1>
+                     <p className="text-sm text-slate-300 mt-2"><MapPin size={12} className="inline mr-1" /> {property.freguesia}, {property.concelho} · Artigo: {property.matricial || '—'}</p>
+                   </div>
+                </div>
+                <div className="w-64">
+                   <RadarChart score={property.score} />
+                </div>
+             </div>
+          </div>
+          <style dangerouslySetInnerHTML={{__html: `
+            @media print { .pdf-header { display: block !important; } }
+            [data-html2canvas-ignore] { display: none !important; }
+          `}} />
 
-        <div className="grid grid-cols-12 gap-6" ref={analysisRef}>
-          <div className="col-span-12 lg:col-span-8 space-y-6">
-            <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 mb-8">{page === 1 ? "Análise do Plano Diretor Municipal (PDM)" : "Simulação de Conversão Urbana"}</h3>
-              <div className="space-y-8">
-                {(page === 1 ? [
-                  { label: "Classificação do solo", val: "Urbano", status: "ok", tooltip: "Classificação principal definida na Planta de Ordenamento." },
-                  { label: "Categoria de espaço", val: "Espaços Residenciais", status: "ok", tooltip: "Subcategoria que define o uso predominante do solo." },
-                  { label: "Índice de edificabilidade máx. (Ie)", val: "0.50", status: "ok", tooltip: "Multiplicador máximo para a área de construção." },
-                  { label: "Índice de impermeabilização (Ii)", val: "0.60", status: "warning", tooltip: "Percentagem máxima da parcela que pode ser impermeabilizada." },
-                  { label: "Densidade populacional", val: "40 hab/ha", status: "ok", tooltip: "Número máximo de habitantes por hectare." },
-                  { label: "Cércea máxima", val: "3 pisos (9m)", status: "ok", tooltip: "Altura máxima permitida para as fachadas das construções." },
-                  { label: "Afastamento ao eixo da via", val: "Mínimo 5m", status: "warning", tooltip: "Distância obrigatória entre a construção e a estrada." },
-                  { label: "Condicionantes", val: "Nenhuma identificada", status: "ok", tooltip: "Restrições como RAN, REN, ZPE, Zonas Inundáveis, etc." },
-                ] : [
-                  { label: "Contiguidade ao Solo Urbano", val: "Contíguo (0m)", status: "ok", tooltip: "Distância ao limite do solo urbano mais próximo." },
-                  { label: "Acesso Rodoviário Público", val: "Sim (Pavimentado)", status: "ok", tooltip: "Existência de estrada pública em condições de circulação." },
-                  { label: "Infraestruturas Básicas", val: "Redes a menos de 50m", status: "ok", tooltip: "Proximidade a redes de água, saneamento e eletricidade." },
-                  { label: "Compatibilidade de Usos", val: "Habitação (Compatível)", status: "ok", tooltip: "Verificação se o uso pretendido é aceite na envolvente." },
-                  { label: "Risco de Cheias / Incêndio", val: "Risco Baixo", status: "ok", tooltip: "Avaliação de riscos naturais através da cartografia oficial." },
-                  { label: "Parecer Prévio / Restrições", val: "Não aplicável", status: "ok", tooltip: "Necessidade de consultas a entidades externas (APA, CCDR, etc)." },
-                ]).map((r, i) => (
-                  <div key={i} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-4">
-                      <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={20} strokeWidth={3} /> : <AlertTriangle size={20} strokeWidth={3} />}</div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-bold text-slate-700">{r.label}</span>
-                        <div className="relative inline-flex items-center group/tooltip" data-html2canvas-ignore>
-                            <HelpCircle size={12} className="text-slate-300 cursor-help hover:text-slate-500" />
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all pointer-events-none z-50 text-center shadow-lg">
-                                {r.tooltip}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
-                            </div>
+          <div className="grid grid-cols-12 gap-6 p-8">
+            <div className="col-span-12 lg:col-span-8 space-y-6">
+              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-8">{page === 1 ? "Análise do Plano Diretor Municipal (PDM)" : "Simulação de Conversão Urbana"}</h3>
+                <div className="space-y-8">
+                  {(page === 1 ? [
+                    { label: "Classificação do solo", val: "Urbano", status: "ok", tooltip: "Classificação principal definida na Planta de Ordenamento." },
+                    { label: "Categoria de espaço", val: "Espaços Residenciais", status: "ok", tooltip: "Subcategoria que define o uso predominante do solo." },
+                    { label: "Índice de edificabilidade máx. (Ie)", val: "0.50", status: "ok", tooltip: "Multiplicador máximo para a área de construção." },
+                    { label: "Índice de impermeabilização (Ii)", val: "0.60", status: "warning", tooltip: "Percentagem máxima da parcela que pode ser impermeabilizada." },
+                    { label: "Densidade populacional", val: "40 hab/ha", status: "ok", tooltip: "Número máximo de habitantes por hectare." },
+                    { label: "Cércea máxima", val: "3 pisos (9m)", status: "ok", tooltip: "Altura máxima permitida para as fachadas das construções." },
+                    { label: "Afastamento ao eixo da via", val: "Mínimo 5m", status: "warning", tooltip: "Distância obrigatória entre a construção e a estrada." },
+                    { label: "Condicionantes", val: "Nenhuma identificada", status: "ok", tooltip: "Restrições como RAN, REN, ZPE, Zonas Inundáveis, etc." },
+                  ] : [
+                    { label: "Contiguidade ao Solo Urbano", val: "Contíguo (0m)", status: "ok", tooltip: "Distância ao limite do solo urbano mais próximo." },
+                    { label: "Acesso Rodoviário Público", val: "Sim (Pavimentado)", status: "ok", tooltip: "Existência de estrada pública em condições de circulação." },
+                    { label: "Infraestruturas Básicas", val: "Redes a menos de 50m", status: "ok", tooltip: "Proximidade a redes de água, saneamento e eletricidade." },
+                    { label: "Compatibilidade de Usos", val: "Habitação (Compatível)", status: "ok", tooltip: "Verificação se o uso pretendido é aceite na envolvente." },
+                    { label: "Risco de Cheias / Incêndio", val: "Risco Baixo", status: "ok", tooltip: "Avaliação de riscos naturais através da cartografia oficial." },
+                    { label: "Parecer Prévio / Restrições", val: "Não aplicável", status: "ok", tooltip: "Necessidade de consultas a entidades externas (APA, CCDR, etc)." },
+                  ]).map((r, i) => (
+                    <div key={i} className="flex items-center justify-between group">
+                      <div className="flex items-center gap-4">
+                        <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={20} strokeWidth={3} /> : <AlertTriangle size={20} strokeWidth={3} />}</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-bold text-slate-700">{r.label}</span>
+                          <Tooltip text={r.tooltip} />
                         </div>
                       </div>
+                      <span className="text-sm font-black text-slate-900">{r.val}</span>
                     </div>
-                    <span className="text-sm font-black text-slate-900">{r.val}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[400px] relative">
-              <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                <MapContainer center={[38.7071, -9.1355]} zoom={13} zoomControl={false} style={{ width: '100%', height: '100%' }}>
-                  <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" attribution="&copy; OpenStreetMap &copy; CARTO" />
-                  <Polygon positions={[[38.705, -9.135], [38.708, -9.130], [38.709, -9.138]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.4, weight: 2 }} />
-                </MapContainer>
-                <div className="absolute inset-0 bg-slate-900/5 pointer-events-none z-[400]" data-html2canvas-ignore></div>
-                <div className="absolute top-4 right-4 bg-white p-2 rounded-md shadow-md text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 border border-slate-100 z-[400]"><MapPin size={12} className="text-emerald-600" /> Vista SIG Integrada</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-12 lg:col-span-4 space-y-6">
-            <div className="bg-white border border-slate-200 rounded-xl p-10 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
-              <div className={`absolute top-0 left-0 w-full h-1.5 ${c.fill}`}></div>
-              <div className="relative mb-6">
-                <svg className="w-48 h-48 transform -rotate-90"><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" /><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={552.9} strokeDashoffset={552.9 * (1 - property.score / 100)} className={`${c.text} transition-all duration-1000 ease-out`} strokeLinecap="round" /></svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-6xl font-black ${c.text} tracking-tighter`}>{property.score}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Health Score</span>
+                  ))}
                 </div>
               </div>
-              <div className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${c.bg} ${c.text} border-2 ${c.border}`}>{c.label}</div>
+              
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[400px] relative">
+                <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                  <MapContainer center={[38.7071, -9.1355]} zoom={13} zoomControl={false} style={{ width: '100%', height: '100%' }}>
+                    <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" attribution="&copy; OpenStreetMap &copy; CARTO" />
+                    <LC position="topright">
+                      <LC.Overlay checked name="Perímetro Urbano">
+                        <Polygon positions={[[38.700, -9.140], [38.715, -9.140], [38.715, -9.120], [38.700, -9.120]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.1, weight: 1, dashArray: '4' }} />
+                      </LC.Overlay>
+                      <LC.Overlay name="RAN / REN (Reserva)">
+                        <Polygon positions={[[38.710, -9.135], [38.714, -9.130], [38.712, -9.125]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.4, weight: 2 }} />
+                      </LC.Overlay>
+                      <LC.Overlay name="Risco Incêndio">
+                        <Polygon positions={[[38.702, -9.138], [38.706, -9.135], [38.704, -9.130]]} pathOptions={{ color: '#f59e0b', fillColor: '#fbbf24', fillOpacity: 0.4, weight: 2 }} />
+                      </LC.Overlay>
+                    </LC>
+                    <Polygon positions={[[38.705, -9.135], [38.708, -9.130], [38.709, -9.138]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.6, weight: 3 }} />
+                  </MapContainer>
+                  <div className="absolute inset-0 bg-slate-900/5 pointer-events-none z-[400]" data-html2canvas-ignore></div>
+                  <div className="absolute top-4 right-4 bg-white p-2 rounded-md shadow-md text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 border border-slate-100 z-[400]" data-html2canvas-ignore><MapPin size={12} className="text-emerald-600" /> Vista SIG Interativa</div>
+                </div>
+              </div>
             </div>
-            
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Metadados OCR</h3></div>
-              <div className="divide-y divide-slate-100">
-                {[{ label: "Área", val: formatArea(property.area) }, { label: "Artigo", val: "—" }, { label: "Concelho", val: property.concelho }].map((d, i) => (<div key={i} className="flex justify-between items-center px-6 py-4 text-xs"><span className="text-slate-400 font-bold">{d.label}</span><span className="text-slate-900 font-bold">{d.val}</span></div>))}
+
+            <div className="col-span-12 lg:col-span-4 space-y-6">
+              <div className="bg-white border border-slate-200 rounded-xl p-10 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
+                <div className={`absolute top-0 left-0 w-full h-1.5 ${c.fill}`}></div>
+                <div className="relative mb-6">
+                  <svg className="w-48 h-48 transform -rotate-90"><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" /><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={552.9} strokeDashoffset={552.9 * (1 - property.score / 100)} className={`${c.text} transition-all duration-1000 ease-out`} strokeLinecap="round" /></svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className={`text-6xl font-black ${c.text} tracking-tighter`}>{property.score}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Health Score</span>
+                  </div>
+                </div>
+                <div className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${c.bg} ${c.text} border-2 ${c.border}`}>{c.label}</div>
+              </div>
+              
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resumo Restrições</h3></div>
+                <div className="divide-y divide-slate-100">
+                  <div className="flex items-center gap-3 px-6 py-4 text-xs"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="font-semibold text-slate-700">Edificação permitida</span></div>
+                  <div className="flex items-center gap-3 px-6 py-4 text-xs"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="font-semibold text-slate-700">Acesso Rodoviário garantido</span></div>
+                  <div className="flex items-center gap-3 px-6 py-4 text-xs"><div className="w-2 h-2 rounded-full bg-amber-500"></div><span className="font-semibold text-slate-700">REN Parcial (Traseira)</span></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
+    </div>
+  );
+};
+
+
+const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
+  return (
+    <div className="min-h-screen bg-white flex flex-col h-screen">
+      <Nav page="explore" onNavigate={onNavigate} user={user} onLogout={onLogout} />
+      <div className="flex-1 relative">
+        <MapContainer center={[39.3999, -8.2245]} zoom={7} zoomControl={false} style={{ width: '100%', height: '100%' }}>
+          <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap &copy; CARTO" />
+          <LC position="topright">
+            <LC.Overlay checked name="Meus Terrenos">
+              <FeatureGroup>
+                {properties.map(p => {
+                  const lat = 39.3999 + (Math.random() - 0.5) * 3;
+                  const lng = -8.2245 + (Math.random() - 0.5) * 2;
+                  return (
+                    <Marker key={p.id} position={[lat, lng]}>
+                      <Popup>
+                        <div className="text-xs">
+                          <h3 className="font-bold text-emerald-700">{p.designacao}</h3>
+                          <p>{p.concelho}</p>
+                          <p className="font-bold mt-1">Score: {p.score}</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </FeatureGroup>
+            </LC.Overlay>
+            <LC.Overlay name="RAN / REN (Global)">
+               <Polygon positions={[[38.8, -9.0], [38.9, -8.5], [38.7, -8.5]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.2, weight: 1 }} />
+            </LC.Overlay>
+          </LC>
+        </MapContainer>
+        <div className="absolute top-6 left-6 z-[400] bg-white p-4 rounded-xl shadow-lg w-80">
+          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2"><Globe2 size={16} className="text-emerald-600"/> Centro de Comando</h2>
+          <p className="text-xs text-slate-500 mt-1">Visão macro de todos os ativos imobiliários na plataforma.</p>
+          <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+            <div className="text-center"><div className="text-lg font-black text-slate-800">{properties.length}</div><div className="text-[9px] uppercase font-bold text-slate-400">Ativos</div></div>
+            <div className="text-center"><div className="text-lg font-black text-emerald-600">{properties.filter(p=>p.score>=60).length}</div><div className="text-[9px] uppercase font-bold text-slate-400">Viáveis</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MonitorPDMPage = ({ onNavigate, user, onLogout }) => {
+  const pdms = [
+    { concelho: "Lisboa", status: "Em Revisão", date: "2026-03-12", danger: true },
+    { concelho: "Sintra", status: "Atualizado", date: "2025-11-05", danger: false },
+    { concelho: "Cascais", status: "Atualizado", date: "2025-08-20", danger: false },
+    { concelho: "Oeiras", status: "Em Revisão", date: "2026-01-15", danger: true },
+    { concelho: "Loures", status: "Atualizado", date: "2024-05-10", danger: false },
+  ];
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Nav page="pdm" onNavigate={onNavigate} user={user} onLogout={onLogout} />
+      <main className="p-8 max-w-[1000px] mx-auto">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg"><BookOpen size={24} /></div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Monitor Legal & PDM</h1>
+            <p className="text-sm text-slate-500">Acompanhe o estado de atualização dos Planos Diretores Municipais.</p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
+              <tr><th className="px-6 py-4">Câmara Municipal</th><th className="px-6 py-4">Estado do PDM</th><th className="px-6 py-4">Última Alteração</th></tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {pdms.map(p => (
+                <tr key={p.concelho} className="hover:bg-slate-50 transition">
+                  <td className="px-6 py-4 font-bold text-slate-800 flex items-center gap-2"><MapPin size={14} className="text-slate-300"/>{p.concelho}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] uppercase ${p.danger ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{p.status}</span>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500">{p.date}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+const SupportWidget = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      {open && (
+        <div className="absolute bottom-16 right-0 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden mb-4 animate-in fade-in slide-in-from-bottom-4">
+          <div className="bg-slate-900 p-4 text-white flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center"><Shield size={16} /></div>
+              <div>
+                <h3 className="font-bold text-sm leading-none">Consultor TerraCerta</h3>
+                <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">Online</span>
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-white transition"><X size={16} /></button>
+          </div>
+          <div className="p-4 h-48 bg-slate-50 flex flex-col gap-3 overflow-y-auto text-xs">
+            <div className="bg-white border border-slate-200 p-3 rounded-lg rounded-tl-none self-start max-w-[85%] shadow-sm">
+              <p className="text-slate-700">Olá! Tem alguma dúvida técnica complexa sobre restrições de algum terreno? Posso ajudar com consultoria especializada.</p>
+            </div>
+          </div>
+          <div className="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+            <input type="text" placeholder="Escreva a sua mensagem..." className="w-full bg-slate-50 border border-slate-200 rounded-full px-4 py-2 text-xs outline-none focus:border-emerald-500" />
+            <button className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 shrink-0"><Send size={12}/></button>
+          </div>
+        </div>
+      )}
+      <button onClick={() => setOpen(!open)} className="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 transition-transform">
+        {open ? <X size={24} /> : <MessageCircle size={24} />}
+      </button>
     </div>
   );
 };
@@ -571,20 +764,43 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [analysisPage, setAnalysisPage] = useState(1);
   useEffect(() => { if (user) fetchProperties(); }, [user]);
+  
   async function fetchProperties() {
     setLoading(true);
     const { data } = await db.from("propriedades").select("*").order("created_at", { ascending: false });
     setProperties(data || []);
     setLoading(false);
   }
-  if (!user) return <LoginPage onLogin={setUser} />;
-  if (view === "dashboard") return <Dashboard properties={properties} loading={loading} onRefresh={fetchProperties} onNew={() => setView("upload")} onSelect={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
-  if (view === "upload") return <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
-    setSelected(p); 
-    setView("analysis"); 
-    setAnalysisPage(1); 
-    fetchProperties(); // Refresh the list so it appears in Dashboard
-  }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
-  if (view === "analysis" && selected) return <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
-  return null;
+
+  async function handleDelete(id) {
+    await db.from("propriedades").delete().eq("id", id);
+    fetchProperties();
+  }
+
+  let content = null;
+  if (!user) {
+    content = <LoginPage onLogin={setUser} />;
+  } else if (view === "dashboard") {
+    content = <Dashboard properties={properties} loading={loading} onRefresh={fetchProperties} onNew={() => setView("upload")} onSelect={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} onDelete={handleDelete} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  } else if (view === "explore") {
+    content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  } else if (view === "pdm") {
+    content = <MonitorPDMPage user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  } else if (view === "upload") {
+    content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
+      setSelected(p); 
+      setView("analysis"); 
+      setAnalysisPage(1); 
+      fetchProperties();
+    }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  } else if (view === "analysis" && selected) {
+    content = <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  }
+
+  return (
+    <>
+      {content}
+      {user && <SupportWidget />}
+    </>
+  );
 }
