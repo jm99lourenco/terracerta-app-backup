@@ -379,7 +379,7 @@ const Logo = ({ size = "md", invert = false }) => {
         </span>
         {size === "lg" && (
           <span className={`text-[10px] uppercase tracking-[0.2em] ${subColor} mt-1`}>
-            Land Viability Intelligence
+            Análise de Viabilidade Territorial
           </span>
         )}
       </div>
@@ -558,20 +558,13 @@ const LoginPage = ({ onLogin }) => {
 
       <header className="absolute top-0 left-0 right-0 z-20 px-8 py-6 flex items-center justify-between">
         <Logo size="lg" invert />
-        <div className="hidden md:flex items-center gap-5 text-xs text-white/85" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.35)" }}>
-          <span className="flex items-center gap-1.5"><Shield size={13} /> RGPD compliant</span>
-          <span className="flex items-center gap-1.5"><FileCheck size={13} /> Dados oficiais DGT</span>
-          <span className="flex items-center gap-1.5"><Activity size={13} /> Atualização contínua</span>
-        </div>
       </header>
 
       <main className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-[420px] bg-white rounded-lg shadow-2xl border border-white/40 overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700" />
           <div className="p-8">
             <div className="mb-6">
               <h1 className="text-[22px] font-semibold text-slate-900 tracking-tight">Iniciar sessão</h1>
-              <p className="text-sm text-slate-500 mt-1">Acesso restrito · plataforma TerraCerta</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
@@ -594,7 +587,13 @@ const LoginPage = ({ onLogin }) => {
               <div>
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-medium text-slate-700 uppercase tracking-wider">Palavra-passe</label>
-                  <button type="button" className="text-xs text-emerald-700 hover:text-emerald-800 font-medium">Esqueci-me</button>
+                  <button 
+                    type="button" 
+                    onClick={() => alert("Para recuperar a sua palavra-passe, por favor contacte o administrador da sua agência ou o suporte técnico da TerraCerta.")}
+                    className="text-xs text-emerald-700 hover:text-emerald-800 font-medium"
+                  >
+                    Esqueci-me
+                  </button>
                 </div>
                 <div className="mt-1.5 relative">
                   <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -633,26 +632,11 @@ const LoginPage = ({ onLogin }) => {
                   <>Entrar na plataforma <ArrowRight size={15} className="group-hover:translate-x-0.5 transition" /></>
                 )}
               </button>
-
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-                <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-slate-400">ou</span></div>
-              </div>
-
-              <button type="button" className="w-full border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium py-2.5 rounded-md transition flex items-center justify-center gap-2">
-                <span className="text-base">🇵🇹</span> Autenticação Chave Móvel Digital
-              </button>
-
-              <p className="text-xs text-slate-500 text-center pt-3">
-                Sem conta? <button type="button" className="text-emerald-700 hover:text-emerald-800 font-medium">Solicitar acesso piloto</button>
-              </p>
             </form>
-          </div>
-          <div className="px-8 py-3 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500 text-center">
-            © 2026 TerraCerta · Análise de viabilidade territorial
           </div>
         </div>
       </main>
+    </div>
     </div>
   );
 };
