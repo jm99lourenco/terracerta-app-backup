@@ -22,14 +22,19 @@ const ALLOWED_USERS = {
   "admin2@terracerta.pt": "portugal2026",
 };
 
-// ----------------- MOCK DATA: CONCELHOS & FREGUESIAS (EXEMPLO) -----------------
-const PORTUGAL_GEO = {
-  "Lisboa": ["Alvalade", "Areeiro", "Arroios", "Belém", "Benfica", "Campo de Ourique", "Campolide", "Carnide", "Estrela", "Lumiar", "Marvila", "Misericórdia", "Olivais", "Parque das Nações", "Penha de França", "Santa Maria Maior", "Santo António", "São Domingos de Benfica", "São Vicente"],
+// ----------------- DATASET: CONCELHOS E FREGUESIAS -----------------
+const CONCELHOS_PORTUGAL = {
+  "Lisboa": ["Ajuda", "Alcântara", "Alvalade", "Areeiro", "Arroios", "Avenidas Novas", "Beato", "Belém", "Benfica", "Campo de Ourique", "Campolide", "Carnide", "Estrela", "Lumiar", "Marvila", "Misericórdia", "Olivais", "Parque das Nações", "Penha de França", "Santa Clara", "Santa Maria Maior", "Santo António", "São Domingos de Benfica", "São Vicente"],
   "Oeiras": ["Algés, Linda-a-Velha e Cruz Quebrada-Dafundo", "Barcarena", "Carnaxide e Queijas", "Oeiras e São Julião da Barra, Paço de Arcos e Caxias", "Porto Salvo"],
   "Cascais": ["Alcabideche", "Carcavelos e Parede", "Cascais e Estoril", "São Domingos de Rana"],
-  "Sintra": ["Algueirão-Mem Martins", "Casal de Cambra", "Colares", "Rio de Mouro", "Sintra", "Queluz e Belas"],
+  "Sintra": ["Agualva e Mira-Sintra", "Algueirão-Mem Martins", "Almargem do Bispo, Pêro Pinheiro e Montelavar", "Cacém e São Marcos", "Casal de Cambra", "Colares", "Massamá e Monte Abraão", "Queluz e Belas", "Rio de Mouro", "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)"],
+  "Amadora": ["Águas Livres", "Alfragide", "Encosta do Sol", "Falagueira-Venda Nova", "Mina de Água", "Venteira"],
   "Porto": ["Bonfim", "Campanhã", "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória", "Lordelo do Ouro e Massarelos", "Paranhos", "Ramalde", "Vila Nova da Telha"],
-  "Braga": ["Braga (Maximinos, Sé e Cividade)", "Braga (São José de São Lázaro e São João do Souto)", "Gualtar", "Real, Dume e Semelhe"]
+  "Gaia": ["Arcozelo", "Avintes", "Canidelo", "Gulpilhares e Valadares", "Madalena", "Mafamude e Vilar do Paraíso", "Oliveira do Douro", "Pedroso e Seixezelo", "Sandim, Olival, Lever e Crestuma", "Santa Marinha e São Pedro da Afurada", "São Félix da Marinha", "Vilar de Andorinho"],
+  "Braga": ["Arentim e Cunha", "Braga (Maximinos, Sé e Cividade)", "Braga (São José de São Lázaro e São João do Souto)", "Celeirós, Aveleda e Vimieiro", "Crespos e Pousada", "Este (São Pedro e São Mamede)", "Ferreiros e Gondizalves", "Gualtar", "Merelim (São Paio), Panoias e Parada de Tibães", "Nogueira, Fraião e Lamaçães", "Real, Dume e Semelhe", "Tadim"],
+  "Coimbra": ["Almedina", "Santa Cruz", "Sé Nova", "São Bartolomeu"],
+  "Faro": ["Conceição e Estoi", "Faro (Sé e São Pedro)", "Montenegro", "Santa Bárbara de Nexe"],
+  "Funchal": ["Imaculado Coração de Maria", "Monte", "Santa Luzia", "Santa Maria Maior", "Santo António", "São Gonçalo", "São Martinho", "São Pedro", "São Roque", "Sé"]
 };
 
 // ----------------- UTILS -----------------
@@ -63,14 +68,8 @@ const LandscapeBackground = () => (
     `}</style>
     <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
-        <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fbe7c4" />
-          <stop offset="100%" stopColor="#c9825a" />
-        </linearGradient>
-        <radialGradient id="bg-sun" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#fffaeb" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#fffaeb" stopOpacity="0" />
-        </radialGradient>
+        <linearGradient id="bg-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#fbe7c4" /><stop offset="100%" stopColor="#c9825a" /></linearGradient>
+        <radialGradient id="bg-sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#fffaeb" stopOpacity="0.8" /><stop offset="100%" stopColor="#fffaeb" stopOpacity="0" /></radialGradient>
         <linearGradient id="bg-mountains" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7a8b8e" /><stop offset="100%" stopColor="#5b6e72" /></linearGradient>
         <linearGradient id="bg-hill-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#9bb47e" /><stop offset="100%" stopColor="#7a9460" /></linearGradient>
         <linearGradient id="bg-hill-mid" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6c8c5e" /><stop offset="100%" stopColor="#4a6640" /></linearGradient>
@@ -84,18 +83,13 @@ const LandscapeBackground = () => (
       <path d="M0,660 Q320,580 640,620 T1280,610 T1920,600 L1920,820 L0,820 Z" fill="url(#bg-hill-mid)" />
       <path d="M0,780 Q400,700 800,740 T1500,720 T1920,740 L1920,1080 L0,1080 Z" fill="url(#bg-hill-near)" />
       <path d="M0,860 Q500,820 1000,840 T1920,830 L1920,1080 L0,1080 Z" fill="url(#bg-field)" opacity="0.9" />
-      {[[720, 770], [750, 775], [790, 765]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
+      {[[1120, 770], [1150, 775], [1190, 765]].map(([cx, cy], i) => (<ellipse key={`tree-${i}`} cx={cx} cy={cy} rx={11} ry={36} fill="#1c3a1a" opacity="0.95" />))}
       <g transform="translate(1550, 700)" opacity="0.85">
         <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
       </g>
     </svg>
     <svg className="absolute top-[8%] left-0 w-[20vw] max-w-[260px] tc-cloud-a opacity-90 pointer-events-none" viewBox="0 0 200 60"><g fill="white" opacity="0.85"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /><ellipse cx="130" cy="35" rx="38" ry="16" /></g></svg>
-    <svg className="absolute top-[22%] left-0 w-[12vw] max-w-[180px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6">
-      <path d="M5,20 q5,-7 10,0 q5,-7 10,0" />
-      <path d="M30,28 q4,-6 8,0 q4,-6 8,0" />
-      <path d="M55,18 q5,-7 10,0 q5,-7 10,0" />
-      <path d="M80,26 q4,-6 8,0 q4,-6 8,0" />
-    </svg>
+    <svg className="absolute top-[22%] left-0 w-[12vw] max-w-[180px] tc-birds opacity-70 pointer-events-none" viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /><path d="M55,18 q5,-7 10,0 q5,-7 10,0" /><path d="M80,26 q4,-6 8,0 q4,-6 8,0" /></svg>
   </div>
 );
 
@@ -108,7 +102,6 @@ const Nav = ({ page, onNavigate, user, onLogout }) => (
       </div>
       <div className="flex items-center gap-1">
         <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Dashboard</button>
-        <button onClick={() => onNavigate("sig")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'sig' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Camadas SIG</button>
       </div>
     </div>
     <div className="flex items-center gap-5">
@@ -175,40 +168,43 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
     p.concelho?.toLowerCase().includes(search.toLowerCase()) ||
     p.id?.toLowerCase().includes(search.toLowerCase())
   );
+  const totalArea = filtered.reduce((acc, curr) => acc + (curr.area || 0), 0);
+  const avgScore = filtered.length ? Math.round(filtered.reduce((acc, curr) => acc + (curr.score || 0), 0) / filtered.length) : 0;
+  const highViability = filtered.filter(p => p.score > 60).length;
 
   return (
     <div className="min-h-screen bg-white">
       <Nav page="dashboard" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carteira</p><h1 className="text-2xl font-bold text-slate-900">Dashboard de Terrenos</h1></div>
+          <div><h1 className="text-2xl font-bold text-slate-900">Dashboard de Terrenos</h1></div>
           <div className="flex gap-3">
             <button onClick={onRefresh} className="flex items-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition"><RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Atualizar</button>
             <button onClick={onNew} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md text-xs font-semibold hover:bg-slate-800 shadow-sm transition"><Plus size={16} /> Novo Terreno</button>
           </div>
         </div>
-
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {[
+            { label: "Resultados", val: filtered.length, sub: "terrenos filtrados", icon: Layers },
+            { label: "Área Filtrada", val: formatArea(totalArea), sub: "total visível", icon: Ruler },
+            { label: "Score Médio", val: avgScore, sub: "no portfólio visível", icon: Activity },
+            { label: "Viabilidade > 60", val: `${highViability}`, sub: "terrenos aptos", icon: TrendingUp },
+          ].map((s, i) => (
+            <div key={i} className="px-5 py-4 border border-slate-100 rounded-lg bg-slate-50/50 flex flex-col justify-center">
+              <div className="flex items-center gap-2 mb-1"><s.icon size={12} className="text-emerald-600" /><span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</span></div>
+              <div className="flex items-baseline gap-2"><span className="text-xl font-bold text-slate-900">{s.val}</span><span className="text-[9px] text-slate-400 font-medium">{s.sub}</span></div>
+            </div>
+          ))}
+        </div>
         <div className="border border-slate-200 rounded-md overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
             <div className="relative w-80"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar por designação, concelho, ID..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded text-xs focus:ring-1 focus:ring-emerald-500/20 transition" /></div>
-            <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 text-slate-500 font-semibold text-xs border border-slate-200 px-3 py-2 rounded hover:bg-slate-50"><Filter size={14} /> Filtros</button>
-              <span className="text-[10px] text-slate-400 font-medium">{filtered.length} terrenos</span>
-            </div>
+            <div className="flex items-center gap-4"><button className="flex items-center gap-2 text-slate-500 font-semibold text-xs border border-slate-200 px-3 py-2 rounded hover:bg-slate-50"><Filter size={14} /> Filtros</button></div>
           </div>
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
               <tr>
-                <th className="px-5 py-3 font-medium">ID</th>
-                <th className="px-5 py-3 font-medium">Designação</th>
-                <th className="px-5 py-3 font-medium">Concelho / Freguesia</th>
-                <th className="px-5 py-3 font-medium">Artigo Matricial</th>
-                <th className="px-5 py-3 font-medium">Área</th>
-                <th className="px-5 py-3 font-medium">Classificação</th>
-                <th className="px-5 py-3 font-medium">Score</th>
-                <th className="px-5 py-3 font-medium">Estado</th>
-                <th className="px-5 py-3 font-medium">Data</th>
-                <th className="px-5 py-3"></th>
+                <th className="px-5 py-3 font-medium">ID</th><th className="px-5 py-3 font-medium">Designação</th><th className="px-5 py-3 font-medium">Concelho / Freguesia</th><th className="px-5 py-3 font-medium">Artigo Matricial</th><th className="px-5 py-3 font-medium">Área</th><th className="px-5 py-3 font-medium">Classificação</th><th className="px-5 py-3 font-medium">Score</th><th className="px-5 py-3 font-medium">Estado</th><th className="px-5 py-3 font-medium">Data</th><th className="px-5 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -230,10 +226,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
           </table>
           <div className="px-5 py-3 bg-slate-50/50 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100">
             <span>Última sincronização: agora</span>
-            <div className="flex gap-4">
-              <button className="hover:text-slate-700 transition">Exportar CSV</button>
-              <button className="hover:text-slate-700 transition flex items-center gap-1">Ver no mapa <ChevronRight size={10} /></button>
-            </div>
+            <div className="flex gap-4"><button className="hover:text-slate-700 transition">Exportar CSV</button><button className="hover:text-slate-700 transition flex items-center gap-1">Ver no mapa <ChevronRight size={10} /></button></div>
           </div>
         </div>
       </main>
@@ -245,11 +238,11 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
   const [formData, setFormData] = useState({ designacao: "", concelho: "", freguesia: "", area: "", matricial: "" });
   const [analysing, setAnalysing] = useState(false);
   const [files, setFiles] = useState({});
+  const fileInputRef = useRef(null);
+  const [activeFileKey, setActiveFileKey] = useState(null);
 
-  const handleFile = (key) => {
-    // Simular upload
-    setFiles(prev => ({ ...prev, [key]: true }));
-  };
+  const handleFileClick = (key) => { setActiveFileKey(key); fileInputRef.current?.click(); };
+  const handleFileChange = (e) => { if (e.target.files?.length && activeFileKey) { setFiles(prev => ({ ...prev, [activeFileKey]: e.target.files[0].name })); setActiveFileKey(null); } };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -264,61 +257,21 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
       <Nav page="upload" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[800px] mx-auto">
         <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 text-xs font-semibold transition"><ChevronLeft size={16} /> Voltar ao dashboard</button>
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Submissão de terreno</h1>
-          <p className="text-sm text-slate-500">Preencha os dados matriciais do terreno e carregue a documentação. A análise demora ~55 segundos a concluir.</p>
-        </div>
+        <div className="mb-8"><h1 className="text-2xl font-bold text-slate-900 mb-2">Submissão de terreno</h1></div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
           <div className="p-8 border border-slate-200 rounded-md space-y-6">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Dados do terreno</h3>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *</label>
-              <input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Quinta da Ribeira" />
+            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designação *</label><input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Quinta da Ribeira" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label><select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option value="">Selecionar concelho...</option>{Object.keys(CONCELHOS_PORTUGAL).map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label><select required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"><option value="">{formData.concelho ? "Selecionar freguesia..." : "—"}</option>{formData.concelho && CONCELHOS_PORTUGAL[formData.concelho].map(f => <option key={f} value={f}>{f}</option>)}</select></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label>
-                <select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500">
-                  <option value="">Selecionar concelho...</option>
-                  {Object.keys(PORTUGAL_GEO).map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label>
-                <select required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400">
-                  <option value="">{formData.concelho ? "Selecionar freguesia..." : "—"}</option>
-                  {formData.concelho && PORTUGAL_GEO[formData.concelho].map(f => <option key={f} value={f}>{f}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label>
-                  <div className="group relative cursor-help">
-                    <HelpCircle size={12} className="text-slate-300" />
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Identificação única do imóvel na matriz predial das finanças.</div>
-                  </div>
-                </div>
-                <input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452 / Secção B" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *</label>
-                  <div className="group relative cursor-help">
-                    <HelpCircle size={12} className="text-slate-300" />
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Área total da parcela em metros quadrados, conforme caderneta predial.</div>
-                  </div>
-                </div>
-                <input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 12450" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Classificação Atual *</label>
-              <select className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option>Selecionar classificação...</option><option>Urbano</option><option>Rústico</option></select>
+              <div className="space-y-2"><div className="flex items-center gap-1.5"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label><div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Identificação única do imóvel na matriz predial das finanças.</div></div></div><input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452 / Secção B" /></div>
+              <div className="space-y-2"><div className="flex items-center gap-1.5"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *</label><div className="group relative cursor-help"><HelpCircle size={12} className="text-slate-300" /><div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Área total da parcela em metros quadrados, conforme caderneta predial.</div></div></div><input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 12450" /></div>
             </div>
           </div>
-
           <div className="space-y-3">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Documentação de suporte</h3>
             {[
@@ -327,15 +280,11 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
               { id: "certidao", label: "Certidão Permanente", sub: "Conservatória do Registo Predial", formats: "PDF · CÓDIGO DE ACESSO ACEITE" },
             ].map((d) => (
               <div key={d.id} className="p-5 border border-slate-200 rounded-md flex items-center justify-between bg-white hover:border-emerald-200 transition">
-                <div className="flex gap-4 items-center">
-                  <div className={`h-10 w-10 rounded flex items-center justify-center ${files[d.id] ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>{files[d.id] ? <CheckCircle size={20} /> : <FileText size={18} />}</div>
-                  <div><div className="flex items-center gap-2"><span className="text-sm font-semibold text-slate-900">{d.label}</span><span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded tracking-tighter">{d.formats}</span></div><p className="text-[11px] text-slate-500">{d.sub}</p></div>
-                </div>
-                <button type="button" onClick={() => handleFile(d.id)} className={`flex items-center gap-2 px-3 py-1.5 border rounded text-[10px] font-bold transition ${files[d.id] ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}><Upload size={12} /> {files[d.id] ? "Alterar" : "Carregar"}</button>
+                <div className="flex gap-4 items-center"><div className={`h-10 w-10 rounded flex items-center justify-center ${files[d.id] ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>{files[d.id] ? <CheckCircle size={20} /> : <FileText size={18} />}</div><div><div className="flex items-center gap-2"><span className="text-sm font-semibold text-slate-900">{d.label}</span><span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded tracking-tighter">{d.formats}</span></div><p className="text-[11px] text-slate-500">{files[d.id] ? `Selecionado: ${files[d.id]}` : d.sub}</p></div></div>
+                <button type="button" onClick={() => handleFileClick(d.id)} className={`flex items-center gap-2 px-3 py-1.5 border rounded text-[10px] font-bold transition ${files[d.id] ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}><Upload size={12} /> {files[d.id] ? "Alterar" : "Carregar"}</button>
               </div>
             ))}
           </div>
-
           <button type="submit" disabled={analysing} className="w-full bg-emerald-600 text-white py-4 rounded-md font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-md transition disabled:opacity-50">{analysing ? <Loader2 className="animate-spin" size={20} /> : "Iniciar Análise de Viabilidade"}</button>
         </form>
       </main>
