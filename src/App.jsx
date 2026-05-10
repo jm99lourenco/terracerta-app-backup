@@ -93,8 +93,8 @@ const LandscapeBackground = () => (
     <style>{`
       @keyframes drift { from { transform: translateX(-20vw); } to { transform: translateX(120vw); } }
       @keyframes fly { from { transform: translate(-10vw, 0); } to { transform: translate(110vw, -10vh); } }
-      .tc-cloud { animation: drift var(--d, 120s) linear infinite; animation-delay: var(--del, 0s); }
-      .tc-bird { animation: fly var(--d, 60s) linear infinite; animation-delay: var(--del, 0s); }
+      .tc-cloud { animation: drift var(--d, 120s) linear infinite both; animation-delay: var(--del, 0s); }
+      .tc-bird { animation: fly var(--d, 60s) linear infinite both; animation-delay: var(--del, 0s); }
     `}</style>
     <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
@@ -124,15 +124,12 @@ const LandscapeBackground = () => (
         <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
       </g>
     </svg>
-    {/* Sporadic Clouds */}
-    <svg className="absolute top-[5%] left-0 w-[15vw] tc-cloud opacity-60" style={{ '--d': '150s', '--del': '0s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.8"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /></g></svg>
-    <svg className="absolute top-[12%] left-0 w-[12vw] tc-cloud opacity-40" style={{ '--d': '200s', '--del': '40s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.7"><ellipse cx="60" cy="30" rx="35" ry="15" /><ellipse cx="100" cy="25" rx="30" ry="18" /></g></svg>
-    <svg className="absolute top-[8%] left-0 w-[18vw] tc-cloud opacity-50" style={{ '--d': '180s', '--del': '90s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.75"><ellipse cx="50" cy="35" rx="45" ry="16" /><ellipse cx="110" cy="30" rx="38" ry="20" /></g></svg>
-
-    {/* Sporadic Birds */}
-    <svg className="absolute top-[15%] left-0 w-[6vw] tc-bird opacity-70" style={{ '--d': '80s', '--del': '0s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
-    <svg className="absolute top-[25%] left-0 w-[4vw] tc-bird opacity-50 scale-75" style={{ '--d': '110s', '--del': '15s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M10,20 q5,-7 10,0 q5,-7 10,0" /></svg>
-    <svg className="absolute top-[10%] left-0 w-[8vw] tc-bird opacity-60 scale-90" style={{ '--d': '95s', '--del': '35s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,15 q5,-7 10,0 q5,-7 10,0" /><path d="M35,22 q4,-6 8,0 q4,-6 8,0" /><path d="M65,18 q5,-7 10,0 q5,-7 10,0" /></svg>
+    <svg className="absolute top-[5%] left-0 w-[15vw] tc-cloud opacity-60" style={{ '--d': '150s', '--del': '-20s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.8"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /></g></svg>
+    <svg className="absolute top-[12%] left-0 w-[12vw] tc-cloud opacity-40" style={{ '--d': '200s', '--del': '-80s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.7"><ellipse cx="60" cy="30" rx="35" ry="15" /><ellipse cx="100" cy="25" rx="30" ry="18" /></g></svg>
+    <svg className="absolute top-[8%] left-0 w-[18vw] tc-cloud opacity-50" style={{ '--d': '180s', '--del': '-140s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.75"><ellipse cx="50" cy="35" rx="45" ry="16" /><ellipse cx="110" cy="30" rx="38" ry="20" /></g></svg>
+    <svg className="absolute top-[15%] left-0 w-[6vw] tc-bird opacity-70" style={{ '--d': '80s', '--del': '-10s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
+    <svg className="absolute top-[25%] left-0 w-[4vw] tc-bird opacity-50 scale-75" style={{ '--d': '110s', '--del': '-40s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M10,20 q5,-7 10,0 q5,-7 10,0" /></svg>
+    <svg className="absolute top-[10%] left-0 w-[8vw] tc-bird opacity-60 scale-90" style={{ '--d': '95s', '--del': '-70s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,15 q5,-7 10,0 q5,-7 10,0" /><path d="M35,22 q4,-6 8,0 q4,-6 8,0" /><path d="M65,18 q5,-7 10,0 q5,-7 10,0" /></svg>
   </div>
 );
 
