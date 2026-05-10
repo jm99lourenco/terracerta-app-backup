@@ -9,7 +9,7 @@ import {
   Building2, Mountain, Lock, Mail, Layers,
   Shield, Activity, Zap, ArrowRight, Sparkles, AlertTriangle,
   CheckCircle, Info, ExternalLink, Bell, Loader2, RefreshCw,
-  Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff
+  Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle
 } from "lucide-react";
 
 // ----------------- CONFIG & DB -----------------
@@ -22,14 +22,14 @@ const ALLOWED_USERS = {
   "admin2@terracerta.pt": "portugal2026",
 };
 
-const TRANSLATIONS = {
-  pt: { 
-    loginTitle: "Iniciar sessão", emailLabel: "Email profissional", passwordLabel: "Palavra-passe", forgotPassword: "Esqueci-me da Password", loginButton: "Entrar na plataforma", tagline: "Análise de Viabilidade Territorial", forgotMsg: "Contacte o suporte técnico.", loggingIn: "A entrar...", lang: "Português", flag: "🇵🇹",
-    logout: "Sair", dashboardTitle: "Dashboard de Terrenos", newProperty: "Novo Terreno", update: "Atualizar",
-    stats_total: "Terrenos em carteira", stats_area: "Área total agregada", stats_score: "Health Score médio", stats_viability: "Viabilidade > 60",
-    search_placeholder: "Pesquisar por designação, concelho, ID...", export_csv: "Exportar CSV", view_map: "Ver no mapa", filters: "Filtros",
-    back_dashboard: "Concluir e voltar ao dashboard", back_pdm: "Voltar à Análise PDM", urban_conv: "Conversão Urbana", pdm_analysis: "Análise PDM", open_map: "Abrir no mapa"
-  }
+// ----------------- MOCK DATA: CONCELHOS & FREGUESIAS (EXEMPLO) -----------------
+const PORTUGAL_GEO = {
+  "Lisboa": ["Alvalade", "Areeiro", "Arroios", "Belém", "Benfica", "Campo de Ourique", "Campolide", "Carnide", "Estrela", "Lumiar", "Marvila", "Misericórdia", "Olivais", "Parque das Nações", "Penha de França", "Santa Maria Maior", "Santo António", "São Domingos de Benfica", "São Vicente"],
+  "Oeiras": ["Algés, Linda-a-Velha e Cruz Quebrada-Dafundo", "Barcarena", "Carnaxide e Queijas", "Oeiras e São Julião da Barra, Paço de Arcos e Caxias", "Porto Salvo"],
+  "Cascais": ["Alcabideche", "Carcavelos e Parede", "Cascais e Estoril", "São Domingos de Rana"],
+  "Sintra": ["Algueirão-Mem Martins", "Casal de Cambra", "Colares", "Rio de Mouro", "Sintra", "Queluz e Belas"],
+  "Porto": ["Bonfim", "Campanhã", "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória", "Lordelo do Ouro e Massarelos", "Paranhos", "Ramalde", "Vila Nova da Telha"],
+  "Braga": ["Braga (Maximinos, Sé e Cividade)", "Braga (São José de São Lázaro e São João do Souto)", "Gualtar", "Real, Dume e Semelhe"]
 };
 
 // ----------------- UTILS -----------------
@@ -85,12 +85,10 @@ const LandscapeBackground = () => (
         <rect x="0" y="20" width="48" height="28" fill="#f0e1c8" /><polygon points="-4,20 24,4 52,20" fill="#8b4f3a" /><rect x="20" y="32" width="8" height="16" fill="#3a2818" /><rect x="6" y="28" width="6" height="6" fill="#3a2818" /><rect x="34" y="28" width="6" height="6" fill="#3a2818" />
       </g>
     </svg>
+    {/* Clouds and Birds animated with delays */}
     <svg className="absolute top-[5%] left-0 w-[15vw] tc-cloud opacity-60" style={{ '--d': '150s', '--del': '-20s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.8"><ellipse cx="50" cy="35" rx="40" ry="18" /><ellipse cx="90" cy="28" rx="32" ry="20" /></g></svg>
     <svg className="absolute top-[12%] left-0 w-[12vw] tc-cloud opacity-40" style={{ '--d': '200s', '--del': '-80s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.7"><ellipse cx="60" cy="30" rx="35" ry="15" /><ellipse cx="100" cy="25" rx="30" ry="18" /></g></svg>
-    <svg className="absolute top-[8%] left-0 w-[18vw] tc-cloud opacity-50" style={{ '--d': '180s', '--del': '-140s' } } viewBox="0 0 200 60"><g fill="white" opacity="0.75"><ellipse cx="50" cy="35" rx="45" ry="16" /><ellipse cx="110" cy="30" rx="38" ry="20" /></g></svg>
     <svg className="absolute top-[15%] left-0 w-[6vw] tc-bird opacity-70" style={{ '--d': '80s', '--del': '-10s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,20 q5,-7 10,0 q5,-7 10,0" /><path d="M30,28 q4,-6 8,0 q4,-6 8,0" /></svg>
-    <svg className="absolute top-[25%] left-0 w-[4vw] tc-bird opacity-50 scale-75" style={{ '--d': '110s', '--del': '-40s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M10,20 q5,-7 10,0 q5,-7 10,0" /></svg>
-    <svg className="absolute top-[10%] left-0 w-[8vw] tc-bird opacity-60 scale-90" style={{ '--d': '95s', '--del': '-70s' } } viewBox="0 0 100 40" fill="none" stroke="#3a2818" strokeWidth="1.6"><path d="M5,15 q5,-7 10,0 q5,-7 10,0" /><path d="M35,22 q4,-6 8,0 q4,-6 8,0" /><path d="M65,18 q5,-7 10,0 q5,-7 10,0" /></svg>
   </div>
 );
 
@@ -102,7 +100,7 @@ const Nav = ({ page, onNavigate, user, onLogout }) => (
         <span className="font-bold text-slate-800 tracking-tight">Terra<span className="text-emerald-600">Certa</span></span>
       </div>
       <div className="flex items-center gap-1">
-        <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Terrenos</button>
+        <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Dashboard</button>
         <button onClick={() => onNavigate("sig")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'sig' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Camadas SIG</button>
       </div>
     </div>
@@ -164,9 +162,12 @@ const LoginPage = ({ onLogin }) => {
 };
 
 const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLogout, onNavigate }) => {
-  const totalArea = properties.reduce((acc, curr) => acc + (curr.area || 0), 0);
-  const avgScore = properties.length ? Math.round(properties.reduce((acc, curr) => acc + (curr.score || 0), 0) / properties.length) : 0;
-  const highViability = properties.filter(p => p.score > 60).length;
+  const [search, setSearch] = useState("");
+  const filtered = properties.filter(p => 
+    p.designacao?.toLowerCase().includes(search.toLowerCase()) || 
+    p.concelho?.toLowerCase().includes(search.toLowerCase()) ||
+    p.id?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -180,30 +181,12 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Terrenos em carteira", val: properties.length, sub: "atualizado agora", icon: Layers },
-            { label: "Área total agregada", val: formatArea(totalArea), sub: "abaixo de 1 ha", icon: Ruler },
-            { label: "Health Score médio", val: avgScore, sub: "/100", icon: Activity },
-            { label: "Viabilidade > 60", val: `${highViability}/${properties.length}`, sub: "100% do portefólio", icon: TrendingUp },
-          ].map((s, i) => (
-            <div key={i} className="p-5 border border-slate-200 rounded-md bg-white">
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</span>
-                <s.icon size={13} className="text-slate-300" />
-              </div>
-              <div className="text-2xl font-bold text-slate-900 mb-1">{s.val}</div>
-              <p className="text-[10px] text-slate-400">{s.sub}</p>
-            </div>
-          ))}
-        </div>
-
         <div className="border border-slate-200 rounded-md overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
-            <div className="relative w-80"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} /><input type="text" placeholder="Pesquisar por designação, concelho, ID..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded text-xs focus:ring-1 focus:ring-emerald-500/20 transition" /></div>
+            <div className="relative w-80"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar por designação, concelho, ID..." className="w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded text-xs focus:ring-1 focus:ring-emerald-500/20 transition" /></div>
             <div className="flex items-center gap-4">
               <button className="flex items-center gap-2 text-slate-500 font-semibold text-xs border border-slate-200 px-3 py-2 rounded hover:bg-slate-50"><Filter size={14} /> Filtros</button>
-              <span className="text-[10px] text-slate-400 font-medium">1 de 1 terrenos</span>
+              <span className="text-[10px] text-slate-400 font-medium">{filtered.length} terrenos</span>
             </div>
           </div>
           <table className="w-full text-left text-xs">
@@ -222,7 +205,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {properties.map(p => (
+              {filtered.map(p => (
                 <tr key={p.id} onClick={() => onSelect(p)} className="hover:bg-slate-50/80 transition cursor-pointer group">
                   <td className="px-5 py-4 text-slate-400 font-mono text-[10px]">{p.id.slice(0, 8)}...</td>
                   <td className="px-5 py-4 font-bold text-slate-900">{p.designacao}</td>
@@ -232,7 +215,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
                   <td className="px-5 py-4 text-slate-600">Urbano</td>
                   <td className="px-5 py-4"><div className="flex items-center gap-3"><div className="w-12 h-1 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full ${scoreColor(p.score).fill}`} style={{ width: `${p.score}%` }}></div></div><span className={`font-bold ${scoreColor(p.score).text}`}>{p.score}</span></div></td>
                   <td className="px-5 py-4"><span className="px-2 py-1 rounded bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase">Analisado</span></td>
-                  <td className="px-5 py-4 text-slate-500">2026-05-09</td>
+                  <td className="px-5 py-4 text-slate-500">{p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : "2026-05-09"}</td>
                   <td className="px-5 py-4 text-slate-300 group-hover:text-slate-600 transition-colors text-right"><ChevronRight size={14} /></td>
                 </tr>
               ))}
@@ -252,15 +235,23 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, user, onLo
 };
 
 const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => {
-  const [formData, setFormData] = useState({ designacao: "", concelho: "", area: "" });
+  const [formData, setFormData] = useState({ designacao: "", concelho: "", freguesia: "", area: "", matricial: "" });
   const [analysing, setAnalysing] = useState(false);
+  const [files, setFiles] = useState({});
+
+  const handleFile = (key) => {
+    // Simular upload
+    setFiles(prev => ({ ...prev, [key]: true }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setAnalysing(true);
     setTimeout(() => {
-      onAnalyseDone({ id: "new-prop", designacao: formData.designacao || "Tapada do Mocho", concelho: formData.concelho || "Oeiras", freguesia: "Paço de Arcos", area: 140, score: 88, status: "Analisado" });
+      onAnalyseDone({ id: "new-" + Math.random().toString(36).substr(2, 9), designacao: formData.designacao || "Tapada do Mocho", concelho: formData.concelho, freguesia: formData.freguesia, area: parseFloat(formData.area) || 140, score: 88, status: "Analisado" });
     }, 2000);
   };
+
   return (
     <div className="min-h-screen bg-white">
       <Nav page="upload" onNavigate={onNavigate} user={user} onLogout={onLogout} />
@@ -278,37 +269,66 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
               <input required value={formData.designacao} onChange={e => setFormData({...formData, designacao: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 transition outline-none" placeholder="Ex: Quinta da Ribeira" />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label><select className="w-full px-4 py-2 border border-slate-200 rounded text-sm"><option>Oeiras</option><option>Lisboa</option></select></div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label><select className="w-full px-4 py-2 border border-slate-200 rounded text-sm bg-slate-50" disabled><option>Paço de Arcos</option></select></div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Concelho *</label>
+                <select required value={formData.concelho} onChange={e => setFormData({...formData, concelho: e.target.value, freguesia: ""})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500">
+                  <option value="">Selecionar concelho...</option>
+                  {Object.keys(PORTUGAL_GEO).map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Freguesia *</label>
+                <select required value={formData.freguesia} onChange={e => setFormData({...formData, freguesia: e.target.value})} disabled={!formData.concelho} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-50 disabled:text-slate-400">
+                  <option value="">{formData.concelho ? "Selecionar freguesia..." : "—"}</option>
+                  {formData.concelho && PORTUGAL_GEO[formData.concelho].map(f => <option key={f} value={f}>{f}</option>)}
+                </select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label><input className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none" placeholder="Ex: 1452 / Secção B" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *</label><input className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none" placeholder="Ex: 12450" /></div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Artigo Matricial *</label>
+                  <div className="group relative cursor-help">
+                    <HelpCircle size={12} className="text-slate-300" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Identificação única do imóvel na matriz predial das finanças.</div>
+                  </div>
+                </div>
+                <input required value={formData.matricial} onChange={e => setFormData({...formData, matricial: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 1452 / Secção B" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Área (m²) *</label>
+                  <div className="group relative cursor-help">
+                    <HelpCircle size={12} className="text-slate-300" />
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">Área total da parcela em metros quadrados, conforme caderneta predial.</div>
+                  </div>
+                </div>
+                <input required type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Ex: 12450" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Classificação Atual *</label>
+              <select className="w-full px-4 py-2 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-emerald-500"><option>Selecionar classificação...</option><option>Urbano</option><option>Rústico</option></select>
             </div>
           </div>
+
           <div className="space-y-3">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Documentação de suporte</h3>
             {[
-              { label: "Caderneta Predial", sub: "Documento das Finanças (Modelo 1)", formats: "PDF · ATÉ 10MB" },
-              { label: "Planta de Localização", sub: "Câmara Municipal · escala 1:2000 ou superior", formats: "PDF / DWG / DXF" },
-              { label: "Certidão Permanente", sub: "Conservatória do Registo Predial", formats: "PDF · CÓDIGO DE ACESSO ACEITE" },
-            ].map((d, i) => (
-              <div key={i} className="p-5 border border-slate-200 rounded-md flex items-center justify-between bg-white hover:border-emerald-200 transition">
+              { id: "caderneta", label: "Caderneta Predial", sub: "Documento das Finanças (Modelo 1)", formats: "PDF · ATÉ 10MB" },
+              { id: "planta", label: "Planta de Localização", sub: "Câmara Municipal · escala 1:2000 ou superior", formats: "PDF / DWG / DXF" },
+              { id: "certidao", label: "Certidão Permanente", sub: "Conservatória do Registo Predial", formats: "PDF · CÓDIGO DE ACESSO ACEITE" },
+            ].map((d) => (
+              <div key={d.id} className="p-5 border border-slate-200 rounded-md flex items-center justify-between bg-white hover:border-emerald-200 transition">
                 <div className="flex gap-4 items-center">
-                  <div className="h-10 w-10 bg-slate-50 rounded flex items-center justify-center text-slate-400"><FileText size={18} /></div>
+                  <div className={`h-10 w-10 rounded flex items-center justify-center ${files[d.id] ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}`}>{files[d.id] ? <CheckCircle size={20} /> : <FileText size={18} />}</div>
                   <div><div className="flex items-center gap-2"><span className="text-sm font-semibold text-slate-900">{d.label}</span><span className="text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded tracking-tighter">{d.formats}</span></div><p className="text-[11px] text-slate-500">{d.sub}</p></div>
                 </div>
-                <button type="button" className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition"><Upload size={12} /> Carregar</button>
+                <button type="button" onClick={() => handleFile(d.id)} className={`flex items-center gap-2 px-3 py-1.5 border rounded text-[10px] font-bold transition ${files[d.id] ? 'bg-emerald-600 text-white border-emerald-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}><Upload size={12} /> {files[d.id] ? "Alterar" : "Carregar"}</button>
               </div>
             ))}
           </div>
-          <div className="p-8 border border-slate-200 rounded-md space-y-6">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Parâmetros de análise</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <label className="flex items-center gap-3 cursor-pointer group"><input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /><span className="text-sm text-slate-700 font-medium">Cruzamento com REN / RAN</span></label>
-              <label className="flex items-center gap-3 cursor-pointer group"><input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /><span className="text-sm text-slate-700 font-medium">Servidões e restrições de utilidade pública</span></label>
-            </div>
-          </div>
+
           <button type="submit" disabled={analysing} className="w-full bg-emerald-600 text-white py-4 rounded-md font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-md transition disabled:opacity-50">{analysing ? <Loader2 className="animate-spin" size={20} /> : "Iniciar Análise de Viabilidade"}</button>
         </form>
       </main>
@@ -325,7 +345,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
         <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
           <button onClick={onBack} className="hover:text-slate-600 transition">Terrenos</button>
           <ChevronRight size={10} />
-          <span className="text-slate-600">{property.id.slice(0, 8)}...</span>
+          <span className="text-slate-600">{property.id?.slice(0, 8)}...</span>
         </div>
         
         <div className="flex items-center justify-between mb-8">
@@ -362,12 +382,8 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                 <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${c.bg} ${c.text} border ${c.border}`}>{c.label}</div>
                 <p className="text-xs text-slate-500 leading-relaxed font-medium">Score calculado com base em 14 indicadores do PDM, condicionantes legais e camadas oficiais do território.</p>
               </div>
-
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dados extraídos</h3>
-                  <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black tracking-tighter border border-emerald-100 uppercase">OCR <CheckCircle size={10} /></div>
-                </div>
+                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dados extraídos</h3><div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black tracking-tighter border border-emerald-100 uppercase">OCR <CheckCircle size={10} /></div></div>
                 <div className="p-0 divide-y divide-slate-100">
                   {[
                     { label: "Concelho", val: property.concelho },
@@ -377,25 +393,13 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                     { label: "Confrontações", val: "N: caminho público" },
                     { label: "Inscrição", val: "Definitiva 2018-04-12" },
                     { label: "PDM aplicável", val: "PDM-OEIRAS-1234" },
-                  ].map((d, i) => (
-                    <div key={i} className="flex justify-between items-center px-6 py-3.5 text-xs">
-                      <span className="text-slate-400 font-medium">{d.label}</span>
-                      <span className="text-slate-900 font-bold">{d.val}</span>
-                    </div>
-                  ))}
+                  ].map((d, i) => (<div key={i} className="flex justify-between items-center px-6 py-3.5 text-xs"><span className="text-slate-400 font-medium">{d.label}</span><span className="text-slate-900 font-bold">{d.val}</span></div>))}
                 </div>
               </div>
             </div>
-
             <div className="col-span-12 lg:col-span-8 space-y-6">
               <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Análise PDM <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded border border-emerald-100 ml-2 tracking-widest">Tempo Real</span></h3>
-                    <p className="text-xs text-slate-500 font-medium italic leading-relaxed">Interpretação automática do regulamento PDM-OEIRAS-1234 e cruzamento com 9 camadas oficiais.</p>
-                  </div>
-                  <div className="text-[10px] font-bold text-slate-400">Fonte oficial: DGT</div>
-                </div>
+                <div className="flex items-center justify-between mb-8"><div><h3 className="text-lg font-bold text-slate-900 mb-1">Análise PDM <span className="text-[9px] font-black uppercase px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded border border-emerald-100 ml-2 tracking-widest">Tempo Real</span></h3><p className="text-xs text-slate-500 font-medium italic leading-relaxed">Interpretação automática do regulamento PDM-OEIRAS-1234 e cruzamento com 9 camadas oficiais.</p></div><div className="text-[10px] font-bold text-slate-400">Fonte oficial: DGT</div></div>
                 <div className="space-y-6">
                   {[
                     { label: "Classificação do solo", val: "Urbano", meta: "PDM Art. 14º", status: "ok" },
@@ -409,23 +413,12 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                     { label: "Risco de incêndio rural", val: "Classe Média", meta: "ICNF · Carta 2025", status: "ok" },
                   ].map((r, i) => (
                     <div key={i} className="flex items-center justify-between text-sm group">
-                      <div className="flex items-center gap-4">
-                        <div className={`shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{r.status === 'ok' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}</div>
-                        <span className="text-slate-700 font-semibold">{r.label}</span>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <span className="text-slate-900 font-bold text-right">{r.val}</span>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase w-32 text-right">{r.meta}</span>
-                      </div>
+                      <div className="flex items-center gap-4"><div className={`shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}`}>{r.status === 'ok' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}</div><span className="text-slate-700 font-semibold">{r.label}</span></div>
+                      <div className="flex items-center gap-6"><span className="text-slate-900 font-bold text-right">{r.val}</span><span className="text-[10px] text-slate-400 font-bold uppercase w-32 text-right">{r.meta}</span></div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between text-[10px] font-bold">
-                  <div className="flex gap-4 uppercase tracking-widest"><span className="text-emerald-600 flex items-center gap-1.5"><CheckCircle size={12} /> 6 conformes</span><span className="text-amber-600 flex items-center gap-1.5"><AlertTriangle size={12} /> 4 condicionantes</span><span className="text-rose-600 flex items-center gap-1.5"><XCircle size={12} /> 0 inviáveis</span></div>
-                  <button className="text-slate-400 hover:text-slate-600 transition flex items-center gap-1.5">Ver regulamento integral <ExternalLink size={10} /></button>
-                </div>
               </div>
-
               <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-8 shadow-sm">
                 <h3 className="text-emerald-900 font-black text-[11px] uppercase tracking-widest mb-6 flex items-center gap-2"><Sparkles size={16} /> Recomendações do TerraCerta</h3>
                 <div className="space-y-4">
@@ -435,10 +428,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                     "iu de 0,15 permite até 21 m² de construção. Avaliar PIP para confirmar.",
                     "O PDM tem 3ª Alteração por Adaptação em vigor desde 12/03/2026 — recomenda-se confirmar versão."
                   ].map((rec, i) => (
-                    <div key={i} className="flex gap-4 text-xs text-emerald-800 leading-relaxed font-medium">
-                      <span className="font-black text-emerald-600/50 italic">0{i+1}</span>
-                      <p>{rec}</p>
-                    </div>
+                    <div key={i} className="flex gap-4 text-xs text-emerald-800 leading-relaxed font-medium"><span className="font-black text-emerald-600/50 italic">0{i+1}</span><p>{rec}</p></div>
                   ))}
                 </div>
               </div>
@@ -464,7 +454,6 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                   ))}
                 </div>
               </div>
-
               <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Análise dos requisitos legais (RJIGT)</h3>
                 <div className="space-y-6 divide-y divide-slate-50">
@@ -484,57 +473,15 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                   ))}
                 </div>
               </div>
-
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <h3 className="font-bold text-slate-900 mb-2">Impacto no valor (cenário comparativo)</h3>
-                <p className="text-xs text-slate-500 mb-8 italic">Estimativa baseada em transações comparáveis na região (INE / Autoridade Tributária 2024).</p>
-                <div className="grid grid-cols-3 gap-4">
-                  {[
-                    { label: "ATUAL (RÚSTICO)", val: "€ 24.900", sub: "= €2,00/m²", c: "border-slate-200" },
-                    { label: "PÓS-CONVERSÃO (URBANO BD)", val: "€ 186.750", sub: "= €15,00/m²", c: "bg-emerald-50/50 border-emerald-100" },
-                    { label: "DELTA POTENCIAL", val: "+€ 161.850", sub: "+650% · após líquidos €127k", c: "bg-emerald-50/50 border-emerald-100" },
-                  ].map((v, i) => (
-                    <div key={i} className={`p-5 rounded-xl border ${v.c}`}>
-                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">{v.label}</div>
-                      <div className="text-2xl font-black text-slate-900 mb-1">{v.val}</div>
-                      <div className="text-[10px] text-slate-500 font-bold">{v.sub}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
-
             <div className="col-span-12 lg:col-span-4 space-y-6">
               <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
                 <div className="flex items-center justify-between mb-6"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Score de conversão</h3><Activity size={14} className="text-slate-300" /></div>
                 <div className="text-6xl font-black text-lime-600 tracking-tighter mb-1">66</div>
                 <p className="text-[10px] font-bold text-slate-400 mb-8">Probabilidade ponderada</p>
                 <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-2"><div className="h-full bg-lime-500" style={{ width: '66%' }}></div></div>
-                <div className="flex justify-between text-[10px] font-black text-slate-300 tracking-tighter"><span>0</span><span>50</span><span>100</span></div>
               </div>
-
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm space-y-6">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Próximos passos sugeridos</h3>
-                <div className="space-y-5">
-                  {[
-                    "Solicitar Pedido de Informação Prévia (PIP) à CM de Oeiras.",
-                    "Encomendar levantamento topográfico georreferenciado.",
-                    "Acompanhar próxima revisão do PDM (período sondagem prevista 2027)."
-                  ].map((s, i) => (
-                    <div key={i} className="flex gap-4 items-start"><div className="h-5 w-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</div><p className="text-xs text-slate-600 font-semibold leading-relaxed">{s}</p></div>
-                  ))}
-                </div>
-              </div>
-
-              <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition"><Download size={20} /> Exportar PDF com Logótipo</button>
-              <button className="w-full bg-white border border-slate-200 text-slate-600 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition"><FileText size={18} /> Partilhar com cliente</button>
-
-              <div className="text-[10px] text-slate-400 font-medium italic leading-relaxed px-2"><Info size={12} className="inline mr-2" /> Análise gerada automaticamente. Não substitui parecer técnico de arquiteto, engenheiro ou advogado especializado.</div>
-            </div>
-            
-            <div className="col-span-12 flex justify-between items-center py-10">
-              <button onClick={() => setPage(1)} className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-2 transition"><ChevronLeft size={16} /> Voltar à Análise PDM</button>
-              <button onClick={onBack} className="bg-[#0f172a] text-white px-8 py-3 rounded-lg font-bold text-sm shadow-xl hover:bg-slate-800 transition">Concluir e voltar ao dashboard</button>
+              <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition"><Download size={20} /> Exportar PDF</button>
             </div>
           </div>
         )}
@@ -543,7 +490,6 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
   );
 };
 
-// ----------------- APP ROOT -----------------
 export default function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("dashboard");
@@ -551,41 +497,16 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [analysisPage, setAnalysisPage] = useState(1);
-
   useEffect(() => { if (user) fetchProperties(); }, [user]);
-
   async function fetchProperties() {
     setLoading(true);
     const { data } = await db.from("propriedades").select("*").order("created_at", { ascending: false });
     setProperties(data || []);
     setLoading(false);
   }
-
-  const handleLogout = () => { setUser(null); setProperties([]); setSelected(null); setView("dashboard"); };
-
   if (!user) return <LoginPage onLogin={setUser} />;
-
-  if (view === "dashboard") return (
-    <Dashboard properties={properties} loading={loading} onRefresh={fetchProperties} onNew={() => setView("upload")} onSelect={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={handleLogout} onNavigate={setView} />
-  );
-
-  if (view === "upload") return (
-    <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={handleLogout} onNavigate={setView} />
-  );
-
-  if (view === "analysis" && selected) return (
-    <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={handleLogout} onNavigate={setView} />
-  );
-
-  if (view === "sig") return (
-    <div className="min-h-screen bg-white">
-      <Nav page="sig" onNavigate={setView} user={user} onLogout={handleLogout} />
-      <main className="flex flex-col items-center justify-center h-[calc(100vh-3.5rem)] text-slate-400 italic font-bold tracking-tight opacity-50">
-        <Globe2 size={64} className="mb-6 opacity-20" />
-        Camadas SIG em desenvolvimento
-      </main>
-    </div>
-  );
-
+  if (view === "dashboard") return <Dashboard properties={properties} loading={loading} onRefresh={fetchProperties} onNew={() => setView("upload")} onSelect={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  if (view === "upload") return <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  if (view === "analysis" && selected) return <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   return null;
 }
