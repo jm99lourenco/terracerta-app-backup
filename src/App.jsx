@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
-
+import i18next from "i18next";
 const Tooltip = ({ text }) => (
   <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
     <HelpCircle size={12} className="text-slate-300 hover:text-slate-500 transition" />
@@ -191,11 +191,10 @@ const LoginPage = ({ onLogin }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const { t: tr, i18n } = useTranslation();
-  const [lang, setLang] = useState(i18n.language || "pt");
+  const [lang, setLang] = useState("pt");
   const [showLang, setShowLang] = useState(false);
 
-  const t = tr("login", { returnObjects: true });
+  const t = TRANSLATIONS[lang];
 
   const handleLogin = (e) => {
     e?.preventDefault?.();
@@ -220,7 +219,7 @@ const LoginPage = ({ onLogin }) => {
           {showLang && (
             <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-30">
               {Object.entries(TRANSLATIONS).map(([key, value]) => (
-                <button key={key} onClick={() => { setLang(key); i18n.changeLanguage(key); setShowLang(false); }} className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition ${lang === key ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-600'}`}>
+                <button key={key} onClick={() => { setLang(key); i18next.changeLanguage(key); setShowLang(false); }} className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition ${lang === key ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-600'}`}>
                   <span>{value.flag}</span> {value.lang}
                 </button>
               ))}
