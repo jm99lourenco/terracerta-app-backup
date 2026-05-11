@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { jsPDF } from "jspdf";
@@ -11,7 +12,7 @@ import {
   CheckCircle, Info, ExternalLink, Bell, Loader2, RefreshCw,
   Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle
 } from "lucide-react";
-import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC } from "react-leaflet";
+import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
 
 const Tooltip = ({ text }) => (
@@ -167,9 +168,9 @@ const Nav = ({ page, onNavigate, user, onLogout }) => (
         <span className="font-bold text-slate-800 tracking-tight text-lg">TerraCerta</span>
       </div>
       <div className="flex items-center gap-1">
-        <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Dashboard</button>
-        <button onClick={() => onNavigate("explore")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'explore' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><Globe2 size={14}/> Explorador SIG</button>
-        <button onClick={() => onNavigate("pdm")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'pdm' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><BookOpen size={14}/> Regulamentos</button>
+        <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>{t("nav.dashboard")}</button>
+        <button onClick={() => onNavigate("explore")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'explore' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><Globe2 size={14}/> {t("nav.explore")}</button>
+        <button onClick={() => onNavigate("pdm")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'pdm' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><BookOpen size={14}/> {t("nav.pdm")}</button>
       </div>
     </div>
     <div className="flex items-center gap-5">
@@ -190,10 +191,11 @@ const LoginPage = ({ onLogin }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [lang, setLang] = useState("pt");
+  const { t: tr, i18n } = useTranslation();
+  const [lang, setLang] = useState(i18n.language || "pt");
   const [showLang, setShowLang] = useState(false);
 
-  const t = TRANSLATIONS[lang];
+  const t = tr("login", { returnObjects: true });
 
   const handleLogin = (e) => {
     e?.preventDefault?.();
@@ -218,7 +220,7 @@ const LoginPage = ({ onLogin }) => {
           {showLang && (
             <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-30">
               {Object.entries(TRANSLATIONS).map(([key, value]) => (
-                <button key={key} onClick={() => { setLang(key); setShowLang(false); }} className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition ${lang === key ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-600'}`}>
+                <button key={key} onClick={() => { setLang(key); i18n.changeLanguage(key); setShowLang(false); }} className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition ${lang === key ? 'bg-emerald-50 text-emerald-700 font-medium' : 'text-slate-600'}`}>
                   <span>{value.flag}</span> {value.lang}
                 </button>
               ))}
@@ -249,6 +251,7 @@ const LoginPage = ({ onLogin }) => {
 };
 
 const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, onDelete, user, onLogout, onNavigate }) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const filtered = properties.filter(p => 
     p.designacao?.toLowerCase().includes(search.toLowerCase()) || 
@@ -306,6 +309,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, onDelete, 
 };
 
 const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({ designacao: "", distrito: "", concelho: "", freguesia: "", area: "", matricial: "" });
   const [analysing, setAnalysing] = useState(false);
   const [simulatingOcr, setSimulatingOcr] = useState(false);
@@ -346,11 +350,25 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAnalysing(true);
-    let valArea = parseFloat(formData.area) || 140;
-    let baseScore = 65;
-    if (valArea < 500) baseScore += 15;
-    else if (valArea > 5000) baseScore -= 10;
-    let finalScore = Math.min(100, Math.max(0, baseScore + (formData.designacao.length % 15)));
+    const valArea = parseFloat(formData.area) || 140;
+    
+    // Algoritmo V4 Health Score
+    // Base: Urbano (40) / Rústico (10)
+    const baseScore = formData.designacao.toLowerCase().includes("urbano") ? 40 : 10;
+    
+    // Edificabilidade: Iu fictício baseado na área
+    const iuScore = valArea < 1000 ? 20 : 10; 
+    
+    // Condicionantes (Simulação de REN/RAN dependendo da freguesia)
+    const hasREN = formData.freguesia.length % 2 === 0;
+    const hasRAN = formData.freguesia.length % 3 === 0;
+    const penalization = (hasREN ? -30 : 0) + (hasRAN ? -15 : 0);
+    
+    // Infraestruturas
+    const infraScore = valArea < 5000 ? 10 : 0;
+    
+    let finalScore = Math.min(100, Math.max(0, baseScore + iuScore + penalization + infraScore + 40)); // +40 pad para simular
+
 
     const novoTerreno = {
       designacao: formData.designacao || "Terreno sem nome",
@@ -456,6 +474,7 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
 };
 
 const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavigate }) => {
+  const { t } = useTranslation();
   const c = scoreColor(property.score);
   const analysisRef = useRef(null);
   const [exporting, setExporting] = useState(false);
@@ -531,26 +550,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
         </div>
 
         {/* View Map Full width */}
-        {page === 'map' && (
-           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[600px] relative animate-in fade-in">
-             <MapContainer center={mapCenter} zoom={16} zoomControl={true} style={{ width: '100%', height: '100%' }}>
-               <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" />
-               <Marker position={mapCenter}><Popup>Terreno selecionado</Popup></Marker>
-               <LC position="topright">
-                 <LC.Overlay checked name="Perímetro Urbano">
-                   <Polygon positions={[[mapCenter[0]-0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]+0.005]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.2, weight: 1, dashArray: '4' }} />
-                 </LC.Overlay>
-                 <LC.Overlay checked name="RAN / REN (Reserva)">
-                   <Polygon positions={[[mapCenter[0], mapCenter[1]], [mapCenter[0]+0.004, mapCenter[1]+0.005], [mapCenter[0]-0.002, mapCenter[1]+0.005]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.3, weight: 2 }} />
-                 </LC.Overlay>
-               </LC>
-               <Polygon positions={[[mapCenter[0]-0.001, mapCenter[1]-0.001], [mapCenter[0]+0.002, mapCenter[1]-0.001], [mapCenter[0]+0.001, mapCenter[1]-0.003]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.6, weight: 3 }} />
-             </MapContainer>
-           </div>
-        )}
-
-        {page !== 'map' && (
-        <div ref={analysisRef} className="bg-transparent" style={{ width: '1280px', maxWidth: '100%' }}>
+                <div ref={analysisRef} className="bg-transparent" style={{ width: '1280px', maxWidth: '100%' }}>
           {/* PDF HEADER */}
           <div className="hidden pdf-header bg-white pb-6 mb-6 border-b border-slate-200">
              <div className="flex justify-between items-start">
@@ -631,7 +631,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                     <div key={i} className="flex items-center justify-between py-4 group">
                       <div className="flex items-center gap-4 w-1/3">
                         <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}</div>
-                        <span className="text-xs font-medium text-slate-700">{r.label}</span>
+                        <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">{r.label} <Tooltip text="Definição regulamentar consultada via PDM local."/></span>
                       </div>
                       <div className="w-1/3 text-left">
                         <span className="text-xs font-bold text-slate-900">{r.val}</span>
@@ -674,7 +674,48 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
             </div>
           </div>
         </div>
-        )}
+        
+        {/* Map Restored Below Analysis */}
+        <div className="mt-8" id="map-view">
+           <h3 className="text-lg font-bold text-slate-900 mb-4">Visualizador SIG (DGT Oficial)</h3>
+           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[600px] relative animate-in fade-in">
+             <MapContainer center={mapCenter} zoom={16} zoomControl={true} style={{ width: '100%', height: '100%' }}>
+               <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" />
+               <LC position="topright">
+                 <LC.Overlay checked name="DGT Oficial: REN / RAN (WMS)">
+                   <WMSTileLayer
+                 url="https://servicos.dgterritorio.pt/wms/snit"
+                 layers="RAN,REN"
+                 format="image/png"
+                 transparent={true}
+                 opacity={0.6}
+               />
+                 </LC.Overlay>
+               </LC>
+          <LC position="topright">
+             <LC.Overlay name="DGT Oficial: REN / RAN (WMS)">
+               <WMSTileLayer
+                 url="https://servicos.dgterritorio.pt/wms/snit"
+                 layers="RAN,REN"
+                 format="image/png"
+                 transparent={true}
+                 opacity={0.6}
+               />
+             </LC.Overlay>
+          </LC>
+               <Marker position={mapCenter}><Popup>Terreno selecionado</Popup></Marker>
+               <LC position="topright">
+                 <LC.Overlay checked name="Perímetro Urbano">
+                   <Polygon positions={[[mapCenter[0]-0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]+0.005]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.2, weight: 1, dashArray: '4' }} />
+                 </LC.Overlay>
+                 <LC.Overlay checked name="RAN / REN (Reserva)">
+                   <Polygon positions={[[mapCenter[0], mapCenter[1]], [mapCenter[0]+0.004, mapCenter[1]+0.005], [mapCenter[0]-0.002, mapCenter[1]+0.005]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.3, weight: 2 }} />
+                 </LC.Overlay>
+               </LC>
+               <Polygon positions={[[mapCenter[0]-0.001, mapCenter[1]-0.001], [mapCenter[0]+0.002, mapCenter[1]-0.001], [mapCenter[0]+0.001, mapCenter[1]-0.003]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.6, weight: 3 }} />
+             </MapContainer>
+           </div>
+        </div>
       </main>
     </div>
   );
@@ -682,6 +723,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
 
 
 const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-white flex flex-col h-screen">
       <Nav page="explore" onNavigate={onNavigate} user={user} onLogout={onLogout} />
@@ -730,42 +772,74 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
 };
 
 const RegulamentosPage = ({ onNavigate, user, onLogout }) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const allConcelhos = Object.values(PORTUGAL_GEO).flat();
-  const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase())).slice(0, 20);
+  const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase())).slice(0, 50);
+
+  const mockRows = [
+    { inst: "PDM", status: "REVISÃO", date: "21/08/2015", diploma: "AVISO 9343/2015" },
+    { inst: "PDM", status: "1ª CORREÇÃO MATERIAL", date: "06/12/2016", diploma: "AVISO 15296/2016" },
+    { inst: "PDM", status: "1ª ALTERAÇÃO POR ADAPTAÇÃO", date: "23/03/2017", diploma: "AVISO 3066/2017" },
+    { inst: "PDM", status: "2ª ALTERAÇÃO POR ADAPTAÇÃO", date: "29/06/2018", diploma: "AVISO 8881/2018" },
+    { inst: "PDM", status: "3ª ALTERAÇÃO", date: "20/02/2020", diploma: "AVISO 2953/2020" },
+    { inst: "PDM", status: "4ª ALTERAÇÃO", date: "03/03/2022", diploma: "AVISO 4564/2022" },
+    { inst: "PDM", status: "5ª ALTERAÇÃO POR ADAPTAÇÃO", date: "22/08/2024", diploma: "DECL 62/2024" },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Nav page="pdm" onNavigate={onNavigate} user={user} onLogout={onLogout} />
-      <main className="p-8 max-w-[1000px] mx-auto">
+      <main className="p-8 max-w-[1200px] mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg"><BookOpen size={24} /></div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Regulamentos PDM</h1>
-            <p className="text-sm text-slate-500">Acesso direto aos PDFs dos Planos Diretores Municipais oficiais (SNIT).</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t("reg.title") || "Regulamentos PDM"}</h1>
+            <p className="text-sm text-slate-500">{t("reg.sub") || "Acesso direto aos PDFs dos Planos Diretores Municipais oficiais (SNIT)."}</p>
           </div>
         </div>
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-slate-100 bg-slate-50">
-             <div className="relative w-full max-w-md"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar concelho..." className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 outline-none" /></div>
+          <div className="p-4 border-b border-slate-100 bg-[#358797] text-white font-bold flex items-center justify-between">
+             Resultados - Planos Diretores Municipais
           </div>
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-              <tr><th className="px-6 py-4">Concelho</th><th className="px-6 py-4">Documento</th><th className="px-6 py-4 text-right">Ação</th></tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filtered.map(c => (
-                <tr key={c} className="hover:bg-slate-50 transition group">
-                  <td className="px-6 py-4 font-bold text-slate-800 flex items-center gap-2"><MapPin size={14} className="text-slate-300"/>{c}</td>
-                  <td className="px-6 py-4 text-slate-600">Regulamento_PDM_{c.replace(/\s+/g, '_')}.pdf</td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-emerald-600 font-bold flex items-center justify-end gap-2 w-full group-hover:text-emerald-700"><Download size={14} /> Descarregar PDF</button>
-                  </td>
+          <div className="p-4 border-b border-slate-100 bg-slate-50">
+             <div className="relative w-full max-w-md"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("reg.search") || "Pesquisar concelho..."} className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 outline-none" /></div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs whitespace-nowrap">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                <tr>
+                  <th className="px-4 py-3 border-r border-slate-100">ID</th>
+                  <th className="px-4 py-3 border-r border-slate-100">Município</th>
+                  <th className="px-4 py-3 border-r border-slate-100">Inst...</th>
+                  <th className="px-4 py-3 border-r border-slate-100">Designação</th>
+                  <th className="px-4 py-3 border-r border-slate-100">Situação</th>
+                  <th className="px-4 py-3 border-r border-slate-100">Diploma...</th>
+                  <th className="px-4 py-3 border-r border-slate-100">Data</th>
+                  <th className="px-4 py-3">Link</th>
                 </tr>
-              ))}
-              {filtered.length === 0 && <tr><td colSpan="3" className="p-8 text-center text-slate-500">Nenhum concelho encontrado.</td></tr>}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filtered.map((c, idx) => {
+                  return mockRows.map((row, rIdx) => (
+                    <tr key={`${c}-${rIdx}`} className="hover:bg-slate-50 transition">
+                      <td className="px-4 py-2 border-r border-slate-100 text-slate-500">{5000 + idx * 10 + rIdx}</td>
+                      <td className="px-4 py-2 border-r border-slate-100 font-bold text-slate-800 uppercase">{c}</td>
+                      <td className="px-4 py-2 border-r border-slate-100 text-slate-600">{row.inst}</td>
+                      <td className="px-4 py-2 border-r border-slate-100 text-slate-600 uppercase">{c}</td>
+                      <td className="px-4 py-2 border-r border-slate-100 text-slate-800 font-semibold">{row.status}</td>
+                      <td className="px-4 py-2 border-r border-slate-100 text-slate-600">{row.diploma}</td>
+                      <td className="px-4 py-2 border-r border-slate-100 text-slate-600">{row.date}</td>
+                      <td className="px-4 py-2">
+                        <a href="#" className="text-[#358797] hover:underline font-medium">Consultar PDF</a>
+                      </td>
+                    </tr>
+                  ));
+                })}
+                {filtered.length === 0 && <tr><td colSpan="8" className="p-8 text-center text-slate-500">Nenhum concelho encontrado.</td></tr>}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>
