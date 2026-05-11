@@ -169,7 +169,7 @@ const Nav = ({ page, onNavigate, user, onLogout }) => (
       <div className="flex items-center gap-1">
         <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>Dashboard</button>
         <button onClick={() => onNavigate("explore")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'explore' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><Globe2 size={14}/> Explorador SIG</button>
-        <button onClick={() => onNavigate("pdm")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'pdm' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><BookOpen size={14}/> Monitor PDM</button>
+        <button onClick={() => onNavigate("pdm")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'pdm' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><BookOpen size={14}/> Regulamentos</button>
       </div>
     </div>
     <div className="flex items-center gap-5">
@@ -332,7 +332,9 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
                 concelho: "Lisboa",
                 freguesia: "Belém",
                 area: "1250",
-                matricial: "9876"
+                matricial: "9876",
+                lat: 38.6979,
+                lng: -9.2064
             }));
             setSimulatingOcr(false);
         }, 1500);
@@ -356,7 +358,9 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
       freguesia: formData.freguesia,
       area: valArea,
       score: finalScore,
-      status: "Analisado"
+      status: "Analisado",
+      lat: formData.lat || 38.7071,
+      lng: formData.lng || -9.1355
     };
 
     try {
@@ -455,6 +459,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
   const c = scoreColor(property.score);
   const analysisRef = useRef(null);
   const [exporting, setExporting] = useState(false);
+  const mapCenter = [property.lat || 38.7071, property.lng || -9.1355];
 
   const exportPDF = async () => {
     if (!analysisRef.current) return;
@@ -466,169 +471,210 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
         fontEmbedCSS: '',
         style: { transform: 'scale(1)', transformOrigin: 'top left' }
       });
-      
       const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
       pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Viabilidade_${property.id || 'terreno'}.pdf`);
     } catch (err) {
-      console.error("Erro ao exportar PDF:", err);
+      console.error("Erro ao exportar:", err);
       alert("Não foi possível exportar o PDF neste momento.");
     } finally {
       setExporting(false);
     }
   };
 
+  const pdmItems = [
+    { label: "Classificação do solo", val: "Rústico", source: "PDM Art. 14º", status: "ok" },
+    { label: "Categoria de espaço", val: "Espaço Agrícola de Produção (Tipo II)", source: "Planta de Ordenamento", status: "ok" },
+    { label: "Subcategoria", val: "Áreas agrícolas complementares", source: "PDM Art. 27º nº2", status: "ok" },
+    { label: "Índice de utilização (Iu)", val: "0,15", source: "PDM Art. 30º", status: "warning" },
+    { label: "Cércea máxima", val: "6,5 m (2 pisos)", source: "PDM Art. 31º", status: "ok" },
+    { label: "REN — Reserva Ecológica", val: "Parcialmente abrangido (≈18%)", source: "Planta de Condicionantes", status: "warning" },
+    { label: "RAN — Reserva Agrícola", val: "Não abrangido", source: "DRAP", status: "ok" },
+    { label: "Servidão rodoviária", val: "Faixa non aedificandi 12m (EN229)", source: "DL 13/94", status: "warning" },
+    { label: "Risco de incêndio rural", val: "Classe Média", source: "ICNF · Carta 2025", status: "ok" },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-slate-50/50 pb-20">
       <Nav page="analysis" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
         
-        {/* Stepper */}
-        <div className="mb-6 flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm" data-html2canvas-ignore>
-           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-             <button onClick={onBack} className="text-slate-400 hover:text-slate-600 transition">Dashboard</button>
-             <ChevronRight size={10} className="text-slate-300" />
-             <span className="text-emerald-600">{property.id?.slice(0, 8)}...</span>
-           </div>
-           <div className="flex items-center gap-4 text-xs font-semibold">
-              <div className="flex items-center gap-2 text-slate-400"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">1</div>Submetido</div>
-              <div className="w-8 h-px bg-slate-200"></div>
-              <div className="flex items-center gap-2 text-slate-400"><div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">2</div>A Aguardar PDM</div>
-              <div className="w-8 h-px bg-slate-200"></div>
-              <div className="flex items-center gap-2 text-emerald-600"><div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">3</div>Análise Concluída</div>
-           </div>
+        {/* Top Header Match Screenshot */}
+        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+           <span className="text-slate-500">ANÁLISE DE VIABILIDADE</span>
         </div>
         
-        <div className="flex items-center justify-between mb-8" data-html2canvas-ignore>
+        <div className="flex items-start justify-between mb-8" data-html2canvas-ignore>
           <div>
-            <h2 className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Análise de Viabilidade</h2>
-            <h1 className="text-3xl font-bold text-slate-900">{property.designacao}</h1>
+            <h1 className="text-3xl font-bold text-slate-900 leading-tight">{property.designacao}</h1>
             <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 font-medium">
-              <div className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-300" /> {property.concelho}, {property.freguesia}</div>
-              <div className="flex items-center gap-1.5"><Calendar size={14} className="text-slate-300" /> Emitido 2026-05-09</div>
+              <div className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-300" /> {property.freguesia}, {property.concelho}</div>
+              <div className="text-slate-300">#</div>
+              <div className="flex items-center gap-1.5"><Calendar size={14} className="text-slate-300" /> Emitido 2026-05-10</div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="flex bg-white p-1 rounded-lg border border-slate-200">
-              <button onClick={() => setPage(1)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 1 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>1 · PDM</button>
-              <button onClick={() => setPage(2)} className={`px-4 py-1.5 rounded-md text-xs font-bold transition ${page === 2 ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>2 · Conversão</button>
+          <div className="flex gap-3">
+            <div className="flex bg-slate-100 p-1 rounded-md border border-slate-200 shadow-inner">
+              <button onClick={() => setPage(1)} className={`px-4 py-1.5 rounded text-xs font-bold transition ${page === 1 ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:text-slate-700'}`}>1 · Análise PDM</button>
+              <button onClick={() => setPage(2)} className={`px-4 py-1.5 rounded text-xs font-bold transition ${page === 2 ? 'bg-slate-900 text-white shadow' : 'text-slate-500 hover:text-slate-700'}`}>2 · Conversão Urbano</button>
             </div>
-            <button onClick={exportPDF} disabled={exporting} className="flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-white transition">
-              {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-              Exportar PDF (White-label)
+            <button onClick={() => setPage('map')} className={`flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-md text-xs font-bold transition ${page === 'map' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white hover:bg-slate-50'}`}>
+              <ExternalLink size={14} /> Abrir no mapa
+            </button>
+            <button onClick={exportPDF} disabled={exporting} className="flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 text-emerald-700 rounded-md text-xs font-bold transition hover:bg-emerald-100">
+              <Download size={14} /> Exportar
             </button>
           </div>
         </div>
 
-        {/* CÓPIA DO CABEÇALHO PARA O PDF (Invisível no ecrã) */}
-        <div ref={analysisRef} className="bg-white rounded-xl">
-          <div className="hidden pdf-header bg-slate-900 p-8 rounded-t-xl text-white">
+        {/* View Map Full width */}
+        {page === 'map' && (
+           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[600px] relative animate-in fade-in">
+             <MapContainer center={mapCenter} zoom={16} zoomControl={true} style={{ width: '100%', height: '100%' }}>
+               <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" />
+               <Marker position={mapCenter}><Popup>Terreno selecionado</Popup></Marker>
+               <LC position="topright">
+                 <LC.Overlay checked name="Perímetro Urbano">
+                   <Polygon positions={[[mapCenter[0]-0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]+0.005]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.2, weight: 1, dashArray: '4' }} />
+                 </LC.Overlay>
+                 <LC.Overlay checked name="RAN / REN (Reserva)">
+                   <Polygon positions={[[mapCenter[0], mapCenter[1]], [mapCenter[0]+0.004, mapCenter[1]+0.005], [mapCenter[0]-0.002, mapCenter[1]+0.005]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.3, weight: 2 }} />
+                 </LC.Overlay>
+               </LC>
+               <Polygon positions={[[mapCenter[0]-0.001, mapCenter[1]-0.001], [mapCenter[0]+0.002, mapCenter[1]-0.001], [mapCenter[0]+0.001, mapCenter[1]-0.003]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.6, weight: 3 }} />
+             </MapContainer>
+           </div>
+        )}
+
+        {page !== 'map' && (
+        <div ref={analysisRef} className="bg-transparent" style={{ width: '1280px', maxWidth: '100%' }}>
+          {/* PDF HEADER */}
+          <div className="hidden pdf-header bg-white pb-6 mb-6 border-b border-slate-200">
              <div className="flex justify-between items-start">
                 <div className="flex-1">
-                   <Logo invert={true} />
+                   <Logo size="lg" />
                    <div className="mt-8">
-                     <h2 className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1">Certificado de Viabilidade</h2>
-                     <h1 className="text-3xl font-bold">{property.designacao}</h1>
-                     <p className="text-sm text-slate-300 mt-2"><MapPin size={12} className="inline mr-1" /> {property.freguesia}, {property.concelho} · Artigo: {property.matricial || '—'}</p>
+                     <h2 className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mb-1">Análise de Viabilidade</h2>
+                     <h1 className="text-3xl font-bold text-slate-900 leading-tight">{property.designacao}</h1>
+                     <p className="text-sm text-slate-500 mt-2"><MapPin size={12} className="inline mr-1" /> {property.freguesia}, {property.concelho} · Emitido a 2026-05-10</p>
                    </div>
                 </div>
-                <div className="w-64">
-                   <RadarChart score={property.score} />
-                </div>
+                <div className="w-64 pt-6"><RadarChart score={property.score} /></div>
              </div>
           </div>
-          <style dangerouslySetInnerHTML={{__html: `
-            @media print { .pdf-header { display: block !important; } }
-            [data-html2canvas-ignore] { display: none !important; }
-          `}} />
+          <style dangerouslySetInnerHTML={{__html: `@media print { .pdf-header { display: block !important; } } [data-html2canvas-ignore] { display: none !important; }`}} />
 
-          <div className="grid grid-cols-12 gap-6 p-8">
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 mb-8">{page === 1 ? "Análise do Plano Diretor Municipal (PDM)" : "Simulação de Conversão Urbana"}</h3>
-                <div className="space-y-8">
-                  {(page === 1 ? [
-                    { label: "Classificação do solo", val: "Urbano", status: "ok", tooltip: "Classificação principal definida na Planta de Ordenamento." },
-                    { label: "Categoria de espaço", val: "Espaços Residenciais", status: "ok", tooltip: "Subcategoria que define o uso predominante do solo." },
-                    { label: "Índice de edificabilidade máx. (Ie)", val: "0.50", status: "ok", tooltip: "Multiplicador máximo para a área de construção." },
-                    { label: "Índice de impermeabilização (Ii)", val: "0.60", status: "warning", tooltip: "Percentagem máxima da parcela que pode ser impermeabilizada." },
-                    { label: "Densidade populacional", val: "40 hab/ha", status: "ok", tooltip: "Número máximo de habitantes por hectare." },
-                    { label: "Cércea máxima", val: "3 pisos (9m)", status: "ok", tooltip: "Altura máxima permitida para as fachadas das construções." },
-                    { label: "Afastamento ao eixo da via", val: "Mínimo 5m", status: "warning", tooltip: "Distância obrigatória entre a construção e a estrada." },
-                    { label: "Condicionantes", val: "Nenhuma identificada", status: "ok", tooltip: "Restrições como RAN, REN, ZPE, Zonas Inundáveis, etc." },
-                  ] : [
-                    { label: "Contiguidade ao Solo Urbano", val: "Contíguo (0m)", status: "ok", tooltip: "Distância ao limite do solo urbano mais próximo." },
-                    { label: "Acesso Rodoviário Público", val: "Sim (Pavimentado)", status: "ok", tooltip: "Existência de estrada pública em condições de circulação." },
-                    { label: "Infraestruturas Básicas", val: "Redes a menos de 50m", status: "ok", tooltip: "Proximidade a redes de água, saneamento e eletricidade." },
-                    { label: "Compatibilidade de Usos", val: "Habitação (Compatível)", status: "ok", tooltip: "Verificação se o uso pretendido é aceite na envolvente." },
-                    { label: "Risco de Cheias / Incêndio", val: "Risco Baixo", status: "ok", tooltip: "Avaliação de riscos naturais através da cartografia oficial." },
-                    { label: "Parecer Prévio / Restrições", val: "Não aplicável", status: "ok", tooltip: "Necessidade de consultas a entidades externas (APA, CCDR, etc)." },
-                  ]).map((r, i) => (
-                    <div key={i} className="flex items-center justify-between group">
-                      <div className="flex items-center gap-4">
-                        <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={20} strokeWidth={3} /> : <AlertTriangle size={20} strokeWidth={3} />}</div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-slate-700">{r.label}</span>
-                          <Tooltip text={r.tooltip} />
-                        </div>
-                      </div>
-                      <span className="text-sm font-black text-slate-900">{r.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            
+            {/* LEFT COLUMN */}
+            <div className="w-full lg:w-1/3 flex flex-col gap-6">
               
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-[400px] relative">
-                <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                  <MapContainer center={[38.7071, -9.1355]} zoom={13} zoomControl={false} style={{ width: '100%', height: '100%' }}>
-                    <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" attribution="&copy; OpenStreetMap &copy; CARTO" />
-                    <LC position="topright">
-                      <LC.Overlay checked name="Perímetro Urbano">
-                        <Polygon positions={[[38.700, -9.140], [38.715, -9.140], [38.715, -9.120], [38.700, -9.120]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.1, weight: 1, dashArray: '4' }} />
-                      </LC.Overlay>
-                      <LC.Overlay name="RAN / REN (Reserva)">
-                        <Polygon positions={[[38.710, -9.135], [38.714, -9.130], [38.712, -9.125]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.4, weight: 2 }} />
-                      </LC.Overlay>
-                      <LC.Overlay name="Risco Incêndio">
-                        <Polygon positions={[[38.702, -9.138], [38.706, -9.135], [38.704, -9.130]]} pathOptions={{ color: '#f59e0b', fillColor: '#fbbf24', fillOpacity: 0.4, weight: 2 }} />
-                      </LC.Overlay>
-                    </LC>
-                    <Polygon positions={[[38.705, -9.135], [38.708, -9.130], [38.709, -9.138]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.6, weight: 3 }} />
-                  </MapContainer>
-                  <div className="absolute inset-0 bg-slate-900/5 pointer-events-none z-[400]" data-html2canvas-ignore></div>
-                  <div className="absolute top-4 right-4 bg-white p-2 rounded-md shadow-md text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 border border-slate-100 z-[400]" data-html2canvas-ignore><MapPin size={12} className="text-emerald-600" /> Vista SIG Interativa</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-span-12 lg:col-span-4 space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-10 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
-                <div className={`absolute top-0 left-0 w-full h-1.5 ${c.fill}`}></div>
+              {/* Score Card */}
+              <div className="bg-white border border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
                 <div className="relative mb-6">
                   <svg className="w-48 h-48 transform -rotate-90"><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-100" /><circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={552.9} strokeDashoffset={552.9 * (1 - property.score / 100)} className={`${c.text} transition-all duration-1000 ease-out`} strokeLinecap="round" /></svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className={`text-6xl font-black ${c.text} tracking-tighter`}>{property.score}</span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Health Score</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Health Score<br/>/ 100</span>
                   </div>
                 </div>
-                <div className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${c.bg} ${c.text} border-2 ${c.border}`}>{c.label}</div>
+                <div className={`px-6 py-2 rounded-full text-xs font-bold border ${c.bg} ${c.text} ${c.border} mb-6`}>{c.label}</div>
+                <p className="text-xs text-slate-500 leading-relaxed max-w-[250px]">Score calculado com base em 14 indicadores do PDM, condicionantes legais e camadas oficiais do território.</p>
               </div>
               
+              {/* OCR Card */}
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"><h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Resumo Restrições</h3></div>
+                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dados Extraídos</h3>
+                  <div className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-bold border border-emerald-100">OCR ✓</div>
+                </div>
                 <div className="divide-y divide-slate-100">
-                  <div className="flex items-center gap-3 px-6 py-4 text-xs"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="font-semibold text-slate-700">Edificação permitida</span></div>
-                  <div className="flex items-center gap-3 px-6 py-4 text-xs"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span className="font-semibold text-slate-700">Acesso Rodoviário garantido</span></div>
-                  <div className="flex items-center gap-3 px-6 py-4 text-xs"><div className="w-2 h-2 rounded-full bg-amber-500"></div><span className="font-semibold text-slate-700">REN Parcial (Traseira)</span></div>
+                  {[
+                    { label: "Concelho", val: property.concelho },
+                    { label: "Freguesia", val: property.freguesia },
+                    { label: "Artigo matricial", val: property.matricial || "—" },
+                    { label: "Área total", val: formatArea(property.area) },
+                    { label: "Confrontações", val: "N: caminho público" },
+                    { label: "Inscrição", val: "Definitiva 2018-04-12" },
+                    { label: "PDM aplicável", val: "—" },
+                  ].map((d, i) => (
+                    <div key={i} className="flex justify-between items-center px-6 py-3.5 text-xs">
+                      <span className="text-slate-500 font-medium flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-slate-300"></div>{d.label}</span>
+                      <span className="text-slate-900 font-bold text-right">{d.val}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
+
+            {/* RIGHT COLUMN */}
+            <div className="w-full lg:w-2/3 flex flex-col gap-6">
+              
+              {/* PDM Analysis Card */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="p-8 border-b border-slate-100">
+                   <div className="flex justify-between items-start mb-2">
+                     <div className="flex items-center gap-3">
+                       <h3 className="text-lg font-bold text-slate-900">{page === 1 ? 'Análise PDM' : 'Conversão Urbano'}</h3>
+                       <div className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-bold border border-emerald-100 uppercase tracking-widest">Tempo Real</div>
+                     </div>
+                     <span className="text-xs text-slate-400">Fonte oficial DGT</span>
+                   </div>
+                   <p className="text-xs text-slate-500">Interpretação automática do regulamento e cruzamento com 9 camadas oficiais.</p>
+                </div>
+                
+                <div className="divide-y divide-slate-100 px-8">
+                  {pdmItems.map((r, i) => (
+                    <div key={i} className="flex items-center justify-between py-4 group">
+                      <div className="flex items-center gap-4 w-1/3">
+                        <div className={r.status === 'ok' ? 'text-emerald-500' : 'text-amber-500'}>{r.status === 'ok' ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}</div>
+                        <span className="text-xs font-medium text-slate-700">{r.label}</span>
+                      </div>
+                      <div className="w-1/3 text-left">
+                        <span className="text-xs font-bold text-slate-900">{r.val}</span>
+                      </div>
+                      <div className="w-1/3 text-right">
+                        <span className="text-[10px] font-semibold text-slate-400 tracking-wide uppercase">{r.source}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="bg-slate-50/50 px-8 py-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                  <div className="flex gap-4 font-semibold">
+                    <span className="flex items-center gap-1.5 text-emerald-600"><CheckCircle size={14}/> 5 conformes</span>
+                    <span className="flex items-center gap-1.5 text-amber-600"><AlertTriangle size={14}/> 4 condicionantes</span>
+                    <span className="flex items-center gap-1.5 text-rose-500"><XCircle size={14}/> 0 inviáveis</span>
+                  </div>
+                  <a href="#" className="text-emerald-600 font-bold hover:underline flex items-center gap-1">Ver regulamento integral <ExternalLink size={12}/></a>
+                </div>
+              </div>
+              
+              {/* Recommendations Card */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm p-8">
+                <h3 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2"><Sparkles size={16} className="text-emerald-600"/> Recomendações do TerraCerta</h3>
+                <div className="space-y-4">
+                  {[
+                    "Solicitar delimitação da área REN ao ICNF antes de qualquer pedido de informação prévia.",
+                    "A faixa non aedificandi da EN229 reduz a área útil edificável em ~9%. Considerar no estudo prévio.",
+                    "Iu de 0,15 permite até 750 m² de construção. Avaliar PIP para confirmar.",
+                    "O PDM tem 3ª Alteração por Adaptação em vigor desde 12/03/2025 — recomenda-se confirmar versão."
+                  ].map((rec, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="text-emerald-600 font-mono text-xs font-bold pt-0.5">0{i+1}</div>
+                      <p className="text-sm text-slate-700 leading-relaxed">{rec}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
+        )}
       </main>
     </div>
   );
@@ -662,7 +708,10 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
                 })}
               </FeatureGroup>
             </LC.Overlay>
-            <LC.Overlay name="RAN / REN (Global)">
+            <LC.Overlay checked name="Perímetros Urbanos">
+               <Polygon positions={[[38.7, -9.2], [38.9, -9.2], [38.8, -9.0]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.3, weight: 1, dashArray: '4' }} />
+            </LC.Overlay>
+            <LC.Overlay checked name="RAN / REN (Global)">
                <Polygon positions={[[38.8, -9.0], [38.9, -8.5], [38.7, -8.5]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.2, weight: 1 }} />
             </LC.Overlay>
           </LC>
@@ -680,14 +729,11 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
   );
 };
 
-const MonitorPDMPage = ({ onNavigate, user, onLogout }) => {
-  const pdms = [
-    { concelho: "Lisboa", status: "Em Revisão", date: "2026-03-12", danger: true },
-    { concelho: "Sintra", status: "Atualizado", date: "2025-11-05", danger: false },
-    { concelho: "Cascais", status: "Atualizado", date: "2025-08-20", danger: false },
-    { concelho: "Oeiras", status: "Em Revisão", date: "2026-01-15", danger: true },
-    { concelho: "Loures", status: "Atualizado", date: "2024-05-10", danger: false },
-  ];
+const RegulamentosPage = ({ onNavigate, user, onLogout }) => {
+  const [search, setSearch] = useState("");
+  const allConcelhos = Object.values(PORTUGAL_GEO).flat();
+  const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase())).slice(0, 20);
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Nav page="pdm" onNavigate={onNavigate} user={user} onLogout={onLogout} />
@@ -695,25 +741,29 @@ const MonitorPDMPage = ({ onNavigate, user, onLogout }) => {
         <div className="flex items-center gap-3 mb-8">
           <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg"><BookOpen size={24} /></div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Monitor Legal & PDM</h1>
-            <p className="text-sm text-slate-500">Acompanhe o estado de atualização dos Planos Diretores Municipais.</p>
+            <h1 className="text-2xl font-bold text-slate-900">Regulamentos PDM</h1>
+            <p className="text-sm text-slate-500">Acesso direto aos PDFs dos Planos Diretores Municipais oficiais (SNIT).</p>
           </div>
         </div>
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-slate-100 bg-slate-50">
+             <div className="relative w-full max-w-md"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar concelho..." className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded text-sm focus:ring-1 focus:ring-emerald-500 outline-none" /></div>
+          </div>
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-              <tr><th className="px-6 py-4">Câmara Municipal</th><th className="px-6 py-4">Estado do PDM</th><th className="px-6 py-4">Última Alteração</th></tr>
+              <tr><th className="px-6 py-4">Concelho</th><th className="px-6 py-4">Documento</th><th className="px-6 py-4 text-right">Ação</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {pdms.map(p => (
-                <tr key={p.concelho} className="hover:bg-slate-50 transition">
-                  <td className="px-6 py-4 font-bold text-slate-800 flex items-center gap-2"><MapPin size={14} className="text-slate-300"/>{p.concelho}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] uppercase ${p.danger ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{p.status}</span>
+              {filtered.map(c => (
+                <tr key={c} className="hover:bg-slate-50 transition group">
+                  <td className="px-6 py-4 font-bold text-slate-800 flex items-center gap-2"><MapPin size={14} className="text-slate-300"/>{c}</td>
+                  <td className="px-6 py-4 text-slate-600">Regulamento_PDM_{c.replace(/\s+/g, '_')}.pdf</td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="text-emerald-600 font-bold flex items-center justify-end gap-2 w-full group-hover:text-emerald-700"><Download size={14} /> Descarregar PDF</button>
                   </td>
-                  <td className="px-6 py-4 text-slate-500">{p.date}</td>
                 </tr>
               ))}
+              {filtered.length === 0 && <tr><td colSpan="3" className="p-8 text-center text-slate-500">Nenhum concelho encontrado.</td></tr>}
             </tbody>
           </table>
         </div>
