@@ -10,7 +10,8 @@ import {
   Building2, Mountain, Lock, Mail, Layers,
   Shield, Activity, Zap, ArrowRight, Sparkles, AlertTriangle,
   CheckCircle, Info, ExternalLink, Bell, Loader2, RefreshCw,
-  Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle
+  Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle,
+  Home, ChevronDown, Archive, User
 } from "lucide-react";
 import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
@@ -160,32 +161,142 @@ const LandscapeBackground = () => (
   </div>
 );
 
-const Nav = ({ page, onNavigate, user, onLogout }) => {
+const Sidebar = ({ page, onNavigate, user, onLogout }) => {
   const { t } = useTranslation();
+  const [expanded, setExpanded] = useState({
+    operacao: true,
+    pdm: true,
+    cofre: false,
+    conta: false
+  });
+
+  const toggle = (section) => {
+    setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const NavItem = ({ id, label, icon: Icon, onClick, active }) => (
+    <button
+      onClick={onClick || (() => onNavigate(id))}
+      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all rounded-lg mb-1 ${
+        active 
+          ? "bg-emerald-50 text-emerald-700 shadow-sm" 
+          : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+      }`}
+    >
+      <Icon size={18} />
+      <span className="flex-1 text-left">{label}</span>
+    </button>
+  );
+
+  const SubMenu = ({ label, icon: Icon, section, children }) => (
+    <div className="mb-2">
+      <button
+        onClick={() => toggle(section)}
+        className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors mb-1"
+      >
+        <Icon size={14} />
+        <span className="flex-1 text-left">{label}</span>
+        <ChevronDown size={14} className={`transition-transform ${expanded[section] ? "" : "-rotate-90"}`} />
+      </button>
+      {expanded[section] && <div className="pl-2 space-y-1">{children}</div>}
+    </div>
+  );
+
   return (
-  <nav className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-50">
-    <div className="flex items-center gap-8">
-      <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate("dashboard")}>
-        <div className="h-6 w-6 bg-emerald-600 rounded flex items-center justify-center text-white"><Mountain size={14} strokeWidth={2.5} /></div>
-        <span className="font-bold text-slate-800 tracking-tight text-lg">TerraCerta</span>
+    <aside className="w-64 h-screen bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto">
+      <div className="p-6">
+        <div className="flex items-center gap-2 cursor-pointer mb-8" onClick={() => onNavigate("dashboard")}>
+          <div className="h-8 w-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+            <Mountain size={20} strokeWidth={2.5} />
+          </div>
+          <span className="font-bold text-slate-800 tracking-tight text-xl">TerraCerta</span>
+        </div>
+
+        <nav className="space-y-6">
+          <div>
+            <NavItem 
+              id="dashboard" 
+              label="Dashboard" 
+              icon={Home} 
+              active={page === "dashboard"} 
+            />
+          </div>
+
+          <SubMenu label="Operação" icon={Zap} section="operacao">
+            <NavItem 
+              id="upload" 
+              label="Análise de Terreno" 
+              icon={Plus} 
+              active={page === "upload"} 
+            />
+            <NavItem 
+              id="explore" 
+              label="Explorador SIG" 
+              icon={Globe2} 
+              active={page === "explore"} 
+            />
+            <NavItem 
+              id="archive" 
+              label="Arquivo" 
+              icon={Archive} 
+              active={page === "archive"} 
+              onClick={() => onNavigate("dashboard")}
+            />
+          </SubMenu>
+
+          <SubMenu label="Monitor PDM" icon={Shield} section="pdm">
+            <NavItem 
+              id="pdm" 
+              label="Regulamentos" 
+              icon={BookOpen} 
+              active={page === "pdm"} 
+            />
+            <NavItem 
+              id="pdm_revision" 
+              label="PDM em Revisão" 
+              icon={AlertTriangle} 
+              active={page === "pdm_revision"} 
+            />
+          </SubMenu>
+
+          <SubMenu label="Cofre" icon={Lock} section="cofre">
+            <NavItem 
+              id="vault" 
+              label="Gestão Documentos" 
+              icon={FileText} 
+              active={page === "vault"} 
+            />
+          </SubMenu>
+
+          <SubMenu label="Conta" icon={User} section="conta">
+            <NavItem 
+              id="settings" 
+              label="Configurações" 
+              icon={Settings} 
+              active={page === "settings"} 
+            />
+            <NavItem 
+              id="logout" 
+              label="Sair" 
+              icon={LogOut} 
+              onClick={onLogout}
+            />
+          </SubMenu>
+        </nav>
       </div>
-      <div className="flex items-center gap-1">
-        <button onClick={() => onNavigate("dashboard")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${page === 'dashboard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>{t("nav.dashboard")}</button>
-        <button onClick={() => onNavigate("explore")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'explore' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><Globe2 size={14}/> {t("nav.explore")}</button>
-        <button onClick={() => onNavigate("pdm")} className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${page === 'pdm' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}><BookOpen size={14}/> {t("nav.pdm")}</button>
+
+      <div className="mt-auto p-6 border-t border-slate-100">
+        <div className="flex items-center gap-3 px-2">
+          <div className="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold uppercase border border-emerald-200">
+            {user ? user[0] : "U"}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-800 truncate">{user?.split("@")[0]}</p>
+            <p className="text-[10px] text-slate-400 truncate">Sócio Principal</p>
+          </div>
+        </div>
       </div>
-    </div>
-    <div className="flex items-center gap-5">
-      <Bell size={16} className="text-slate-400 cursor-pointer hover:text-slate-600 transition" />
-      <Settings size={16} className="text-slate-400 cursor-pointer hover:text-slate-600 transition" />
-      <div className="h-4 w-px bg-slate-200 mx-1"></div>
-      <div className="flex items-center gap-3">
-        <div className="h-7 w-7 rounded-full bg-emerald-600 flex items-center justify-center text-white text-[10px] font-bold uppercase">{user ? user[0] : 'U'}</div>
-        <span className="text-xs font-semibold text-slate-700">{user?.split('@')[0]}</span>
-        <button onClick={onLogout} className="text-slate-400 hover:text-rose-500 transition"><LogOut size={16} /></button>
-      </div>
-    </div>
-  </nav>
+    </aside>
   );
 };
 
@@ -262,8 +373,7 @@ const Dashboard = ({ properties, loading, onRefresh, onNew, onSelect, onDelete, 
   );
 
   return (
-    <div className="min-h-screen bg-white">
-      <Nav page="dashboard" onNavigate={onNavigate} user={user} onLogout={onLogout} />
+    <div className="min-h-screen bg-slate-50">
       <main className="p-8 max-w-[1280px] mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div><h1 className="text-2xl font-bold text-slate-900">Dashboard</h1></div>
@@ -397,8 +507,7 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
   const concelhosNoDistrito = formData.distrito ? PORTUGAL_GEO[formData.distrito] : [];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Nav page="upload" onNavigate={onNavigate} user={user} onLogout={onLogout} />
+    <div className="min-h-screen">
       <main className="p-8 max-w-[800px] mx-auto">
         <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 text-xs font-semibold transition"><ChevronLeft size={16} /> Voltar ao dashboard</button>
         <div className="mb-8"><h1 className="text-2xl font-bold text-slate-900 mb-2">Novo Terreno</h1></div>
@@ -520,7 +629,6 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
-      <Nav page="analysis" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1280px] mx-auto">
         
         {/* Top Header Match Screenshot */}
@@ -728,7 +836,6 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
   const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-white flex flex-col h-screen">
-      <Nav page="explore" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <div className="flex-1 relative">
         <MapContainer center={[39.3999, -8.2245]} zoom={7} zoomControl={false} style={{ width: '100%', height: '100%' }}>
           <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap &copy; CARTO" />
@@ -791,7 +898,6 @@ const RegulamentosPage = ({ onNavigate, user, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Nav page="pdm" onNavigate={onNavigate} user={user} onLogout={onLogout} />
       <main className="p-8 max-w-[1200px] mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg"><BookOpen size={24} /></div>
@@ -905,13 +1011,15 @@ export default function App() {
 
   let content = null;
   if (!user) {
-    content = <LoginPage onLogin={setUser} />;
-  } else if (view === "dashboard") {
+    return <LoginPage onLogin={setUser} />;
+  }
+
+  if (view === "dashboard") {
     content = <Dashboard properties={properties} loading={loading} onRefresh={fetchProperties} onNew={() => setView("upload")} onSelect={(p) => { setSelected(p); setView("analysis"); setAnalysisPage(1); }} onDelete={handleDelete} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "explore") {
     content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "pdm") {
-    content = <MonitorPDMPage user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+    content = <RegulamentosPage user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "upload") {
     content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
       setSelected(p); 
@@ -921,12 +1029,23 @@ export default function App() {
     }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "analysis" && selected) {
     content = <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  } else {
+    content = (
+      <div className="flex flex-col items-center justify-center h-full text-slate-400">
+        <Loader2 className="animate-spin mb-4" />
+        <p className="text-sm font-medium uppercase tracking-widest">Módulo em Desenvolvimento</p>
+        <button onClick={() => setView("dashboard")} className="mt-4 text-emerald-600 font-bold hover:underline">Voltar ao Início</button>
+      </div>
+    );
   }
 
   return (
-    <>
-      {content}
-      {user && <SupportWidget />}
-    </>
+    <div className="flex h-screen overflow-hidden bg-slate-50">
+      <Sidebar page={view} onNavigate={setView} user={user} onLogout={() => setUser(null)} />
+      <main className="flex-1 overflow-y-auto relative">
+        {content}
+        <SupportWidget />
+      </main>
+    </div>
   );
 }
