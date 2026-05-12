@@ -71,7 +71,7 @@ const PORTUGAL_GEO = {
   "Castelo Branco": ["Belmonte", "Castelo Branco", "Covilhã", "Fundão", "Idanha-a-Nova", "Oleiros", "Penamacor", "Proença-a-Nova", "Sertã", "Vila de Rei", "Vila Velha de Ródão"],
   "Coimbra": ["Arganil", "Cantanhede", "Coimbra", "Condeixa-a-Nova", "Figueira da Foz", "Góis", "Lousã", "Mira", "Miranda do Corvo", "Montemor-o-Velho", "Oliveira do Hospital", "Pampilhosa da Serra", "Penacova", "Penela", "Soure", "Tábua", "Vila Nova de Poiares"],
   "Évora": ["Alandroal", "Arraiolos", "Borba", "Estremoz", "Évora", "Montemor-o-Novo", "Mora", "Mourão", "Portel", "Redondo", "Reguengos de Monsaraz", "Vendas Novas", "Viana do Alentejo", "Vila Viçosa"],
-  "Faro": ["Albufeira", "Alcoutim", "Aljezur", "Castro Marim", "Faro", "Lagoa", "Lagos", "Loulé", "Olhão", "Portimão", "São Brás de Alportel", "Silves", "Tavira", "Vila do Bispo", "Vila Real de Santo António"],
+  "Faro": ["Albufeira", "Alcoutim", "Aljezur", "Castro Marim", "Faro", "Lagoa", "Lagos", "Loulé", "Monchique", "Olhão", "Portimão", "São Brás de Alportel", "Silves", "Tavira", "Vila do Bispo", "Vila Real de Santo António"],
   "Guarda": ["Aguiar da Beira", "Almeida", "Celorico da Beira", "Figueira de Castelo Rodrigo", "Fornos de Algodres", "Gouveia", "Guarda", "Manteigas", "Mêda", "Pinhel", "Seia", "Trancoso", "Vila Nova de Foz Côa"],
   "Leiria": ["Alcobaça", "Alvaiázere", "Ansião", "Batalha", "Bombarral", "Caldas da Rainha", "Castanheira de Pera", "Figueiró dos Vinhos", "Leiria", "Marinha Grande", "Nazare", "Óbidos", "Pedrógão Grande", "Peniche", "Pombal", "Porto de Mós"],
   "Lisboa": ["Alenquer", "Amadora", "Arruda dos Vinhos", "Azambuja", "Cadaval", "Cascais", "Lisboa", "Loures", "Lourinhã", "Mafra", "Odivelas", "Oeiras", "Sintra", "Sobral de Monte Agraço", "Torres Vedras", "Vila Franca de Xira"],
@@ -943,7 +943,7 @@ const RegulamentosPage = ({ onNavigate }) => {
                   <th className="px-6 py-4">Estado</th>
                   <th className="px-6 py-4">Data Publicação</th>
                   <th className="px-6 py-4">Diploma Oficial</th>
-                  <th className="px-6 py-4 text-center">Ações</th>
+                  <th className="px-6 py-4 text-center">Documentação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -963,7 +963,7 @@ const RegulamentosPage = ({ onNavigate }) => {
                       <td className="px-6 py-4 text-slate-500 font-mono italic">{data.diploma}</td>
                       <td className="px-6 py-4 text-center">
                         <a 
-                          href={`https://snit-mais.dgterritorio.gov.pt/portalsnit/DownloadPlanos?idPlan=${data.id}`} 
+                          href={`https://snit-mais.dgterritorio.gov.pt/portalsnit/Pesquisa.aspx?Concelho=${encodeURIComponent(c)}`} 
                           target="_blank" 
                           rel="noopener noreferrer" 
                           className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm"
