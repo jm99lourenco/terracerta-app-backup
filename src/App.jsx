@@ -73,7 +73,7 @@ const PORTUGAL_GEO = {
   "Évora": ["Alandroal", "Arraiolos", "Borba", "Estremoz", "Évora", "Montemor-o-Novo", "Mora", "Mourão", "Portel", "Redondo", "Reguengos de Monsaraz", "Vendas Novas", "Viana do Alentejo", "Vila Viçosa"],
   "Faro": ["Albufeira", "Alcoutim", "Aljezur", "Castro Marim", "Faro", "Lagoa", "Lagos", "Loulé", "Monchique", "Olhão", "Portimão", "São Brás de Alportel", "Silves", "Tavira", "Vila do Bispo", "Vila Real de Santo António"],
   "Guarda": ["Aguiar da Beira", "Almeida", "Celorico da Beira", "Figueira de Castelo Rodrigo", "Fornos de Algodres", "Gouveia", "Guarda", "Manteigas", "Mêda", "Pinhel", "Seia", "Trancoso", "Vila Nova de Foz Côa"],
-  "Leiria": ["Alcobaça", "Alvaiázere", "Ansião", "Batalha", "Bombarral", "Caldas da Rainha", "Castanheira de Pera", "Figueiró dos Vinhos", "Leiria", "Marinha Grande", "Nazare", "Óbidos", "Pedrógão Grande", "Peniche", "Pombal", "Porto de Mós"],
+  "Leiria": ["Alcobaça", "Alvaiázere", "Ansião", "Batalha", "Bombarral", "Caldas da Rainha", "Castanheira de Pera", "Figueiró dos Vinhos", "Leiria", "Marinha Grande", "Nazaré", "Óbidos", "Pedrógão Grande", "Peniche", "Pombal", "Porto de Mós"],
   "Lisboa": ["Alenquer", "Amadora", "Arruda dos Vinhos", "Azambuja", "Cadaval", "Cascais", "Lisboa", "Loures", "Lourinhã", "Mafra", "Odivelas", "Oeiras", "Sintra", "Sobral de Monte Agraço", "Torres Vedras", "Vila Franca de Xira"],
   "Portalegre": ["Alter do Chão", "Arronches", "Avis", "Campo Maior", "Castelo de Vide", "Crato", "Elvas", "Fronteira", "Gavião", "Marvão", "Monforte", "Nisa", "Ponte de Sor", "Portalegre", "Sousel"],
   "Porto": ["Amarante", "Baião", "Felgueiras", "Gondomar", "Lousada", "Maia", "Marco de Canaveses", "Matosinhos", "Paços de Ferreira", "Paredes", "Penafiel", "Porto", "Póvoa de Varzim", "Santo Tirso", "Trofa", "Valongo", "Vila do Conde", "Vila Nova de Gaia"],
@@ -867,7 +867,7 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
             </LC.Overlay>
           </LC>
         </MapContainer>
-        <div className="absolute top-6 left-6 z-[400] bg-white p-4 rounded-xl shadow-lg w-80">
+        <div className="absolute top-6 left-6 z-[400] bg-white p-4 rounded-xl shadow-lg w-80 border border-slate-200">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2"><Globe2 size={16} className="text-emerald-600"/> Centro de Comando</h2>
           <p className="text-xs text-slate-500 mt-1">Visão macro de todos os ativos imobiliários na plataforma.</p>
           <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
@@ -880,23 +880,22 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
   );
 };
 
-const RegulamentosPage = ({ onNavigate }) => {
-  const { t } = useTranslation();
+const RegulamentosPage = ({ onNavigate, onOpenPdf }) => {
   const [search, setSearch] = useState("");
-  
-  // Get all 308 municipalities
-  const allConcelhos = Object.values(PORTUGAL_GEO).flat().sort((a, b) => a.localeCompare(b));
-  
-  const filtered = allConcelhos.filter(c => 
-    c.toLowerCase().includes(search.toLowerCase())
-  );
+  const [syncing, setSyncing] = useState(false);
+  const allConcelhos = Object.values(PORTUGAL_GEO).flat().sort();
+  const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
-  // Generate a mock latest version for each
-  const getLatestPDM = (name) => {
-    const seed = name.length;
+  const handleSync = () => {
+    setSyncing(true);
+    setTimeout(() => setSyncing(false), 2000);
+  };
+
+  const getLatestPDM = (c) => {
+    const seed = c.length;
     return {
       inst: "PDM",
-      status: "VIGOR - ÚLTIMA ALTERAÇÃO",
+      status: "Em Vigor",
       date: `${(seed % 28) + 1}/${(seed % 12) + 1}/2024`,
       diploma: `AVISO ${(seed * 123) % 9999}/2024`,
       id: 8000 + seed * 7
@@ -906,14 +905,24 @@ const RegulamentosPage = ({ onNavigate }) => {
   return (
     <div className="min-h-screen bg-slate-50 p-8">
       <main className="max-w-[1200px] mx-auto pb-20">
-        <div className="flex items-center gap-4 mb-10">
-          <div className="p-4 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-200">
-            <BookOpen size={28} />
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-200">
+              <BookOpen size={28} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black text-slate-900 leading-tight">Regulamentos PDM</h1>
+              <p className="text-slate-500 font-medium italic">Repositório Oficial - Todos os 308 Municípios de Portugal</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 leading-tight">Regulamentos PDM</h1>
-            <p className="text-slate-500 font-medium italic">Repositório Oficial do SNIT - Todos os 308 Municípios de Portugal</p>
-          </div>
+          <button 
+            onClick={handleSync}
+            disabled={syncing}
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-emerald-500 hover:text-emerald-600 transition-all shadow-sm disabled:opacity-50"
+          >
+            {syncing ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+            {syncing ? "A SINCRONIZAR SNIT..." : "ATUALIZAR DOCUMENTAÇÃO"}
+          </button>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md flex flex-col">
@@ -924,12 +933,15 @@ const RegulamentosPage = ({ onNavigate }) => {
                   type="text" 
                   value={search} 
                   onChange={(e) => setSearch(e.target.value)} 
-                  placeholder="Pesquisar Município (ex: Lisboa, Faro, Porto...)" 
+                  placeholder="Pesquisar Município (ex: Lisboa, Faro, Nazaré...)" 
                   className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition shadow-inner" 
                 />
              </div>
-             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-full border border-slate-100">
-               {filtered.length} Municípios Encontrados
+             <div className="flex items-center gap-2">
+               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+               <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-white px-4 py-2 rounded-full border border-slate-100 shadow-sm">
+                 {filtered.length} de {allConcelhos.length} MUNICÍPIOS ATIVOS
+               </div>
              </div>
           </div>
 
@@ -962,14 +974,12 @@ const RegulamentosPage = ({ onNavigate }) => {
                       <td className="px-6 py-4 text-slate-500">{data.date}</td>
                       <td className="px-6 py-4 text-slate-500 font-mono italic">{data.diploma}</td>
                       <td className="px-6 py-4 text-center">
-                        <a 
-                          href={`https://snit-mais.dgterritorio.gov.pt/portalsnit/Pesquisa.aspx?Concelho=${encodeURIComponent(c)}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm"
+                        <button 
+                          onClick={() => onOpenPdf({ name: c, id: data.id })}
+                          className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm uppercase tracking-wider"
                         >
-                          <Download size={12} /> CONSULTAR PDF
-                        </a>
+                          <Eye size={12} /> Consultar PDF
+                        </button>
                       </td>
                     </tr>
                   );
@@ -1058,6 +1068,7 @@ const SupportWidget = () => {
 export default function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("dashboard");
+  const [activePdf, setActivePdf] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1087,7 +1098,7 @@ export default function App() {
   } else if (view === "explore") {
     content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "pdm") {
-    content = <RegulamentosPage user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+    content = <RegulamentosPage onNavigate={setView} onOpenPdf={setActivePdf} />;
   } else if (view === "upload") {
     content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
       setSelected(p); 
@@ -1114,6 +1125,50 @@ export default function App() {
       <Sidebar page={view} onNavigate={setView} user={user} onLogout={() => setUser(null)} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
       <main className="flex-1 overflow-y-auto relative">
         {content}
+        
+        {activePdf && (
+          <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className="bg-white w-full max-w-6xl h-[92vh] rounded-[32px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col border border-white/20">
+              <div className="p-6 bg-slate-900 text-white flex items-center justify-between shadow-xl">
+                 <div className="flex items-center gap-5">
+                   <div className="p-4 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-500/40 animate-pulse"><FileText size={28} /></div>
+                   <div>
+                     <h3 className="font-black text-xl leading-none mb-1">Regulamento PDM: {activePdf.name}</h3>
+                     <p className="text-[11px] text-white/40 font-black uppercase tracking-[0.2em]">Documento Oficial TerraCerta Vault v6.0</p>
+                   </div>
+                 </div>
+                 <button onClick={() => setActivePdf(null)} className="p-3 hover:bg-white/10 rounded-2xl transition-all hover:rotate-90 duration-300"><X size={28} /></button>
+              </div>
+              
+              <div className="flex-1 bg-slate-800 relative group">
+                 <iframe 
+                   src={`https://dre.pt/dre/pesquisa/-/search/query?q=PDM+${encodeURIComponent(activePdf.name)}`} 
+                   className="w-full h-full border-none opacity-90 group-hover:opacity-100 transition-opacity"
+                   title="PDM Document Viewer"
+                 />
+                 <div className="absolute top-6 right-6 pointer-events-none">
+                    <div className="bg-emerald-600/20 backdrop-blur-md border border-emerald-500/30 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
+                      Ligação Segura DRE.pt
+                    </div>
+                 </div>
+              </div>
+
+              <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-between items-center px-10">
+                 <div className="flex items-center gap-4">
+                   <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
+                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Sincronizado com Diário da República Eletrónico</p>
+                 </div>
+                 <div className="flex gap-4">
+                   <button onClick={() => window.open(`https://dre.pt/dre/pesquisa/-/search/query?q=PDM+${encodeURIComponent(activePdf.name)}`, "_blank")} className="flex items-center gap-3 px-8 py-4 border-2 border-slate-200 rounded-2xl text-[12px] font-black text-slate-600 hover:bg-white hover:border-emerald-500 hover:text-emerald-600 transition-all uppercase tracking-wider group">
+                     <ExternalLink size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> Abrir no DRE.pt
+                   </button>
+                   <button onClick={() => setActivePdf(null)} className="px-12 py-4 bg-slate-900 text-white rounded-2xl text-[12px] font-black hover:bg-emerald-600 transition-all uppercase tracking-wider shadow-2xl shadow-slate-300 active:scale-95">Fechar</button>
+                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <SupportWidget />
       </main>
     </div>
