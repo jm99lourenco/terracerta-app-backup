@@ -11,7 +11,7 @@ import {
   Shield, Activity, Zap, ArrowRight, Sparkles, AlertTriangle,
   CheckCircle, Info, ExternalLink, Bell, Loader2, RefreshCw,
   Satellite, Map as MapIcon, Calculator, Globe2, Eye, EyeOff, HelpCircle,
-  Home, ChevronDown, Archive, User
+  Home, ChevronDown, Archive, User, LifeBuoy, FolderOpen, PieChart, BarChart3, ScanLine
 } from "lucide-react";
 import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
@@ -954,6 +954,37 @@ const RegulamentosPage = ({ onNavigate, user, onLogout }) => {
   );
 };
 
+const VaultPage = () => {
+  const folders = [
+    { name: "Lisboa", items: 12, size: "154MB" },
+    { name: "Porto", items: 8, size: "82MB" },
+    { name: "Cascais", items: 5, size: "45MB" },
+    { name: "Sintra", items: 3, size: "28MB" },
+    { name: "Faro", items: 2, size: "12MB" }
+  ];
+  return (
+    <div className="min-h-screen bg-slate-50 p-8">
+      <div className="mb-10"><h1 className="text-3xl font-black text-slate-900 mb-2">Cofre de Documentos</h1><p className="text-slate-500 font-medium">Repositório centralizado de documentação técnica.</p></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-emerald-300 hover:bg-white transition cursor-pointer group text-slate-400 hover:text-emerald-600">
+           <Plus size={32} className="group-hover:scale-110 transition-transform" />
+           <span className="text-xs font-black uppercase tracking-widest">Nova Pasta</span>
+        </div>
+        {folders.map((f, i) => (
+          <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition cursor-pointer group">
+             <div className="flex justify-between items-start mb-6">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors"><FolderOpen size={24} /></div>
+                <button className="text-slate-300 hover:text-slate-500"><Settings size={16} /></button>
+             </div>
+             <h3 className="font-bold text-slate-900 mb-1">{f.name}</h3>
+             <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest"><span>{f.items} Ficheiros</span><span>{f.size}</span></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const SupportWidget = () => {
   const [open, setOpen] = useState(false);
   return (
@@ -991,6 +1022,7 @@ const SupportWidget = () => {
 export default function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("dashboard");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -1027,6 +1059,8 @@ export default function App() {
       setAnalysisPage(1); 
       fetchProperties();
     }} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
+  } else if (view === "vault") {
+    content = <VaultPage />;
   } else if (view === "analysis" && selected) {
     content = <AnalysisPage property={selected} page={analysisPage} setPage={setAnalysisPage} onBack={() => setView("dashboard")} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else {
@@ -1041,7 +1075,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
-      <Sidebar page={view} onNavigate={setView} user={user} onLogout={() => setUser(null)} />
+      <Sidebar page={view} onNavigate={setView} user={user} onLogout={() => setUser(null)} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
       <main className="flex-1 overflow-y-auto relative">
         {content}
         <SupportWidget />
