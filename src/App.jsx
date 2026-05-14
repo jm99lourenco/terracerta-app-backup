@@ -82,8 +82,8 @@ const PORTUGAL_GEO = {
   "Viana do Castelo": ["Arcos de Valdevez", "Caminha", "Melgaço", "Monção", "Paredes de Coura", "Ponte da Barca", "Ponte de Lima", "Valença", "Viana do Castelo", "Vila Nova de Cerveira"],
   "Vila Real": ["Alijó", "Boticas", "Chaves", "Mesão Frio", "Mondim de Basto", "Montalegre", "Murça", "Peso da Régua", "Ribeira de Pena", "Sabrosa", "Santa Marta de Penaguião", "Valpaços", "Vila Pouca de Aguiar", "Vila Real"],
   "Viseu": ["Armamar", "Carregal do Sal", "Castro Daire", "Cinfães", "Lamego", "Mangualde", "Moimenta da Beira", "Mortágua", "Nelas", "Oliveira de Frades", "Penalva do Castelo", "Penedono", "Resende", "Santa Comba Dão", "São João da Pesqueira", "São Pedro do Sul", "Sátão", "Sernancelhe", "Tabuaço", "Tarouca", "Tondela", "Vila Nova de Paiva", "Viseu", "Vouzela"],
-  "Madeira": ["Calheta", "Câmara de Lobos", "Funchal", "Machico", "Ponta do Sol", "Porto Moniz", "Porto Santo", "Ribeira Brava", "Santa Cruz", "Santana", "São Vicente"],
-  "Açores": ["Angra do Heroísmo", "Calheta", "Corvo", "Horta", "Lagoa", "Lajes das Flores", "Lajes do Pico", "Madalena", "Nordeste", "Ponta Delgada", "Povoação", "Praia da Vitória", "Ribeira Grande", "Santa Cruz da Graciosa", "Santa Cruz das Flores", "São Roque do Pico", "Velas", "Vila do Porto", "Vila Franca do Campo"]
+  "Madeira": ["Calheta (Madeira)", "Câmara de Lobos", "Funchal", "Machico", "Ponta do Sol", "Porto Moniz", "Porto Santo", "Ribeira Brava", "Santa Cruz", "Santana", "São Vicente"],
+  "Açores": ["Angra do Heroísmo", "Calheta (Açores - São Jorge)", "Corvo", "Horta", "Lagoa", "Lajes das Flores", "Lajes do Pico", "Madalena", "Nordeste", "Ponta Delgada", "Povoação", "Praia da Vitória", "Ribeira Grande", "Santa Cruz da Graciosa", "Santa Cruz das Flores", "São Roque do Pico", "Velas", "Vila do Porto", "Vila Franca do Campo"]
 };
 
 // ----------------- UTILS -----------------
@@ -880,15 +880,39 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
   );
 };
 
-const RegulamentosPage = ({ onNavigate, onOpenPdf }) => {
+const RegulamentosPage = ({ onNavigate }) => {
   const [search, setSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
-  const allConcelhos = Object.values(PORTUGAL_GEO).flat().sort();
+  const [fetchingPdfFor, setFetchingPdfFor] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
+  
+  const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
   const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
   const handleSync = () => {
     setSyncing(true);
+    setFetchError(null);
     setTimeout(() => setSyncing(false), 2000);
+  };
+
+  const handleFetchPDF = async (concelho) => {
+    setFetchingPdfFor(concelho);
+    setFetchError(null);
+    try {
+      const res = await fetch(`/api/snit?concelho=${encodeURIComponent(concelho)}`);
+      if (!res.ok) throw new Error("Servidor error");
+      const data = await res.json();
+      
+      if (data.link) {
+        window.open(data.link, "_blank");
+      } else {
+        throw new Error("Link not found");
+      }
+    } catch (err) {
+      setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
+    } finally {
+      setFetchingPdfFor(null);
+    }
   };
 
   const getLatestPDM = (c) => {
@@ -924,6 +948,13 @@ const RegulamentosPage = ({ onNavigate, onOpenPdf }) => {
             {syncing ? "A SINCRONIZAR SNIT..." : "ATUALIZAR DOCUMENTAÇÃO"}
           </button>
         </div>
+
+        {fetchError && (
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-rose-700 font-medium shadow-sm animate-in fade-in">
+            <AlertCircle size={20} />
+            <p className="text-sm">{fetchError}</p>
+          </div>
+        )}
 
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md flex flex-col">
           <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -975,10 +1006,15 @@ const RegulamentosPage = ({ onNavigate, onOpenPdf }) => {
                       <td className="px-6 py-4 text-slate-500 font-mono italic">{data.diploma}</td>
                       <td className="px-6 py-4 text-center">
                         <button 
-                          onClick={() => onOpenPdf({ name: c, id: data.id })}
-                          className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm uppercase tracking-wider"
+                          onClick={() => handleFetchPDF(c)}
+                          disabled={fetchingPdfFor === c}
+                          className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed w-40 justify-center"
                         >
-                          <Eye size={12} /> Consultar PDF
+                          {fetchingPdfFor === c ? (
+                            <><Loader2 size={12} className="animate-spin" /> A localizar...</>
+                          ) : (
+                            <><Eye size={12} /> Consultar PDF</>
+                          )}
                         </button>
                       </td>
                     </tr>
@@ -1068,7 +1104,6 @@ const SupportWidget = () => {
 export default function App() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("dashboard");
-  const [activePdf, setActivePdf] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1098,7 +1133,7 @@ export default function App() {
   } else if (view === "explore") {
     content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "pdm") {
-    content = <RegulamentosPage onNavigate={setView} onOpenPdf={setActivePdf} />;
+    content = <RegulamentosPage onNavigate={setView} />;
   } else if (view === "upload") {
     content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
       setSelected(p); 
@@ -1125,50 +1160,6 @@ export default function App() {
       <Sidebar page={view} onNavigate={setView} user={user} onLogout={() => setUser(null)} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
       <main className="flex-1 overflow-y-auto relative">
         {content}
-        
-        {activePdf && (
-          <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-6xl h-[92vh] rounded-[32px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col border border-white/20">
-              <div className="p-6 bg-slate-900 text-white flex items-center justify-between shadow-xl">
-                 <div className="flex items-center gap-5">
-                   <div className="p-4 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-500/40 animate-pulse"><FileText size={28} /></div>
-                   <div>
-                     <h3 className="font-black text-xl leading-none mb-1">Regulamento PDM: {activePdf.name}</h3>
-                     <p className="text-[11px] text-white/40 font-black uppercase tracking-[0.2em]">Documento Oficial TerraCerta Vault v6.0</p>
-                   </div>
-                 </div>
-                 <button onClick={() => setActivePdf(null)} className="p-3 hover:bg-white/10 rounded-2xl transition-all hover:rotate-90 duration-300"><X size={28} /></button>
-              </div>
-              
-              <div className="flex-1 bg-slate-800 relative group">
-                 <iframe 
-                   src={`https://dre.pt/dre/pesquisa/-/search/query?q=PDM+${encodeURIComponent(activePdf.name)}`} 
-                   className="w-full h-full border-none opacity-90 group-hover:opacity-100 transition-opacity"
-                   title="PDM Document Viewer"
-                 />
-                 <div className="absolute top-6 right-6 pointer-events-none">
-                    <div className="bg-emerald-600/20 backdrop-blur-md border border-emerald-500/30 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
-                      Ligação Segura DRE.pt
-                    </div>
-                 </div>
-              </div>
-
-              <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-between items-center px-10">
-                 <div className="flex items-center gap-4">
-                   <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></div>
-                   <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Sincronizado com Diário da República Eletrónico</p>
-                 </div>
-                 <div className="flex gap-4">
-                   <button onClick={() => window.open(`https://dre.pt/dre/pesquisa/-/search/query?q=PDM+${encodeURIComponent(activePdf.name)}`, "_blank")} className="flex items-center gap-3 px-8 py-4 border-2 border-slate-200 rounded-2xl text-[12px] font-black text-slate-600 hover:bg-white hover:border-emerald-500 hover:text-emerald-600 transition-all uppercase tracking-wider group">
-                     <ExternalLink size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> Abrir no DRE.pt
-                   </button>
-                   <button onClick={() => setActivePdf(null)} className="px-12 py-4 bg-slate-900 text-white rounded-2xl text-[12px] font-black hover:bg-emerald-600 transition-all uppercase tracking-wider shadow-2xl shadow-slate-300 active:scale-95">Fechar</button>
-                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         <SupportWidget />
       </main>
     </div>
