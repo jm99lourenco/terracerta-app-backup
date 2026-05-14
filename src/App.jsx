@@ -16,7 +16,7 @@ import {
 import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
 import i18next from "i18next";
-import { RegulamentosPage } from "./RegulamentosPage";
+import { RegulamentosPage } from "./RegulamentosPage.jsx";
 import { PORTUGAL_GEO } from "./data/portugalGeo";
 const Tooltip = ({ text }) => (
   <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
