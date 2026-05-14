@@ -14,12 +14,18 @@ export default async function handler(req, res) {
   console.log(`[SNIT API] Fetching PDM for: ${searchQuery} via ${snitUrl}`);
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     const response = await fetch(snitUrl, {
+      signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml'
       }
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       return res.status(503).json({ error: "Servidor da DGT temporariamente indisponível. Tente novamente." });

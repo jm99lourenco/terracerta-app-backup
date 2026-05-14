@@ -884,20 +884,20 @@ const RegulamentosPage = ({ onNavigate }) => {
   const [search, setSearch] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [fetchingPdfFor, setFetchingPdfFor] = useState(null);
-  const [fetchError, setFetchError] = useState(null);
+  const [fetchError, setFetchError] = useState(false);
   
   const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
   const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
   const handleSync = () => {
     setSyncing(true);
-    setFetchError(null);
+    setFetchError(false);
     setTimeout(() => setSyncing(false), 2000);
   };
 
   const handleFetchPDF = async (concelho) => {
     setFetchingPdfFor(concelho);
-    setFetchError(null);
+    setFetchError(false);
     try {
       const res = await fetch(`/api/snit?concelho=${encodeURIComponent(concelho)}`);
       if (!res.ok) throw new Error("Servidor error");
