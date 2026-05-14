@@ -885,6 +885,7 @@ const RegulamentosPage = ({ onNavigate }) => {
   const [syncing, setSyncing] = useState(false);
   const [fetchingPdfFor, setFetchingPdfFor] = useState(null);
   const [fetchError, setFetchError] = useState(false);
+  console.log("SoloLote Debug: RegulamentosPage montada - Estado de erro inicializado como FALSE");
   
   const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
   const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
@@ -959,13 +960,22 @@ const RegulamentosPage = ({ onNavigate }) => {
           </button>
         </div>
 
-        {fetchError && (
+        {/* BANNER DE ERRO CONTROLADO POR FETCHERROR */}
+        {typeof fetchError === "string" && fetchError !== "" && (
           <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between gap-3 text-rose-700 font-medium shadow-sm animate-in fade-in">
             <div className="flex items-center gap-3">
               <AlertCircle size={20} />
               <p className="text-sm">{fetchError}</p>
             </div>
-            <button onClick={() => setFetchError(null)} className="text-rose-400 hover:text-rose-600 transition"><X size={16} /></button>
+            <button 
+              onClick={() => {
+                console.log("SoloLote Debug: Utilizador fechou o banner manualmente");
+                setFetchError(false);
+              }} 
+              className="text-rose-400 hover:text-rose-600 transition"
+            >
+              <X size={16} />
+            </button>
           </div>
         )}
 
