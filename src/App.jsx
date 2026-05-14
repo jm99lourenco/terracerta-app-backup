@@ -16,6 +16,7 @@ import {
 import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
 import i18next from "i18next";
+import { RegulamentosPage } from "./RegulamentosPage";
 const Tooltip = ({ text }) => (
   <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
     <HelpCircle size={12} className="text-slate-300 hover:text-slate-500 transition" />
@@ -880,184 +881,7 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
   );
 };
 
-const RegulamentosPage = ({ onNavigate }) => {
-  const [search, setSearch] = useState("");
-  const [syncing, setSyncing] = useState(false);
-  const [fetchingPdfFor, setFetchingPdfFor] = useState(null);
-  const [fetchError, setFetchError] = useState(false);
-  console.log("SoloLote Debug: RegulamentosPage montada - Estado de erro inicializado como FALSE");
-  
-  const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
-  const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
-  useEffect(() => {
-    console.log("SoloLote Debug: Estado de erro inicializado como FALSE");
-    setFetchError(false);
-  }, []);
-
-  const handleSync = () => {
-    setSyncing(true);
-    setFetchError(false);
-    setTimeout(() => setSyncing(false), 2000);
-  };
-
-  const handleFetchPDF = async (concelho) => {
-    setFetchingPdfFor(concelho);
-    setFetchError(false);
-    try {
-      const res = await fetch(`/api/snit?concelho=${encodeURIComponent(concelho)}`);
-      if (res.status !== 200) {
-        setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
-        setFetchingPdfFor(null);
-        return;
-      }
-      const data = await res.json();
-      
-      if (data.link) {
-        window.open(data.link, "_blank");
-      } else {
-        throw new Error("Link not found");
-      }
-    } catch (err) {
-      console.error("SoloLote Debug: Erro no fetch", err);
-      setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
-    } finally {
-      setFetchingPdfFor(null);
-    }
-  };
-
-  const getLatestPDM = (c) => {
-    const seed = c.length;
-    return {
-      inst: "PDM",
-      status: "Em Vigor",
-      date: `${(seed % 28) + 1}/${(seed % 12) + 1}/2024`,
-      diploma: `AVISO ${(seed * 123) % 9999}/2024`,
-      id: 8000 + seed * 7
-    };
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <main className="max-w-[1200px] mx-auto pb-20">
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-200">
-              <BookOpen size={28} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black text-slate-900 leading-tight">Regulamentos PDM</h1>
-              <p className="text-slate-500 font-medium italic">Repositório Oficial - Todos os 308 Municípios de Portugal</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleSync}
-            disabled={syncing}
-            className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-emerald-500 hover:text-emerald-600 transition-all shadow-sm disabled:opacity-50"
-          >
-            {syncing ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-            {syncing ? "A SINCRONIZAR SNIT..." : "ATUALIZAR DOCUMENTAÇÃO"}
-          </button>
-        </div>
-
-        {/* BANNER DE ERRO CONTROLADO POR FETCHERROR */}
-        {typeof fetchError === "string" && fetchError !== "" && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between gap-3 text-rose-700 font-medium shadow-sm animate-in fade-in">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={20} />
-              <p className="text-sm">{fetchError}</p>
-            </div>
-            <button 
-              onClick={() => {
-                console.log("SoloLote Debug: Utilizador fechou o banner manualmente");
-                setFetchError(false);
-              }} 
-              className="text-rose-400 hover:text-rose-600 transition"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        )}
-
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md flex flex-col">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
-             <div className="relative w-full max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                <input 
-                  type="text" 
-                  value={search} 
-                  onChange={(e) => setSearch(e.target.value)} 
-                  placeholder="Pesquisar Município (ex: Lisboa, Faro, Nazaré...)" 
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition shadow-inner" 
-                />
-             </div>
-             <div className="flex items-center gap-2">
-               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-               <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-white px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-                 {filtered.length} de {allConcelhos.length} MUNICÍPIOS ATIVOS
-               </div>
-             </div>
-          </div>
-
-          <div className="overflow-x-auto max-h-[70vh]">
-            <table className="w-full text-left text-xs whitespace-nowrap">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold sticky top-0 z-10 uppercase tracking-wider">
-                <tr>
-                  <th className="px-6 py-4">ID SNIT</th>
-                  <th className="px-6 py-4">Município</th>
-                  <th className="px-6 py-4">Instrumento</th>
-                  <th className="px-6 py-4">Estado</th>
-                  <th className="px-6 py-4">Data Publicação</th>
-                  <th className="px-6 py-4">Diploma Oficial</th>
-                  <th className="px-6 py-4 text-center">Documentação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map((c) => {
-                  const data = getLatestPDM(c);
-                  return (
-                    <tr key={c} className="hover:bg-emerald-50/30 transition group">
-                      <td className="px-6 py-4 text-slate-400 font-mono text-[10px]">{data.id}</td>
-                      <td className="px-6 py-4 font-black text-slate-900 text-sm uppercase">{c}</td>
-                      <td className="px-6 py-4 text-slate-600 font-medium"><span className="px-2 py-0.5 bg-slate-100 rounded text-[10px]">{data.inst}</span></td>
-                      <td className="px-6 py-4">
-                        <span className="flex items-center gap-2 text-emerald-600 font-bold">
-                          <CheckCircle2 size={12} /> {data.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500">{data.date}</td>
-                      <td className="px-6 py-4 text-slate-500 font-mono italic">{data.diploma}</td>
-                      <td className="px-6 py-4 text-center">
-                        <button 
-                          onClick={() => handleFetchPDF(c)}
-                          disabled={fetchingPdfFor === c}
-                          className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed w-40 justify-center"
-                        >
-                          {fetchingPdfFor === c ? (
-                            <><Loader2 size={12} className="animate-spin" /> A localizar...</>
-                          ) : (
-                            <><Eye size={12} /> Consultar PDF</>
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan="7" className="p-20 text-center text-slate-400 font-medium italic bg-slate-50/20">
-                      Nenhum concelho encontrado para a sua pesquisa.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-};
 
 const VaultPage = () => {
   const folders = [
@@ -1156,7 +980,7 @@ export default function App() {
   } else if (view === "explore") {
     content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "pdm") {
-    content = <RegulamentosPage onNavigate={setView} />;
+    content = <RegulamentosPage PORTUGAL_GEO={PORTUGAL_GEO} onNavigate={setView} />;
   } else if (view === "upload") {
     content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
       setSelected(p); 
