@@ -1,5 +1,5 @@
-// RegulamentosPage v1.3.1
-import React, { useState, useEffect } from 'react';
+// RegulamentosPage v1.3.2 - Final Anti-Gatilho
+import React, { useState } from 'react';
 import { 
   BookOpen, Search, RefreshCw, AlertCircle, X, CheckCircle2, Eye, Loader2 
 } from "lucide-react";
@@ -10,6 +10,7 @@ export const RegulamentosPage = ({ PORTUGAL_GEO, onNavigate }) => {
   const [fetchingPdfFor, setFetchingPdfFor] = useState(null);
   const [fetchError, setFetchError] = useState(false);
 
+  // Garantia absoluta de 308 concelhos
   const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
   const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
@@ -20,15 +21,19 @@ export const RegulamentosPage = ({ PORTUGAL_GEO, onNavigate }) => {
   };
 
   const handleFetchPDF = async (concelho) => {
-    setFetchingPdfFor(concelho);
+    // Bloqueio de segurança: Reset imediato de qualquer erro anterior
     setFetchError(false);
+    setFetchingPdfFor(concelho);
+    
     try {
       const res = await fetch(`/api/snit?concelho=${encodeURIComponent(concelho)}`);
+      
       if (res.status !== 200) {
         setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
         setFetchingPdfFor(null);
         return;
       }
+      
       const data = await res.json();
       if (data.link) {
         window.open(data.link, "_blank");
@@ -36,6 +41,7 @@ export const RegulamentosPage = ({ PORTUGAL_GEO, onNavigate }) => {
         throw new Error("Link not found");
       }
     } catch (err) {
+      console.error("SoloLote Trace: Erro capturado no clique manual", err);
       setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
     } finally {
       setFetchingPdfFor(null);
@@ -76,11 +82,16 @@ export const RegulamentosPage = ({ PORTUGAL_GEO, onNavigate }) => {
           </button>
         </div>
 
-        {/* RECONSTRUÇÃO CONDICIONAL (v1.3) */}
+        {/* BANNER DE ERRO RECONSTRUÍDO (v1.3.2) - SEM GATILHOS AUTOMÁTICOS */}
         {fetchError && (
           <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between gap-3 text-rose-700 font-medium shadow-sm animate-in fade-in">
             <span>Servidor da DGT temporariamente indisponível. Tente novamente.</span>
-            <button onClick={() => setFetchError(false)} className="text-rose-500 hover:text-rose-900 font-bold px-2">X</button>
+            <button 
+              onClick={() => setFetchError(false)} 
+              className="text-rose-500 hover:text-rose-900 font-bold px-2"
+            >
+              X
+            </button>
           </div>
         )}
 
