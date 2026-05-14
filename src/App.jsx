@@ -1,3 +1,4 @@
+// TerraCerta v1.3.1 - Final PDM Fix
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";

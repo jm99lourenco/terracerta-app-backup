@@ -1,3 +1,4 @@
+// RegulamentosPage v1.3.1
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, Search, RefreshCw, AlertCircle, X, CheckCircle2, Eye, Loader2 
