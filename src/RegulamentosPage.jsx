@@ -75,11 +75,11 @@ export const RegulamentosPage = ({ PORTUGAL_GEO, onNavigate }) => {
           </button>
         </div>
 
-        {/* RECONSTRUÇÃO CONDICIONAL (v1.2.6) */}
+        {/* RECONSTRUÇÃO CONDICIONAL (v1.3) */}
         {fetchError && (
           <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between gap-3 text-rose-700 font-medium shadow-sm animate-in fade-in">
             <span>Servidor da DGT temporariamente indisponível. Tente novamente.</span>
-            <button onClick={() => setFetchError(false)} className="px-2 font-black">X</button>
+            <button onClick={() => setFetchError(false)} className="text-rose-500 hover:text-rose-900 font-bold px-2">X</button>
           </div>
         )}
 
