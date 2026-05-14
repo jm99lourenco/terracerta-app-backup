@@ -889,6 +889,11 @@ const RegulamentosPage = ({ onNavigate }) => {
   const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
   const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
+  useEffect(() => {
+    console.log("SoloLote Debug: Estado de erro inicializado como FALSE");
+    setFetchError(false);
+  }, []);
+
   const handleSync = () => {
     setSyncing(true);
     setFetchError(false);
@@ -900,7 +905,11 @@ const RegulamentosPage = ({ onNavigate }) => {
     setFetchError(false);
     try {
       const res = await fetch(`/api/snit?concelho=${encodeURIComponent(concelho)}`);
-      if (!res.ok) throw new Error("Servidor error");
+      if (res.status !== 200) {
+        setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
+        setFetchingPdfFor(null);
+        return;
+      }
       const data = await res.json();
       
       if (data.link) {
@@ -909,6 +918,7 @@ const RegulamentosPage = ({ onNavigate }) => {
         throw new Error("Link not found");
       }
     } catch (err) {
+      console.error("SoloLote Debug: Erro no fetch", err);
       setFetchError("Servidor da DGT temporariamente indisponível. Tente novamente.");
     } finally {
       setFetchingPdfFor(null);
