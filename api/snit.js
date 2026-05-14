@@ -11,6 +11,7 @@ export default async function handler(req, res) {
   if (searchQuery.includes("Calheta (Açores")) searchQuery = "Calheta";
 
   const snitUrl = `https://snit-mais.dgterritorio.gov.pt/portalsnit/Pesquisa.aspx?Concelho=${encodeURIComponent(searchQuery)}`;
+  console.log(`[SNIT API] Fetching PDM for: ${searchQuery} via ${snitUrl}`);
 
   try {
     const response = await fetch(snitUrl, {
