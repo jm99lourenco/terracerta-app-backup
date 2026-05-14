@@ -17,7 +17,7 @@ import {
 import { MapContainer, TileLayer, Polygon, FeatureGroup, Marker, Popup, LayersControl as LC, WMSTileLayer } from "react-leaflet";
 import { toJpeg } from "html-to-image";
 import i18next from "i18next";
-import { RegulamentosPage } from "./RegulamentosPage.jsx";
+import { PdmModule } from "./PdmModule.jsx";
 import { PORTUGAL_GEO } from "./data/portugalGeo";
 const Tooltip = ({ text }) => (
   <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
@@ -960,7 +960,7 @@ export default function App() {
   } else if (view === "explore") {
     content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "pdm") {
-    content = <RegulamentosPage PORTUGAL_GEO={PORTUGAL_GEO} onNavigate={setView} />;
+    content = <PdmModule PORTUGAL_GEO={PORTUGAL_GEO} onNavigate={setView} />;
   } else if (view === "upload") {
     content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
       setSelected(p); 
