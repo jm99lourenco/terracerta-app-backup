@@ -1,49 +1,21 @@
 // PdmModule.jsx - The Cache-Breaker Version
 import React, { useState } from 'react';
-import { BookOpen, Search, RefreshCw, Loader2, CheckCircle2, Eye } from "lucide-react";
+import { BookOpen, Search, RefreshCw, CheckCircle2, Eye } from "lucide-react";
 
 export const PdmModule = ({ PORTUGAL_GEO, onNavigate }) => {
     const [search, setSearch] = useState("");
     const [syncing, setSyncing] = useState(false);
-    const [fetchingPdfFor, setFetchingPdfFor] = useState(null);
-
-    // Estado inicial rigorosamente limpo (null)
-    const [apiError, setApiError] = useState(null);
 
     const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
     const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
 
     const handleSync = () => {
         setSyncing(true);
-        setApiError(null);
         setTimeout(() => setSyncing(false), 2000);
     };
 
-    const handleFetchPDF = async (concelho) => {
-        setApiError(null);
-        setFetchingPdfFor(concelho);
-
-        try {
-            const res = await fetch(`/api/snit?concelho=${encodeURIComponent(concelho)}`);
-
-            if (res.status !== 200) {
-                setApiError("Servidor da DGT temporariamente indisponível. Tente novamente.");
-                setFetchingPdfFor(null);
-                return;
-            }
-
-            const data = await res.json();
-            if (data.link) {
-                window.open(data.link, "_blank");
-            } else {
-                throw new Error("Link not found");
-            }
-        } catch (err) {
-            console.error("SoloLote Trace: Erro capturado", err);
-            setApiError("Servidor da DGT temporariamente indisponível. Tente novamente.");
-        } finally {
-            setFetchingPdfFor(null);
-        }
+    const handleFetchPDF = () => {
+        window.open("https://snit-mais.dgterritorio.gov.pt/portalsnit/", "_blank");
     };
 
     const getLatestPDM = (c) => {
@@ -75,14 +47,6 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate }) => {
                         {syncing ? "A SINCRONIZAR SNIT..." : "ATUALIZAR DOCUMENTAÇÃO"}
                     </button>
                 </div>
-
-                {/* BANNER DINÂMICO - SÓ APARECE SE A VARIÁVEL TIVER TEXTO APÓS CLIQUE */}
-                {apiError && (
-                    <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between gap-3 text-rose-700 font-medium shadow-sm animate-in fade-in">
-                        <span>{apiError}</span>
-                        <button onClick={() => setApiError(null)} className="text-rose-500 hover:text-rose-900 font-bold px-2">X</button>
-                    </div>
-                )}
 
                 <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md flex flex-col">
                     <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -127,8 +91,8 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate }) => {
                                             <td className="px-6 py-4 text-slate-500">{data.date}</td>
                                             <td className="px-6 py-4 text-slate-500 font-mono italic">{data.diploma}</td>
                                             <td className="px-6 py-4 text-center">
-                                                <button onClick={() => handleFetchPDF(c)} disabled={fetchingPdfFor === c} className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed w-40 justify-center">
-                                                    {fetchingPdfFor === c ? <><Loader2 size={12} className="animate-spin" /> A localizar...</> : <><Eye size={12} /> Consultar PDF</>}
+                                                <button onClick={handleFetchPDF} className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-[10px] hover:bg-emerald-600 transition shadow-sm uppercase tracking-wider w-40 justify-center">
+                                                    <Eye size={12} /> Consultar PDF
                                                 </button>
                                             </td>
                                         </tr>
