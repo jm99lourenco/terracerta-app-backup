@@ -427,7 +427,7 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
       // Simulação VIT (Structural Integrity Check)
       // Em ambiente real, o texto seria extraído do PDF. Aqui simulamos com o nome do ficheiro repetido.
       const simulatedText = file.name.repeat(40); // Garantir > 300 chars para a simulação
-      const result = validateDocumentStructure(simulatedText, activeFileKey); 
+      const result = validateDocumentStructure(simulatedText, activeFileKey, file.name); 
       
       if (!result.isValid && (activeFileKey === "caderneta" || activeFileKey === "certidao")) {
         setValidationError(getInvalidDocumentError(result.error));
