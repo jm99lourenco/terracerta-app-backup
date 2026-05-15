@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   // A DGT desativou o antigo sistema "snit-mais.dgterritorio.gov.pt" (Erro 404).
   // O novo portal oficial de pesquisa territorial é o SNIT-SGT.
   // O fallback é agora redirecionar o utilizador para a plataforma moderna e funcional.
-  const newDgtUrl = "https://snit-sgt.dgterritorio.gov.pt/igt";
+  const newDgtUrl = "https://snit-mais.dgterritorio.gov.pt/portalsnit/";
 
   // Retornamos status 200 (Sucesso) para a interface React abrir o novo link,
   // livrando-nos dos bloqueios de CORS e 404s do sistema legado.
