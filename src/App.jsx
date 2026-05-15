@@ -20,6 +20,7 @@ import i18next from "i18next";
 import { PdmModule } from "./PdmModule.jsx";
 import { PORTUGAL_GEO } from "./data/portugalGeo";
 import { calculateHealthScore } from "./utils/healthScoreEngine";
+import { validateDocumentStructure, getInvalidDocumentError } from "./utils/documentValidator";
 const Tooltip = ({ text }) => (
   <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
     <HelpCircle size={12} className="text-slate-300 hover:text-slate-500 transition" />
@@ -410,6 +411,7 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
   const [files, setFiles] = useState({});
   const fileInputRef = useRef(null);
   const [activeFileKey, setActiveFileKey] = useState(null);
+  const [validationError, setValidationError] = useState(null);
 
   const handleFileClick = (key) => { setActiveFileKey(key); fileInputRef.current?.click(); };
   const handleRemoveFile = (key, e) => {
@@ -419,7 +421,19 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
 
   const handleFileChange = (e) => { 
     if (e.target.files?.length && activeFileKey) { 
-      setFiles(prev => ({ ...prev, [activeFileKey]: e.target.files[0].name })); 
+      const file = e.target.files[0];
+      setValidationError(null);
+
+      // Simulação VIT (Structural Integrity Check)
+      // Em produção, aqui leríamos o texto do PDF via pdf.js/OCR
+      const isOfficialTemplate = validateDocumentStructure(file.name, activeFileKey); 
+      
+      if (!isOfficialTemplate && (activeFileKey === "caderneta" || activeFileKey === "certidao")) {
+        setValidationError(getInvalidDocumentError());
+        return;
+      }
+
+      setFiles(prev => ({ ...prev, [activeFileKey]: file.name })); 
       if (activeFileKey === "caderneta") {
         setSimulatingOcr(true);
         setTimeout(() => {
@@ -494,7 +508,7 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
             {[
               { id: "caderneta", label: "Caderneta Predial" },
               { id: "planta", label: "Planta de Localização (Opcional)" },
-              { id: "certidao", label: "Certidão Permanente" },
+              { id: "certidao", label: "Certidão Permanente / Descrição Genérica" },
             ].map((d) => (
               <div key={d.id} className="p-5 border border-slate-200 rounded-md flex items-center justify-between bg-white hover:border-emerald-200 transition">
                 <div className="flex gap-4 items-center">
@@ -511,6 +525,13 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
               </div>
             ))}
           </div>
+
+          {validationError && (
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-rose-700 text-xs font-bold shadow-sm animate-in shake duration-500">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>{validationError}</span>
+            </div>
+          )}
 
           <div className="p-8 border border-slate-200 rounded-md space-y-6">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">2. Dados do Terreno</h3>
