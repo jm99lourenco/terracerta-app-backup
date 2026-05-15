@@ -1,44 +1,49 @@
 /**
- * Terra-Certa Document Validator (VIT) v1.0
- * Structural integrity checks for official Portuguese AT and SIR documents.
+ * Terra-Certa Document Validator (VIT) v1.1
+ * Flexible heuristics for official Portuguese property documents.
  */
 
 export const validateDocumentStructure = (text, type) => {
+  if (!text) return false;
   const content = text.toUpperCase();
   
   if (type === 'caderneta') {
-    // Check Sequence
-    const hasSequence = 
-      content.includes("AUTORIDADE TRIBUTÁRIA") && 
-      content.includes("IDENTIFICAÇÃO DO PRÉDIO") && 
-      content.includes("DESCRIÇÃO DO PRÉDIO") && 
-      content.includes("DADOS DE AVALIAÇÃO");
-    
-    // Check de Dados (Código de Validação: 12 chars alfanuméricos)
-    const validationCodeRegex = /[A-Z0-9]{12}/;
-    const hasValidationCode = validationCodeRegex.test(content);
+    // Essencial (obrigatório)
+    const hasEssential = content.includes("CADERNETA PREDIAL URBANA");
+    if (!hasEssential) return false;
 
-    return hasSequence && hasValidationCode;
+    // Estrutura (pelo menos 3)
+    const structureTerms = [
+      "IDENTIFICAÇÃO DO PRÉDIO",
+      "LOCALIZAÇÃO DO PRÉDIO",
+      "DESCRIÇÃO DO PRÉDIO",
+      "DADOS DE AVALIAÇÃO",
+      "CÓDIGO DE VALIDAÇÃO"
+    ];
+    
+    const matchedTerms = structureTerms.filter(term => content.includes(term));
+    return matchedTerms.length >= 3;
   }
 
   if (type === 'certidao') {
-    // Check de Origem
-    const hasOrigin = content.includes("REGISTO PREDIAL ONLINE") && content.includes("INFORMAÇÃO EM VIGOR");
-    
-    // Check de Acesso (XXXX-XXXX-XXXX-XXXX-XXXX)
-    const accessCodeRegex = /[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}/;
-    const hasAccessCode = accessCodeRegex.test(content);
-    
-    // Check de Estrutura (Tabela de Áreas)
-    const hasAreaTable = 
-      content.includes("ÁREA TOTAL") && 
-      content.includes("ÁREA COBERTA") && 
-      content.includes("ÁREA DESCOBERTA");
+    // Essencial (obrigatório)
+    const hasEssential = (content.includes("CERTIDÃO PERMANENTE") || content.includes("INFORMAÇÃO PREDIAL SIMPLIFICADA")) && 
+                         content.includes("CÓDIGO DE ACESSO");
+    if (!hasEssential) return false;
 
-    return hasOrigin && hasAccessCode && hasAreaTable;
+    // Estrutura (pelo menos 2)
+    const structureTerms = [
+      "ÁREA TOTAL",
+      "FREGUESIA",
+      "INFORMAÇÃO EM VIGOR",
+      "REGISTO PREDIAL ONLINE"
+    ];
+    
+    const matchedTerms = structureTerms.filter(term => content.includes(term));
+    return matchedTerms.length >= 2;
   }
 
-  return true; // Default for other types
+  return true; // Outros tipos mantêm-se como válidos para agora
 };
 
 export const getInvalidDocumentError = () => 
