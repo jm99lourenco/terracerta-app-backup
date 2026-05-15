@@ -1,58 +1,42 @@
 /**
- * Terra-Certa Document Validator (VIT) v1.2
- * Robust regex-based validation with flexible scoring.
+ * Terra-Certa Document Validator (VIT) v3.0
+ * Total Normalization logic for extreme robustness.
  */
 
-export const validateDocumentStructure = (extractedText, type) => {
-  if (!extractedText) return false;
-
-  // Log de Diagnóstico para Debug
-  console.log(`[VIT Debug] Tipo: ${type} | Início do Texto:`, extractedText.substring(0, 500));
-
-  // Limpeza de Texto: Minúsculas e apenas alfanuméricos
-  // Nota: Normalizamos para remover acentos para maior robustez
-  const cleanText = extractedText
+const normalize = (text) => {
+  if (!text) return "";
+  return text
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
+    .replace(/[\s\n\r]/g, "") // Remove espaços e quebras de linha
+    .replace(/[^a-z0-9]/g, ""); // Remove caracteres especiais
+};
 
-  const checkTerms = (terms) => {
-    let matches = 0;
-    terms.forEach(term => {
-      // Criamos uma versão "limpa" do termo para comparar com o texto limpo
-      const cleanTerm = term.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (cleanText.includes(cleanTerm)) {
-        matches++;
-      }
-    });
-    return matches >= 2; // Threshold: Pelo menos 2 termos encontrados
-  };
+export const validateDocumentStructure = (extractedText, type) => {
+  // Segurança: Se o texto for muito curto, provavelmente a extração falhou
+  if (!extractedText || extractedText.length < 100) {
+    console.warn(`[VIT v3.0] Rejeitado: Texto demasiado curto (${extractedText?.length || 0} chars)`);
+    return false;
+  }
+
+  const normText = normalize(extractedText);
+  console.log(`[VIT v3.0] Debug Normalizado (${type}):`, normText.substring(0, 100));
 
   if (type === 'caderneta') {
-    const cadernetaTerms = [
-      "CADERNETA PREDIAL URBANA",
-      "IDENTIFICACAO DO PREDIO",
-      "LOCALIZACAO DO PREDIO",
-      "DESCRICAO DO PREDIO",
-      "DADOS DE AVALIACAO"
-    ];
-    return checkTerms(cadernetaTerms);
+    return normText.includes("cadernetapredialurbana") || normText.includes("servicodefinancas");
   }
 
   if (type === 'certidao') {
-    const certidaoTerms = [
-      "CERTIDAO PERMANENTE",
-      "REGISTO PREDIAL ONLINE",
-      "INFORMACAO PREDIAL SIMPLIFICADA",
-      "CODIGO DE ACESSO",
-      "AREA TOTAL"
-    ];
-    return checkTerms(certidaoTerms);
+    return (
+      normText.includes("certidaopermanente") || 
+      normText.includes("informacaopredialsimplificada") || 
+      normText.includes("codigodeacesso")
+    );
   }
 
   return true;
 };
 
-export const getInvalidDocumentError = () => 
-  "Documento Inválido: A estrutura do ficheiro não corresponde ao template oficial. Por favor, carregue o PDF original exportado diretamente do portal oficial.";
+export const getInvalidDocumentError = (textLength = 0) => 
+  `Documento Inválido: A estrutura do ficheiro não corresponde ao template oficial. (Texto detetado: ${textLength} chars)`;
