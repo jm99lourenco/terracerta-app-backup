@@ -1,6 +1,6 @@
 /**
- * Terra-Certa Document Validator (VIT) v3.0
- * Total Normalization logic for extreme robustness.
+ * Terra-Certa Document Validator (VIT) v4.0
+ * Strict Structural Anchors validation.
  */
 
 const normalize = (text) => {
@@ -14,29 +14,55 @@ const normalize = (text) => {
 };
 
 export const validateDocumentStructure = (extractedText, type) => {
-  // Segurança: Se o texto for muito curto, provavelmente a extração falhou
-  if (!extractedText || extractedText.length < 100) {
-    console.warn(`[VIT v3.0] Rejeitado: Texto demasiado curto (${extractedText?.length || 0} chars)`);
-    return false;
+  // Check de leitura básica (Failure Crítica < 300 chars)
+  if (!extractedText || extractedText.length < 300) {
+    return {
+      isValid: false,
+      error: "Erro de Leitura de PDF: O sistema não conseguiu extrair texto suficiente deste ficheiro. Certifique-se que não é uma imagem digitalizada (scan) mas sim o PDF original exportado."
+    };
   }
 
   const normText = normalize(extractedText);
-  console.log(`[VIT v3.0] Debug Normalizado (${type}):`, normText.substring(0, 100));
 
   if (type === 'caderneta') {
-    return normText.includes("cadernetapredialurbana") || normText.includes("servicodefinancas");
+    const anchors = [
+      { id: "identificacaodopredio", label: "Identificação do Prédio" },
+      { id: "localizacaodopredio", label: "Localização do Prédio" },
+      { id: "descricaodopredio", label: "Descrição do Prédio" },
+      { id: "dadosdeavaliacao", label: "Dados de Avaliação" },
+      { id: "titulares", label: "Titulares" }
+    ];
+
+    for (const anchor of anchors) {
+      if (!normText.includes(anchor.id)) {
+        return {
+          isValid: false,
+          error: `O documento não parece ser uma Caderneta Predial oficial (Falta '${anchor.label}').`
+        };
+      }
+    }
   }
 
   if (type === 'certidao') {
-    return (
-      normText.includes("certidaopermanente") || 
-      normText.includes("informacaopredialsimplificada") || 
-      normText.includes("codigodeacesso")
-    );
+    const anchors = [
+      { id: "descricoes", label: "Descrições" },
+      { id: "averbamentos", label: "Averbamentos" },
+      { id: "anotacoes", label: "Anotações" },
+      { id: "areatotal", label: "Área Total" }
+    ];
+
+    for (const anchor of anchors) {
+      if (!normText.includes(anchor.id)) {
+        return {
+          isValid: false,
+          error: `O documento não parece ser uma Certidão Permanente oficial (Falta '${anchor.label}').`
+        };
+      }
+    }
   }
 
-  return true;
+  return { isValid: true };
 };
 
-export const getInvalidDocumentError = (textLength = 0) => 
-  `Documento Inválido: A estrutura do ficheiro não corresponde ao template oficial. (Texto detetado: ${textLength} chars)`;
+export const getInvalidDocumentError = (customError) => 
+  customError || "Documento Inválido: A estrutura do ficheiro não corresponde ao template oficial.";
