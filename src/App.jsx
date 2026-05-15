@@ -19,6 +19,7 @@ import { toJpeg } from "html-to-image";
 import i18next from "i18next";
 import { PdmModule } from "./PdmModule.jsx";
 import { PORTUGAL_GEO } from "./data/portugalGeo";
+import { calculateHealthScore } from "./utils/healthScoreEngine";
 const Tooltip = ({ text }) => (
   <div className="group relative cursor-help inline-block ml-1" data-html2canvas-ignore>
     <HelpCircle size={12} className="text-slate-300 hover:text-slate-500 transition" />
@@ -445,22 +446,8 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
     setAnalysing(true);
     const valArea = parseFloat(formData.area) || 140;
     
-    // Algoritmo V4 Health Score
-    // Base: Urbano (40) / Rústico (10)
-    const baseScore = formData.designacao.toLowerCase().includes("urbano") ? 40 : 10;
-    
-    // Edificabilidade: Iu fictício baseado na área
-    const iuScore = valArea < 1000 ? 20 : 10; 
-    
-    // Condicionantes (Simulação de REN/RAN dependendo da freguesia)
-    const hasREN = formData.freguesia.length % 2 === 0;
-    const hasRAN = formData.freguesia.length % 3 === 0;
-    const penalization = (hasREN ? -30 : 0) + (hasRAN ? -15 : 0);
-    
-    // Infraestruturas
-    const infraScore = valArea < 5000 ? 10 : 0;
-    
-    let finalScore = Math.min(100, Math.max(0, baseScore + iuScore + penalization + infraScore + 40)); // +40 pad para simular
+    const healthData = calculateHealthScore(formData, Object.keys(files).length);
+    let finalScore = healthData.total;
 
 
     const novoTerreno = {
@@ -469,7 +456,8 @@ const UploadPage = ({ onCancel, onAnalyseDone, user, onLogout, onNavigate }) => 
       freguesia: formData.freguesia,
       area: valArea,
       score: finalScore,
-      status: "Analisado",
+      health_data: healthData, // Store detailed data
+      status: healthData.status,
       lat: formData.lat || 38.7071,
       lng: formData.lng || -9.1355
     };
@@ -634,8 +622,16 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
             <button onClick={() => setPage('map')} className={`flex items-center gap-2 px-4 py-1.5 border border-slate-200 text-slate-700 rounded-md text-xs font-bold transition ${page === 'map' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white hover:bg-slate-50'}`}>
               <ExternalLink size={14} /> Abrir no mapa
             </button>
-            <button onClick={exportPDF} disabled={exporting} className="flex items-center gap-2 px-4 py-1.5 border border-emerald-200 bg-emerald-50 text-emerald-700 rounded-md text-xs font-bold transition hover:bg-emerald-100">
-              <Download size={14} /> Exportar
+            <button 
+              onClick={exportPDF} 
+              disabled={exporting || (property.health_data?.categories?.legal || 0) < 80} 
+              className={`flex items-center gap-2 px-4 py-1.5 border rounded-md text-xs font-bold transition ${
+                (property.health_data?.categories?.legal || 0) < 80 
+                ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' 
+                : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              }`}
+            >
+              <Download size={14} /> Gerar Relatório Final
             </button>
           </div>
         </div>
@@ -672,8 +668,27 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Health Score<br/>/ 100</span>
                   </div>
                 </div>
-                <div className={`px-6 py-2 rounded-full text-xs font-bold border ${c.bg} ${c.text} ${c.border} mb-6`}>{c.label}</div>
-                <p className="text-xs text-slate-500 leading-relaxed max-w-[250px]">Score calculado com base em 14 indicadores do PDM, condicionantes legais e camadas oficiais do território.</p>
+                <div className={`px-6 py-2 rounded-full text-xs font-bold border ${c.bg} ${c.text} ${c.border} mb-6`}>{property.status || c.label}</div>
+                
+                {/* Breakdown de Categorias */}
+                <div className="w-full space-y-3 mt-4 text-left border-t border-slate-50 pt-6">
+                   {[
+                     { id: 'legal', label: 'Legal', val: property.health_data?.categories?.legal ?? 85 },
+                     { id: 'urbanistico', label: 'Urbanístico', val: property.health_data?.categories?.urbanistico ?? 70 },
+                     { id: 'tecnico', label: 'Técnico', val: property.health_data?.categories?.tecnico ?? 60 }
+                   ].map(cat => (
+                     <div key={cat.id} className="space-y-1">
+                        <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          <span>{cat.label}</span>
+                          <span className={cat.val > 70 ? 'text-emerald-600' : 'text-amber-600'}>{cat.val}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                          <div className={`h-full transition-all duration-1000 ${cat.val > 70 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${cat.val}%` }}></div>
+                        </div>
+                        <p className="text-[9px] text-slate-400 italic mt-1 leading-tight">{property.health_data?.justifications?.[cat.id] || "Análise preliminar automatizada."}</p>
+                     </div>
+                   ))}
+                </div>
               </div>
               
               {/* OCR Card */}
@@ -748,6 +763,12 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm p-8">
                 <h3 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2"><Sparkles size={16} className="text-emerald-600"/> Recomendações do TerraCerta</h3>
                 <div className="space-y-4">
+                  {property.health_data?.caminhoUrbanizacao && (
+                    <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-lg mb-4">
+                       <h4 className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-2"><MapIcon size={12}/> Caminho para Urbanização</h4>
+                       <p className="text-xs text-emerald-800 leading-relaxed font-medium">{property.health_data.caminhoUrbanizacao}</p>
+                    </div>
+                  )}
                   {[
                     "Solicitar delimitação da área REN ao ICNF antes de qualquer pedido de informação prévia.",
                     "A faixa non aedificandi da EN229 reduz a área útil edificável em ~9%. Considerar no estudo prévio.",
