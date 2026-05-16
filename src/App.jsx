@@ -822,7 +822,7 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                      layers="0"
                      format="image/png"
                      transparent={true}
-                     opacity={0.65}
+                     opacity={0.6}
                      zIndex={400}
                    />
                  </LC.Overlay>
@@ -832,13 +832,10 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                      layers="0"
                      format="image/png"
                      transparent={true}
-                     opacity={0.65}
+                     opacity={0.6}
                      zIndex={400}
                    />
                  </LC.Overlay>
-                  <LC.Overlay checked name="Perímetro Urbano">
-                    <Polygon positions={[[mapCenter[0]-0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]+0.005]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.2, weight: 1, dashArray: '4' }} />
-                  </LC.Overlay>
                </LC>
 
                <Marker position={mapCenter} zIndexOffset={1000}><Popup>Terreno selecionado</Popup></Marker>
@@ -885,7 +882,7 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
                  layers="0"
                  format="image/png"
                  transparent={true}
-                 opacity={0.65}
+                 opacity={0.6}
                  zIndex={400}
                />
             </LC.Overlay>
@@ -895,12 +892,9 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
                  layers="0"
                  format="image/png"
                  transparent={true}
-                 opacity={0.65}
+                 opacity={0.6}
                  zIndex={400}
                />
-            </LC.Overlay>
-            <LC.Overlay checked name="Perímetros Urbanos">
-               <Polygon positions={[[38.7, -9.2], [38.9, -9.2], [38.8, -9.0]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.3, weight: 1, dashArray: '4' }} />
             </LC.Overlay>
           </LC>
         </MapContainer>
