@@ -824,6 +824,9 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                      transparent={true}
                      opacity={0.6}
                      zIndex={400}
+                     version="1.3.0"
+                     uppercase={true}
+                     eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (RAN):', e) }}
                    />
                  </LC.Overlay>
                  <LC.Overlay checked name="REN (Reserva Ecológica - DGT)">
@@ -834,6 +837,9 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                      transparent={true}
                      opacity={0.6}
                      zIndex={400}
+                     version="1.3.0"
+                     uppercase={true}
+                     eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (REN):', e) }}
                    />
                  </LC.Overlay>
                </LC>
@@ -884,6 +890,9 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
                  transparent={true}
                  opacity={0.6}
                  zIndex={400}
+                 version="1.3.0"
+                 uppercase={true}
+                 eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (RAN):', e) }}
                />
             </LC.Overlay>
             <LC.Overlay checked name="REN (Reserva Ecológica - DGT)">
@@ -894,6 +903,9 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
                  transparent={true}
                  opacity={0.6}
                  zIndex={400}
+                 version="1.3.0"
+                 uppercase={true}
+                 eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (REN):', e) }}
                />
             </LC.Overlay>
           </LC>
