@@ -818,28 +818,28 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
                <LC position="topright">
                  <LC.Overlay checked name="RAN (Reserva Agrícola - DGT)">
                    <WMSTileLayer
-                     url="https://servicos.dgterritorio.pt/SDISNITWMSSRUP_RAN_PT1/WMService.aspx"
+                     url="/api/wmsProxy" layerTarget="RAN"
                      layers="0"
                      format="image/png"
                      transparent={true}
                      opacity={0.6}
                      zIndex={400}
                      version="1.3.0"
-                     uppercase={true}
-                     eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (RAN):', e) }}
+                     
+                     
                    />
                  </LC.Overlay>
                  <LC.Overlay checked name="REN (Reserva Ecológica - DGT)">
                    <WMSTileLayer
-                     url="https://servicos.dgterritorio.pt/SDISNITWMSSRUP_REN_PT1/WMService.aspx"
+                     url="/api/wmsProxy" layerTarget="REN"
                      layers="0"
                      format="image/png"
                      transparent={true}
                      opacity={0.6}
                      zIndex={400}
                      version="1.3.0"
-                     uppercase={true}
-                     eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (REN):', e) }}
+                     
+                     
                    />
                  </LC.Overlay>
                </LC>
@@ -884,28 +884,26 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
             </LC.Overlay>
             <LC.Overlay checked name="RAN (Reserva Agrícola - DGT)">
                <WMSTileLayer
-                 url="https://servicos.dgterritorio.pt/SDISNITWMSSRUP_RAN_PT1/WMService.aspx"
+                 url="/api/wmsProxy"
+                 layerTarget="RAN"
                  layers="0"
                  format="image/png"
                  transparent={true}
                  opacity={0.6}
                  zIndex={400}
                  version="1.3.0"
-                 uppercase={true}
-                 eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (RAN):', e) }}
                />
             </LC.Overlay>
             <LC.Overlay checked name="REN (Reserva Ecológica - DGT)">
                <WMSTileLayer
-                 url="https://servicos.dgterritorio.pt/SDISNITWMSSRUP_REN_PT1/WMService.aspx"
+                 url="/api/wmsProxy"
+                 layerTarget="REN"
                  layers="0"
                  format="image/png"
                  transparent={true}
                  opacity={0.6}
                  zIndex={400}
                  version="1.3.0"
-                 uppercase={true}
-                 eventHandlers={{ tileerror: (e) => console.error('WMS Tile Error (REN):', e) }}
                />
             </LC.Overlay>
           </LC>
