@@ -816,34 +816,36 @@ const AnalysisPage = ({ property, page, setPage, onBack, user, onLogout, onNavig
              <MapContainer center={mapCenter} zoom={16} zoomControl={true} style={{ width: '100%', height: '100%' }}>
                <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" crossOrigin="anonymous" />
                <LC position="topright">
-                 <LC.Overlay checked name="DGT Oficial: REN / RAN (WMS)">
+                 <LC.Overlay checked name="RAN (Reserva Agrícola)">
                    <WMSTileLayer
-                 url="https://servicos.dgterritorio.pt/wms/snit"
-                 layers="RAN,REN"
-                 format="image/png"
-                 transparent={true}
-                 opacity={0.6}
-               />
+                     url="https://servicos.dgterritorio.pt/wms/snit"
+                     layers="RAN"
+                     format="image/png"
+                     transparent={true}
+                     opacity={0.4}
+                   />
+                 </LC.Overlay>
+                 <LC.Overlay checked name="REN (Reserva Ecológica)">
+                   <WMSTileLayer
+                     url="https://servicos.dgterritorio.pt/wms/snit"
+                     layers="REN"
+                     format="image/png"
+                     transparent={true}
+                     opacity={0.4}
+                   />
                  </LC.Overlay>
                </LC>
-          <LC position="topright">
-             <LC.Overlay name="DGT Oficial: REN / RAN (WMS)">
-               <WMSTileLayer
-                 url="https://servicos.dgterritorio.pt/wms/snit"
-                 layers="RAN,REN"
-                 format="image/png"
-                 transparent={true}
-                 opacity={0.6}
-               />
-             </LC.Overlay>
-          </LC>
+
                <Marker position={mapCenter}><Popup>Terreno selecionado</Popup></Marker>
                <LC position="topright">
                  <LC.Overlay checked name="Perímetro Urbano">
                    <Polygon positions={[[mapCenter[0]-0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]-0.005], [mapCenter[0]+0.005, mapCenter[1]+0.005]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.2, weight: 1, dashArray: '4' }} />
                  </LC.Overlay>
-                 <LC.Overlay checked name="RAN / REN (Reserva)">
-                   <Polygon positions={[[mapCenter[0], mapCenter[1]], [mapCenter[0]+0.004, mapCenter[1]+0.005], [mapCenter[0]-0.002, mapCenter[1]+0.005]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.3, weight: 2 }} />
+                 <LC.Overlay checked name="RAN (Reserva Agrícola)">
+                   <Polygon positions={[[mapCenter[0], mapCenter[1]], [mapCenter[0]+0.004, mapCenter[1]+0.005], [mapCenter[0]-0.002, mapCenter[1]+0.005]]} pathOptions={{ color: '#D97706', fillColor: '#F59E0B', fillOpacity: 0.4, weight: 2 }} />
+                 </LC.Overlay>
+                 <LC.Overlay checked name="REN (Reserva Ecológica)">
+                   <Polygon positions={[[mapCenter[0]+0.001, mapCenter[1]-0.001], [mapCenter[0]+0.005, mapCenter[1]+0.004], [mapCenter[0]-0.001, mapCenter[1]+0.004]]} pathOptions={{ color: '#059669', fillColor: '#10B981', fillOpacity: 0.4, weight: 2 }} />
                  </LC.Overlay>
                </LC>
                <Polygon positions={[[mapCenter[0]-0.001, mapCenter[1]-0.001], [mapCenter[0]+0.002, mapCenter[1]-0.001], [mapCenter[0]+0.001, mapCenter[1]-0.003]]} pathOptions={{ color: '#059669', fillColor: '#10b981', fillOpacity: 0.6, weight: 3 }} />
@@ -886,8 +888,11 @@ const ExplorePage = ({ properties, onNavigate, user, onLogout }) => {
             <LC.Overlay checked name="Perímetros Urbanos">
                <Polygon positions={[[38.7, -9.2], [38.9, -9.2], [38.8, -9.0]]} pathOptions={{ color: '#3b82f6', fillColor: '#60a5fa', fillOpacity: 0.3, weight: 1, dashArray: '4' }} />
             </LC.Overlay>
-            <LC.Overlay checked name="RAN / REN (Global)">
-               <Polygon positions={[[38.8, -9.0], [38.9, -8.5], [38.7, -8.5]]} pathOptions={{ color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.2, weight: 1 }} />
+            <LC.Overlay checked name="RAN (Reserva Agrícola)">
+               <Polygon positions={[[38.8, -9.0], [38.9, -8.5], [38.7, -8.5]]} pathOptions={{ color: '#D97706', fillColor: '#F59E0B', fillOpacity: 0.4, weight: 1 }} />
+            </LC.Overlay>
+            <LC.Overlay checked name="REN (Reserva Ecológica)">
+               <Polygon positions={[[38.85, -8.95], [38.95, -8.45], [38.75, -8.45]]} pathOptions={{ color: '#059669', fillColor: '#10B981', fillOpacity: 0.4, weight: 1 }} />
             </LC.Overlay>
           </LC>
         </MapContainer>
