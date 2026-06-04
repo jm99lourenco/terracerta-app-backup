@@ -141,9 +141,7 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
         if (!docs || Object.keys(docs).length === 0) {
             return { source: 'snit', label: 'Portal SNIT', color: 'text-slate-400', bg: 'bg-slate-50' };
         }
-        const count = Object.keys(docs).length;
-        if (count >= 3) return { source: 'internal', label: 'Completo', color: 'text-emerald-600', bg: 'bg-emerald-50' };
-        return { source: 'partial', label: `${count}/3 Interno`, color: 'text-amber-600', bg: 'bg-amber-50' };
+        return { source: 'internal', label: 'Disponível', color: 'text-emerald-600', bg: 'bg-emerald-50' };
     };
 
     const totalAlerts = Object.values(alerts).reduce((acc, curr) => acc + curr.length, 0);
@@ -299,12 +297,12 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                                         </div>
                                     ))}
 
-                                    {/* Internal Supabase Documents (if any) */}
-                                    {municipalityDocs.length > 0 && (
+                                    {/* Internal Supabase Documents — Primary View */}
+                                    {municipalityDocs.length > 0 ? (
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <Database size={14} className="text-emerald-600" />
-                                                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Documentos Internos</span>
+                                                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Documentos Disponíveis</span>
                                             </div>
                                             {municipalityDocs.map((doc) => (
                                                 <div key={doc.id} className="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:border-emerald-300 transition group">
@@ -328,34 +326,19 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                                                 </div>
                                             ))}
                                         </div>
-                                    )}
-
-                                    {/* Separator if we have both internal and fallback */}
-                                    {municipalityDocs.length > 0 && municipalityDocs.length < 3 && (
-                                        <div className="flex items-center gap-3 py-1">
-                                            <div className="flex-1 h-px bg-slate-200"></div>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Fontes adicionais</span>
-                                            <div className="flex-1 h-px bg-slate-200"></div>
-                                        </div>
-                                    )}
-
-                                    {/* SNIT Portal Fallback — always show when docs are incomplete */}
-                                    {municipalityDocs.length < 3 && (
+                                    ) : (
+                                        /* SNIT Portal Fallback — Only when NO internal docs exist */
                                         <div className="p-5 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-2xl border border-slate-200">
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Globe size={14} className="text-blue-600" />
                                                 <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest">Portal SNIT — DGT</span>
                                             </div>
                                             <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                                                {municipalityDocs.length === 0 
-                                                    ? `Os documentos internos para ${selectedMunicipality} estão em processamento. Consulte o portal oficial do Estado (SNIT) para acesso imediato.`
-                                                    : `Documentos adicionais disponíveis no portal oficial do Estado (SNIT).`
-                                                }
+                                                Os documentos internos para {selectedMunicipality} estão em processamento. Consulte o portal oficial do Estado (SNIT) para acesso imediato.
                                             </p>
                                             
-                                            {/* Quick access buttons for each missing doc type */}
                                             <div className="flex flex-wrap gap-2 mb-4">
-                                                {['PDM', 'RAN', 'REN'].filter(type => !municipalityDocs.find(d => d.document_type === type)).map(type => (
+                                                {['PDM', 'RAN', 'REN'].map(type => (
                                                     <span key={type} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold ${getDocBadge(type)}`}>
                                                         <AlertCircle size={10} />
                                                         {type} — Via SNIT
