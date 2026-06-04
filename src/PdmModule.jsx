@@ -141,7 +141,7 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
         if (!docs || Object.keys(docs).length === 0) {
             return { source: 'snit', label: 'Portal SNIT', color: 'text-slate-400', bg: 'bg-slate-50' };
         }
-        return { source: 'internal', label: 'Disponível', color: 'text-emerald-600', bg: 'bg-emerald-50' };
+        return { source: 'external', label: 'Link Oficial', color: 'text-blue-600', bg: 'bg-blue-50' };
     };
 
     const totalAlerts = Object.values(alerts).reduce((acc, curr) => acc + curr.length, 0);
@@ -297,65 +297,53 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                                         </div>
                                     ))}
 
-                                    {/* Internal Supabase Documents — Primary View */}
-                                    {municipalityDocs.length > 0 ? (
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <Database size={14} className="text-emerald-600" />
-                                                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Documentos Disponíveis</span>
+                                    {/* Direct Official Links */}
+                                    <div className="space-y-4">
+                                        <div className="p-5 bg-gradient-to-br from-blue-50 to-slate-50 border border-blue-100 rounded-2xl">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="p-2.5 bg-blue-100 text-blue-700 rounded-xl">
+                                                    <BookOpen size={18} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-900 text-sm">Diário da República</h3>
+                                                    <p className="text-[11px] text-slate-500 font-medium">Publicação Oficial do PDM</p>
+                                                </div>
                                             </div>
                                             {municipalityDocs.map((doc) => (
-                                                <div key={doc.id} className="flex items-center justify-between p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 hover:border-emerald-300 transition group">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="p-3 bg-white rounded-xl shadow-sm border border-emerald-100">
-                                                            <FileText size={20} className={getDocIcon(doc.document_type)} />
-                                                        </div>
-                                                        <div>
-                                                            <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider mb-1 ${getDocBadge(doc.document_type)}`}>
-                                                                {doc.document_type}
-                                                            </span>
-                                                            <p className="text-xs text-slate-500 font-medium">{selectedMunicipality} — {doc.document_type}</p>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => handleOpenPdf(doc.pdf_url)}
-                                                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-700 transition shadow-sm"
-                                                    >
-                                                        <ExternalLink size={12} /> Abrir PDF
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    key={doc.id}
+                                                    onClick={() => handleOpenPdf(doc.pdf_url)}
+                                                    className="w-full flex items-center justify-between gap-2 px-5 py-3.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-sm group mt-3"
+                                                >
+                                                    <span className="flex items-center gap-2 uppercase tracking-wider">
+                                                        <Search size={14} /> Consultar no DRE
+                                                    </span>
+                                                    <ExternalLink size={14} className="group-hover:scale-110 transition-transform" />
+                                                </button>
                                             ))}
                                         </div>
-                                    ) : (
-                                        /* SNIT Portal Fallback — Only when NO internal docs exist */
-                                        <div className="p-5 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-2xl border border-slate-200">
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <Globe size={14} className="text-blue-600" />
-                                                <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest">Portal SNIT — DGT</span>
-                                            </div>
-                                            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                                                Os documentos internos para {selectedMunicipality} estão em processamento. Consulte o portal oficial do Estado (SNIT) para acesso imediato.
-                                            </p>
-                                            
-                                            <div className="flex flex-wrap gap-2 mb-4">
-                                                {['PDM', 'RAN', 'REN'].map(type => (
-                                                    <span key={type} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold ${getDocBadge(type)}`}>
-                                                        <AlertCircle size={10} />
-                                                        {type} — Via SNIT
-                                                    </span>
-                                                ))}
-                                            </div>
 
+                                        <div className="p-5 bg-gradient-to-br from-emerald-50 to-slate-50 border border-emerald-100 rounded-2xl">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                                                    <Globe size={18} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-900 text-sm">Portal SNIT — DGT</h3>
+                                                    <p className="text-[11px] text-slate-500 font-medium">Documentos Escritos e Peças Gráficas</p>
+                                                </div>
+                                            </div>
                                             <button
                                                 onClick={handleOpenSnit}
-                                                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-blue-700 transition shadow-md group"
+                                                className="w-full flex items-center justify-between gap-2 px-5 py-3.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-sm group mt-3"
                                             >
-                                                <Globe size={14} />
-                                                Aceder ao Portal SNIT
+                                                <span className="flex items-center gap-2 uppercase tracking-wider">
+                                                    <MapPin size={14} /> Aceder ao Portal SNIT
+                                                </span>
                                                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                             </button>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             )}
                         </div>
