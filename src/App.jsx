@@ -1020,7 +1020,7 @@ export default function App() {
   } else if (view === "explore") {
     content = <ExplorePage properties={properties} user={user} onLogout={() => setUser(null)} onNavigate={setView} />;
   } else if (view === "pdm") {
-    content = <PdmModule PORTUGAL_GEO={PORTUGAL_GEO} onNavigate={setView} />;
+    content = <PdmModule PORTUGAL_GEO={PORTUGAL_GEO} onNavigate={setView} supabaseClient={db} />;
   } else if (view === "upload") {
     content = <UploadPage onCancel={() => setView("dashboard")} onAnalyseDone={(p) => { 
       setSelected(p); 
