@@ -12,6 +12,7 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
     const [selectedMunicipality, setSelectedMunicipality] = useState(null);
     const [municipalityDocs, setMunicipalityDocs] = useState([]);
     const [loadingDocs, setLoadingDocs] = useState(false);
+    const [alerts, setAlerts] = useState({});
 
     const allConcelhos = Array.from(new Set(Object.values(PORTUGAL_GEO).flat())).sort((a, b) => a.localeCompare(b, 'pt'));
     const filtered = allConcelhos.filter(c => c.toLowerCase().includes(search.toLowerCase()));
@@ -48,6 +49,22 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                 map[row.municipality_name][row.document_type] = row.pdf_url;
             });
             setRegulations(map);
+
+            // Fetch unresolved alerts
+            const { data: alertsData, error: alertsError } = await supabaseClient
+                .from('regulation_alerts')
+                .select('*')
+                .eq('is_resolved', false);
+            
+            if (!alertsError && alertsData) {
+                const alertsMap = {};
+                alertsData.forEach(row => {
+                    if (!alertsMap[row.municipality_name]) alertsMap[row.municipality_name] = [];
+                    alertsMap[row.municipality_name].push(row);
+                });
+                setAlerts(alertsMap);
+            }
+
         } catch (err) {
             console.error('Failed to fetch regulations:', err);
         } finally {
@@ -129,6 +146,8 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
         return { source: 'partial', label: `${count}/3 Interno`, color: 'text-amber-600', bg: 'bg-amber-50' };
     };
 
+    const totalAlerts = Object.values(alerts).reduce((acc, curr) => acc + curr.length, 0);
+
     return (
         <div className="min-h-screen bg-slate-50 p-8">
             <main className="max-w-[1200px] mx-auto pb-20">
@@ -139,7 +158,14 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-black text-slate-900 leading-tight">Regulamentos PDM</h1>
-                            <p className="text-slate-500 font-medium italic">Repositório Oficial — Todos os 308 Municípios de Portugal</p>
+                            <div className="flex items-center gap-3 mt-1">
+                                <p className="text-slate-500 font-medium italic">Repositório Oficial — Todos os 308 Municípios de Portugal</p>
+                                {totalAlerts > 0 && (
+                                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                        <AlertCircle size={12} /> {totalAlerts} Alertas DRE Pendentes
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <button onClick={handleSync} disabled={syncing} className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 hover:border-emerald-500 hover:text-emerald-600 transition-all shadow-sm disabled:opacity-50">
@@ -191,7 +217,16 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                                         return (
                                             <tr key={c} className="hover:bg-emerald-50/30 transition group">
                                                 <td className="px-6 py-4 text-slate-400 font-mono text-[10px]">{data.id}</td>
-                                                <td className="px-6 py-4 font-black text-slate-900 text-sm uppercase">{c}</td>
+                                                <td className="px-6 py-4 font-black text-slate-900 text-sm uppercase">
+                                                    <div className="flex items-center gap-2">
+                                                        {c}
+                                                        {alerts[c] && (
+                                                            <span title={`DRE: Nova publicação detetada (${alerts[c][0].dre_title})`} className="text-amber-500 cursor-help">
+                                                                <AlertCircle size={14} />
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td className="px-6 py-4 text-slate-600 font-medium"><span className="px-2 py-0.5 bg-slate-100 rounded text-[10px]">{data.inst}</span></td>
                                                 <td className="px-6 py-4">
                                                     <span className="flex items-center gap-2 text-emerald-600 font-bold">
@@ -245,6 +280,25 @@ export const PdmModule = ({ PORTUGAL_GEO, onNavigate, supabaseClient }) => {
                                 </div>
                             ) : (
                                 <div className="space-y-5">
+                                    {/* DRE Alerts Banner */}
+                                    {alerts[selectedMunicipality] && alerts[selectedMunicipality].map((alert) => (
+                                        <div key={alert.id} className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                                            <AlertCircle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <h4 className="text-amber-900 font-bold text-xs uppercase tracking-wide">Alerta DRE: Atualização Pendente</h4>
+                                                <p className="text-amber-700 text-xs mt-1">
+                                                    Nova publicação no Diário da República ({new Date(alert.dre_date).toLocaleDateString('pt-PT')}). 
+                                                    O regulamento "{alert.document_type}" pode estar desatualizado.
+                                                </p>
+                                                {alert.dre_title && (
+                                                    <a href={alert.dre_url || '#'} target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-800 text-[10px] font-medium mt-2 inline-flex items-center gap-1 underline">
+                                                        {alert.dre_title} <ExternalLink size={10} />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+
                                     {/* Internal Supabase Documents (if any) */}
                                     {municipalityDocs.length > 0 && (
                                         <div className="space-y-3">
